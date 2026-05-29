@@ -14,7 +14,7 @@
     --danger:#d47a6a;--danger-bg:#faeae7;
     --warning:#d4a74a;--warning-bg:#fdf3dc;
     --info:#5b8dd9;--info-bg:#e8f0fb;
-    --shadow:rgba(61,44,38,0.08);--panel-bg:#2c1f1a;
+    --panel-bg:#2c1f1a;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
@@ -36,8 +36,8 @@
   .admin-panel.show{display:block;}
   .admin-header{background:var(--panel-bg);color:#e8c4b8;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
   .admin-header h1{font-family:'Playfair Display',serif;font-size:18px;font-weight:400;letter-spacing:1px;}
-  .admin-header .studio-sub{font-size:11px;color:var(--gold-2);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px;}
-  .logout-btn{background:rgba(255,255,255,0.1);color:#e8c4b8;border:1px solid rgba(232,196,184,0.3);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;transition:.2s;}
+  .studio-sub{font-size:11px;color:var(--gold-2);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px;}
+  .logout-btn{background:rgba(255,255,255,0.1);color:#e8c4b8;border:1px solid rgba(232,196,184,0.3);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
   .logout-btn:hover{background:rgba(255,255,255,0.2);}
 
   /* STATS */
@@ -52,18 +52,20 @@
   @media(min-width:600px){.controls{padding:20px 24px;}}
   .filter-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;transition:.2s;}
   .filter-btn.active{background:var(--gold-1);border-color:var(--gold-1);color:white;}
-  .search-input{margin-left:auto;padding:8px 14px;border:1.5px solid var(--gold-light);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:180px;transition:.2s;}
+  .search-input{margin-left:auto;padding:8px 14px;border:1.5px solid var(--gold-light);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:180px;}
   .search-input:focus{border-color:var(--gold-1);}
 
   /* TURNOS */
   .turnos-wrap{padding:0 16px 100px;}
   @media(min-width:600px){.turnos-wrap{padding:0 24px 80px;}}
   .section-heading{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+
   .turno-card{background:var(--white);border-radius:14px;padding:18px;margin-bottom:12px;border:1px solid var(--gold-light);border-left:4px solid var(--gold-light);animation:fadeUp .3s ease;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
   .turno-card.pendiente{border-left-color:var(--warning);}
   .turno-card.confirmado{border-left-color:var(--success);}
   .turno-card.cancelado{border-left-color:var(--danger);opacity:.65;}
+
   .turno-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px;}
   .turno-date{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
   .turno-time{font-size:13px;color:var(--text-light);margin-top:2px;}
@@ -71,29 +73,33 @@
   .badge-pendiente{background:var(--warning-bg);color:var(--warning);}
   .badge-confirmado{background:var(--success-bg);color:var(--success);}
   .badge-cancelado{background:var(--danger-bg);color:var(--danger);}
+
   .turno-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
   .turno-info-item{font-size:13px;}
   .info-key{color:var(--text-light);font-size:11px;display:block;margin-bottom:2px;}
   .info-val{color:var(--text);font-weight:500;}
+
+  .turno-notas{background:var(--cream-dark);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text-light);margin-bottom:14px;font-style:italic;}
   .turno-actions{display:flex;gap:8px;flex-wrap:wrap;}
-  .btn-action{flex:1;min-width:100px;padding:10px 12px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.2s;text-align:center;}
+  .btn-action{flex:1;min-width:110px;padding:10px 12px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.2s;text-align:center;}
   .btn-confirm-action{background:var(--success-bg);color:var(--success);}
   .btn-confirm-action:hover{background:var(--success);color:white;}
   .btn-cancel-action{background:var(--danger-bg);color:var(--danger);}
   .btn-cancel-action:hover{background:var(--danger);color:white;}
-  .btn-whatsapp-action{background:#e8f5ee;color:#25d366;text-decoration:none;display:inline-flex;align-items:center;gap:4px;}
+  .btn-whatsapp-action{background:#e8f5ee;color:#25d366;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;}
   .btn-whatsapp-action:hover{background:#25d366;color:white;}
   .turno-id{font-size:11px;color:var(--gold-3);margin-top:8px;}
 
-  /* EMPTY / ERROR */
-  .empty-state{text-align:center;padding:60px 24px;color:var(--text-light);}
-  .empty-state .empty-icon{font-size:40px;margin-bottom:12px;}
-  .empty-state p{font-size:15px;}
+  /* DEBUG */
   .debug-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin:12px 16px;font-size:12px;color:#5d4037;white-space:pre-wrap;display:none;}
 
   /* REFRESH */
   .refresh-btn{background:var(--panel-bg);color:#e8c4b8;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:6px;}
   .refresh-btn:hover{opacity:.85;}
+
+  /* EMPTY */
+  .empty-state{text-align:center;padding:60px 24px;color:var(--text-light);}
+  .empty-state .empty-icon{font-size:40px;margin-bottom:12px;}
 
   /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(44,31,26,0.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
@@ -102,14 +108,14 @@
   .modal h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--text);margin-bottom:8px;}
   .modal p{font-size:14px;color:var(--text-light);margin-bottom:20px;line-height:1.6;}
   .modal-btns{display:flex;gap:10px;}
-  .modal-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;}
+  .modal-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
   .modal-cancel-btn{background:var(--cream-dark);color:var(--text-light);}
   .modal-confirm-btn{background:var(--danger);color:white;}
 
-  /* LOADING */
-  .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;transition:.3s;}
+  /* LOADING BAR */
+  .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;}
   .loading-bar.loading{animation:load-bar 1.5s ease infinite;}
-  @keyframes load-bar{0%{width:0%;left:0;}50%{width:70%;left:0;}100%{width:100%;left:0;}}
+  @keyframes load-bar{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
 </style>
 </head>
 <body>
@@ -167,7 +173,7 @@
 <div class="modal-overlay" id="cancel-modal">
   <div class="modal">
     <h3>¿Cancelar este turno?</h3>
-    <p>Esta acción no se puede deshacer fácilmente. El turno quedará marcado como cancelado.</p>
+    <p>El turno quedará marcado como cancelado. Podés reactivarlo después si lo necesitás.</p>
     <div class="modal-btns">
       <button class="modal-cancel-btn" onclick="closeModal()">Volver</button>
       <button class="modal-confirm-btn" onclick="confirmCancel()">Cancelar turno</button>
@@ -181,8 +187,7 @@
 // =====================================================
 const ADMIN_CONFIG = {
   PASSWORD:   'estudio2025',
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec',
-  WHATSAPP:   '541133408139'
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwOD_c9m6Q8uN6qgqvcA7jMWepiQ1XAWrwNXAJK-j0jjY6AtCO2z0MxbdkDuklzpNZY/exec'
 };
 
 let allTurnos     = [];
@@ -190,84 +195,66 @@ let currentFilter = 'todos';
 let cancelTarget  = null;
 
 // =====================================================
-// NORMALIZAR — versión corregida
-// Maneja conversiones automáticas de Google Sheets:
-//   · fechas  → "2026-07-01T03:00:00.000Z"
-//   · horarios → "1899-12-30T21:00:00.000Z"
+// NORMALIZAR DATOS DE GOOGLE SHEETS
+// Orden real de columnas:
+// id | timestamp | fecha | horario | tipoSesion | tematica | nombreBebe | cumpleBebe | nombreMama | estado | telefono | whatsapp
 // =====================================================
+function parseHorario(v) {
+  if (!v && v !== 0) return '–';
+  if (typeof v === 'number') {
+    // fracción del día: 0.75 = 18:00
+    const min = Math.round(v * 24 * 60);
+    return String(Math.floor(min/60)).padStart(2,'0') + ':' + String(min%60).padStart(2,'0');
+  }
+  const s = String(v);
+  if (s.startsWith('1899-') || s.startsWith('1900-')) {
+    // Sheets convirtió el horario a fecha base 1899
+    const d = new Date(s);
+    return String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0');
+  }
+  // String normal: "18:00", "18.00", "18"
+  let h = s.replace('.', ':');
+  if (!h.includes(':')) h += ':00';
+  return h;
+}
+
+function parseFecha(v) {
+  if (!v) return '';
+  if (typeof v === 'object' && v instanceof Date) return v.toISOString().split('T')[0];
+  return String(v).split('T')[0];
+}
+
 function normalizeReserva(row, idx) {
-
-  // --- FECHA ---
-  let fecha = row.fecha || row.Fecha || '';
-  if (fecha instanceof Date) {
-    fecha = fecha.toISOString();
-  }
-  fecha = String(fecha).split('T')[0]; // "2026-07-01"
-
-  // --- HORARIO ---
-  // Sheets guarda "18:00" como tipo Tiempo → vuelve como número (0.75)
-  // o como ISO string base 1899 ("1899-12-30T21:00:00.000Z")
-  let horario = row.horario || row.Horario || '';
-  if (horario instanceof Date) {
-    // Vino como objeto Date directamente
-    const hh = String(horario.getUTCHours()).padStart(2, '0');
-    const mm = String(horario.getUTCMinutes()).padStart(2, '0');
-    horario = `${hh}:${mm}`;
-  } else if (typeof horario === 'number') {
-    if (horario < 1) {
-      // Fracción del día: 0.75 = 18:00
-      const totalMin = Math.round(horario * 24 * 60);
-      const hh = Math.floor(totalMin / 60);
-      const mm = totalMin % 60;
-      horario = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
-    } else {
-      horario = `${String(Math.floor(horario)).padStart(2,'0')}:00`;
+  // Sheets devuelve los encabezados tal como están en la fila 1
+  // Soporta tanto minúsculas como mayúsculas en los keys
+  const g = (keys) => {
+    for (const k of keys) {
+      if (row[k] !== undefined && row[k] !== null && row[k] !== '') return row[k];
     }
-  } else {
-    horario = String(horario);
-    if (horario.startsWith('1899-')) {
-      // Sheets convirtió el horario a fecha base 1899
-      const d  = new Date(horario);
-      const hh = String(d.getUTCHours()).padStart(2, '0');
-      const mm = String(d.getUTCMinutes()).padStart(2, '0');
-      horario  = `${hh}:${mm}`;
-    } else {
-      // String normal: "18:00", "18.00", "18"
-      horario = horario.replace('.', ':');
-      if (!horario.includes(':')) horario += ':00';
-    }
-  }
+    return '';
+  };
 
-  // --- CUMPLE BEBÉ --- (también puede volver como fecha)
-  let cumpleBebe = row.cumpleBebe || row.CumpleBebe || '';
-  if (cumpleBebe instanceof Date) {
-    cumpleBebe = cumpleBebe.toISOString();
-  }
-  cumpleBebe = String(cumpleBebe).split('T')[0]; // "2026-07-15"
-
-  // --- ESTADO ---
-  let estado = String(row.estado || row.Estado || 'PENDIENTE').toUpperCase().trim();
+  let estado = String(g(['estado','Estado']) || 'PENDIENTE').toUpperCase().trim();
   if (!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado)) estado = 'PENDIENTE';
 
-  // --- TIMESTAMP ---
-  let timestamp = row.timestamp || row.Timestamp || '';
-  if (timestamp instanceof Date) timestamp = timestamp.toISOString();
-  if (!timestamp) timestamp = new Date().toISOString();
+  let ts = g(['timestamp','Timestamp']);
+  if (ts instanceof Date) ts = ts.toISOString();
+  if (!ts) ts = new Date().toISOString();
 
   return {
-    id:         String(row.id || row.ID || `T${String(idx+1).padStart(3,'0')}`),
-    fecha,
-    horario,
-    tipoSesion: String(row.tipoSesion || row.TipoSesion || '–'),
-    tematica:   String(row.tematica   || row.Tematica   || ''),
-    nombreBebe: String(row.nombreBebe || row.NombreBebe || '–'),
-    cumpleBebe,
-    nombreMama: String(row.nombreMama || row.NombreMama || '–'),
-    telefono:   String(row.telefono   || row.Telefono   || ''),
-    whatsapp:   String(row.whatsapp   || row.Whatsapp   || row.WhatsApp || row.telefono || row.Telefono || ''),
+    id:         String(g(['id','ID']) || 'T' + String(idx+1).padStart(3,'0')),
+    timestamp:  String(ts),
+    fecha:      parseFecha(g(['fecha','Fecha'])),
+    horario:    parseHorario(g(['horario','Horario'])),
+    tipoSesion: String(g(['tipoSesion','TipoSesion','tipo_sesion']) || '–'),
+    tematica:   String(g(['tematica','Tematica','temática']) || ''),
+    nombreBebe: String(g(['nombreBebe','NombreBebe','nombre_bebe']) || '–'),
+    cumpleBebe: parseFecha(g(['cumpleBebe','CumpleBebe','cumple_bebe'])),
+    nombreMama: String(g(['nombreMama','NombreMama','nombre_mama']) || '–'),
     estado,
-    timestamp,
-    notas:      String(row.notas || row.Notas || '')
+    telefono:   String(g(['telefono','Telefono']) || ''),
+    whatsapp:   String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
+    notas:      String(g(['notas','Notas']) || '')
   };
 }
 
@@ -296,16 +283,14 @@ function doLogout() {
 // =====================================================
 async function loadData() {
   startLoading();
-  showDebug('');
   try {
     const resp = await fetch(`${ADMIN_CONFIG.SCRIPT_URL}?action=getAll`, { mode:'cors' });
     const data = await resp.json();
     if (data.error) throw new Error(data.error);
-    const raw = data.reservas || [];
-    allTurnos = raw.map((row, idx) => normalizeReserva(row, idx));
+    allTurnos = (data.reservas || []).map((row, idx) => normalizeReserva(row, idx));
     showDebug('');
   } catch(err) {
-    showDebug(`⚠️ No se pudo conectar con Google Sheets.\nError: ${err.message}\n\nMostrando datos locales (si hay).`);
+    showDebug('⚠️ No se pudo conectar con Google Sheets.\nError: ' + err.message);
     if (allTurnos.length === 0) allTurnos = [];
   }
   stopLoading();
@@ -346,7 +331,8 @@ function renderTurnos() {
   if (search) list = list.filter(t =>
     t.nombreBebe.toLowerCase().includes(search) ||
     t.nombreMama.toLowerCase().includes(search) ||
-    t.fecha.includes(search)
+    t.fecha.includes(search) ||
+    t.whatsapp.includes(search)
   );
   list.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
 
@@ -355,76 +341,77 @@ function renderTurnos() {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌸</div><p>No hay reservas que coincidan</p></div>`;
     return;
   }
-  try {
-    container.innerHTML = list.map(t => buildTurnoCard(t)).join('');
-  } catch(err) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Error al mostrar tarjetas: ${err.message}</p></div>`;
-    showDebug(`Error en buildTurnoCard: ${err.message}`);
-  }
+  container.innerHTML = list.map(t => buildTurnoCard(t)).join('');
 }
 
 // =====================================================
 // CONSTRUIR CARD
 // =====================================================
+function waIcon() {
+  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>`;
+}
+
 function buildTurnoCard(t) {
-  let dateStr = t.fecha;
+  // Fecha legible
+  let dateStr = t.fecha || '–';
   try {
-    const d = new Date(t.fecha + 'T12:00:00');
-    if (!isNaN(d)) dateStr = d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  } catch(e) {}
+    if (t.fecha && t.fecha.length === 10) {
+      const d = new Date(t.fecha + 'T12:00:00');
+      if (!isNaN(d)) dateStr = d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    }
+  } catch(e){}
 
   // Fecha de cumple legible
-  let cumpleStr = t.cumpleBebe;
+  let cumpleStr = '';
   try {
     if (t.cumpleBebe && t.cumpleBebe.length === 10) {
       const dc = new Date(t.cumpleBebe + 'T12:00:00');
-      if (!isNaN(dc)) cumpleStr = dc.toLocaleDateString('es-AR', {day:'numeric',month:'long',year:'numeric'});
+      if (!isNaN(dc)) cumpleStr = dc.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});
     }
-  } catch(e) {}
+  } catch(e){}
+
+  // Fecha de reserva
+  let reservadoStr = '–';
+  try { reservadoStr = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e){}
 
   const estadoLower = t.estado.toLowerCase();
   const waNum  = t.whatsapp.replace(/\D/g,'');
   const waFull = waNum ? (waNum.startsWith('54') ? waNum : '54'+waNum) : '';
 
-  const confirmMsg = encodeURIComponent(
-    `Hola ${t.nombreMama}! Turno confirmado! Muchas gracias. 💕\n` +
-    `Te dejo info del turno:\n\n` +
-    `📅 Fecha: ${dateStr}\n` +
-    `⏰ Hora: ${t.horario} hs\n` +
-    `👶 Modelo: ${t.nombreBebe}\n` +
-    `🎂 Sesión: ${t.tipoSesion}\n` +
-    `👩 Mamá: ${t.nombreMama}\n` +
-    `🎨 Temática: ${t.tematica || '–'}\n` +
-    `💰 Seña: $\n` +
-    `💵 Resta: $\n` +
-    `✅ Valor cobrado: $\n` +
-    `📝 Observaciones: `
+  // Mensaje de confirmación completo
+  const msgConfirm = encodeURIComponent(
+`Hola, turno confirmado! Muchas gracias 🌸
+Te dejo la info del turno:
+
+📅 Fecha: ${dateStr}
+⏰ Hora: ${t.horario} hs
+👶 Modelo: ${t.nombreBebe}
+🎂 Sesión: ${t.tipoSesion}
+👩 Mamá: ${t.nombreMama}
+🎨 Temática: ${t.tematica || '–'}
+💰 Seña: 
+💵 Resta: 
+✅ Valor cobrado: 
+📝 Observaciones: `
   );
 
-  const reminderMsg = encodeURIComponent(
-    `Hola ${t.nombreMama}! Te recordamos la sesión de ${t.nombreBebe} 📸\n📅 ${dateStr} a las ${t.horario} hs\nLos esperamos! 💕`
+  // Mensaje recordatorio
+  const msgRecordatorio = encodeURIComponent(
+    `Hola ${t.nombreMama}! Te recordamos la sesión de ${t.nombreBebe} 📸\n📅 ${dateStr} a las ${t.horario} hs\n¡Los esperamos! 💕`
   );
 
-  const waConfirmBtn = waFull
-    ? `<a class="btn-action btn-whatsapp-action" href="https://wa.me/${waFull}?text=${confirmMsg}" target="_blank">✅ Confirmar + WA</a>`
-    : '';
-  const waReminderBtn = waFull
-    ? `<a class="btn-action btn-whatsapp-action" href="https://wa.me/${waFull}?text=${reminderMsg}" target="_blank">📱 WA recordatorio</a>`
-    : '';
+  const waConfirmBtn  = waFull ? `<a class="btn-action btn-whatsapp-action" href="https://wa.me/${waFull}?text=${msgConfirm}" target="_blank">${waIcon()} Confirmar + WA</a>` : '';
+  const waRecordBtn   = waFull ? `<a class="btn-action btn-whatsapp-action" href="https://wa.me/${waFull}?text=${msgRecordatorio}" target="_blank">${waIcon()} WA recordatorio</a>` : '';
 
   const actionButtons =
     t.estado === 'PENDIENTE'
       ? `<button class="btn-action btn-confirm-action" onclick="updateStatus('${t.id}','CONFIRMADO')">✅ Confirmar</button>
-         <button class="btn-action btn-cancel-action" onclick="askCancel('${t.id}')">❌ Cancelar</button>
+         <button class="btn-action btn-cancel-action"  onclick="askCancel('${t.id}')">❌ Cancelar</button>
          ${waConfirmBtn}`
     : t.estado === 'CONFIRMADO'
-      ? `<button class="btn-action btn-cancel-action" onclick="askCancel('${t.id}')">❌ Cancelar</button>
-         ${waReminderBtn}`
-    : `<button class="btn-action btn-confirm-action" onclick="updateStatus('${t.id}','PENDIENTE')">↩ Reactivar</button>`;
-
-  const tsDate = (() => {
-    try { return new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e) { return '–'; }
-  })();
+      ? `${waRecordBtn}
+         <button class="btn-action btn-cancel-action"  onclick="askCancel('${t.id}')">❌ Cancelar</button>`
+    : `<button class="btn-action btn-confirm-action"   onclick="updateStatus('${t.id}','PENDIENTE')">↩ Reactivar</button>`;
 
   return `
   <div class="turno-card ${estadoLower}" id="card-${t.id}">
@@ -437,15 +424,15 @@ function buildTurnoCard(t) {
     </div>
     <div class="turno-info">
       <div class="turno-info-item"><span class="info-key">👶 Bebé</span><span class="info-val">${t.nombreBebe}</span></div>
-      <div class="turno-info-item"><span class="info-key">🎂 Sesión</span><span class="info-val">${t.tipoSesion}</span></div>
+      <div class="turno-info-item"><span class="info-key">🎂 Tipo sesión</span><span class="info-val">${t.tipoSesion}</span></div>
       <div class="turno-info-item"><span class="info-key">👩 Mamá</span><span class="info-val">${t.nombreMama}</span></div>
       <div class="turno-info-item"><span class="info-key">📱 WhatsApp</span><span class="info-val">${t.whatsapp || '–'}</span></div>
-      ${t.tematica ? `<div class="turno-info-item"><span class="info-key">🎨 Temática</span><span class="info-val">${t.tematica}</span></div>` : ''}
-      ${cumpleStr ? `<div class="turno-info-item"><span class="info-key">📆 Cumple</span><span class="info-val">${cumpleStr}</span></div>` : ''}
+      ${t.tematica  ? `<div class="turno-info-item"><span class="info-key">🎨 Temática</span><span class="info-val">${t.tematica}</span></div>` : ''}
+      ${cumpleStr   ? `<div class="turno-info-item"><span class="info-key">📆 Cumple</span><span class="info-val">${cumpleStr}</span></div>` : ''}
     </div>
-    ${t.notas ? `<div style="background:var(--cream-dark);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text-light);margin-bottom:14px;font-style:italic;">💬 "${t.notas}"</div>` : ''}
+    ${t.notas ? `<div class="turno-notas">💬 "${t.notas}"</div>` : ''}
     <div class="turno-actions">${actionButtons}</div>
-    <div class="turno-id">ID: ${t.id} · Reservado: ${tsDate}</div>
+    <div class="turno-id">ID: ${t.id} · Reservado: ${reservadoStr}</div>
   </div>`;
 }
 
@@ -464,13 +451,13 @@ async function updateStatus(id, newStatus) {
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ action:'updateStatus', id, status: newStatus })
     });
-  } catch(e) { showDebug(`Aviso: no se pudo actualizar en Sheets: ${e.message}`); }
+  } catch(e) {}
   stopLoading();
 }
 
-function askCancel(id)  { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
-function closeModal()   { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
-function confirmCancel(){ if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
+function askCancel(id)   { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
+function closeModal()    { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
+function confirmCancel() { if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
 
 // =====================================================
 // LOADING
