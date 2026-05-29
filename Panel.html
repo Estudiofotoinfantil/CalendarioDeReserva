@@ -187,7 +187,7 @@
 // =====================================================
 const ADMIN_CONFIG = {
   PASSWORD:   'estudio2025',
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwOD_c9m6Q8uN6qgqvcA7jMWepiQ1XAWrwNXAJK-j0jjY6AtCO2z0MxbdkDuklzpNZY/exec'
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec'
 };
 
 let allTurnos     = [];
@@ -200,28 +200,35 @@ let cancelTarget  = null;
 // id | timestamp | fecha | horario | tipoSesion | tematica | nombreBebe | cumpleBebe | nombreMama | estado | telefono | whatsapp
 // =====================================================
 function parseHorario(v) {
-  if (!v && v !== 0) return '–';
+  // Con getDisplayValues Sheets devuelve texto tal como se ve: "18:00"
+  if (!v) return '–';
   if (typeof v === 'number') {
-    // fracción del día: 0.75 = 18:00
     const min = Math.round(v * 24 * 60);
     return String(Math.floor(min/60)).padStart(2,'0') + ':' + String(min%60).padStart(2,'0');
   }
-  const s = String(v);
+  const s = String(v).trim();
   if (s.startsWith('1899-') || s.startsWith('1900-')) {
-    // Sheets convirtió el horario a fecha base 1899
     const d = new Date(s);
     return String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0');
   }
-  // String normal: "18:00", "18.00", "18"
   let h = s.replace('.', ':');
-  if (!h.includes(':')) h += ':00';
-  return h;
+  if (h && !h.includes(':')) h += ':00';
+  return h || '–';
 }
 
 function parseFecha(v) {
   if (!v) return '';
-  if (typeof v === 'object' && v instanceof Date) return v.toISOString().split('T')[0];
-  return String(v).split('T')[0];
+  const s = String(v).trim();
+  // YYYY-MM-DD directo (texto plano de Sheets)
+  if (s.match(/^\d{4}-\d{2}-\d{2}$/)) return s;
+  // ISO completo
+  if (s.includes('T')) return s.split('T')[0];
+  // dd/mm/yyyy (formato visual argentino)
+  if (s.includes('/')) {
+    const p = s.split('/');
+    if (p.length === 3) return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
+  }
+  return s;
 }
 
 function normalizeReserva(row, idx) {
