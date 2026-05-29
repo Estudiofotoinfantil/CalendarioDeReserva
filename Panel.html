@@ -152,7 +152,6 @@
     <input class="search-input" type="text" id="search-input" placeholder="🔍 Buscar..." oninput="renderTurnos()">
   </div>
 
-  <!-- Debug box (se muestra sólo si hay error) -->
   <div class="debug-box" id="debug-box"></div>
 
   <div class="turnos-wrap">
@@ -186,44 +185,65 @@ const ADMIN_CONFIG = {
   WHATSAPP:   '541133408139'
 };
 
-let allTurnos    = [];
+let allTurnos     = [];
 let currentFilter = 'todos';
 let cancelTarget  = null;
 
 // =====================================================
-// NORMALIZAR datos que vienen de Google Sheets
-// Sheets puede devolver fechas como Date, horarios
-// como número decimal, etc. Esto lo unifica todo.
+// NORMALIZAR — versión corregida
+// Maneja conversiones automáticas de Google Sheets:
+//   · fechas  → "2026-07-01T03:00:00.000Z"
+//   · horarios → "1899-12-30T21:00:00.000Z"
 // =====================================================
 function normalizeReserva(row, idx) {
+
   // --- FECHA ---
   let fecha = row.fecha || row.Fecha || '';
   if (fecha instanceof Date) {
-    fecha = fecha.toISOString().split('T')[0];
-  } else {
-    fecha = String(fecha).split('T')[0]; // quitar hora si viene con T
+    fecha = fecha.toISOString();
   }
+  fecha = String(fecha).split('T')[0]; // "2026-07-01"
 
   // --- HORARIO ---
-  // Sheets a veces guarda "18:00" como el número 0.75 (fracción del día)
-  // o como el número 18, o como string "18:00", "18.00", "18"
+  // Sheets guarda "18:00" como tipo Tiempo → vuelve como número (0.75)
+  // o como ISO string base 1899 ("1899-12-30T21:00:00.000Z")
   let horario = row.horario || row.Horario || '';
-  if (typeof horario === 'number') {
+  if (horario instanceof Date) {
+    // Vino como objeto Date directamente
+    const hh = String(horario.getUTCHours()).padStart(2, '0');
+    const mm = String(horario.getUTCMinutes()).padStart(2, '0');
+    horario = `${hh}:${mm}`;
+  } else if (typeof horario === 'number') {
     if (horario < 1) {
-      // Es fracción del día (ej: 0.75 = 18:00)
+      // Fracción del día: 0.75 = 18:00
       const totalMin = Math.round(horario * 24 * 60);
       const hh = Math.floor(totalMin / 60);
       const mm = totalMin % 60;
       horario = `${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
     } else {
-      // Es sólo la hora (ej: 18 → "18:00")
       horario = `${String(Math.floor(horario)).padStart(2,'0')}:00`;
     }
   } else {
-    // String: puede ser "18.00", "18:00", "18"
-    horario = String(horario).replace('.', ':');
-    if (!horario.includes(':')) horario += ':00';
+    horario = String(horario);
+    if (horario.startsWith('1899-')) {
+      // Sheets convirtió el horario a fecha base 1899
+      const d  = new Date(horario);
+      const hh = String(d.getUTCHours()).padStart(2, '0');
+      const mm = String(d.getUTCMinutes()).padStart(2, '0');
+      horario  = `${hh}:${mm}`;
+    } else {
+      // String normal: "18:00", "18.00", "18"
+      horario = horario.replace('.', ':');
+      if (!horario.includes(':')) horario += ':00';
+    }
   }
+
+  // --- CUMPLE BEBÉ --- (también puede volver como fecha)
+  let cumpleBebe = row.cumpleBebe || row.CumpleBebe || '';
+  if (cumpleBebe instanceof Date) {
+    cumpleBebe = cumpleBebe.toISOString();
+  }
+  cumpleBebe = String(cumpleBebe).split('T')[0]; // "2026-07-15"
 
   // --- ESTADO ---
   let estado = String(row.estado || row.Estado || 'PENDIENTE').toUpperCase().trim();
@@ -236,17 +256,17 @@ function normalizeReserva(row, idx) {
 
   return {
     id:         String(row.id || row.ID || `T${String(idx+1).padStart(3,'0')}`),
-    fecha:      fecha,
-    horario:    horario,
+    fecha,
+    horario,
     tipoSesion: String(row.tipoSesion || row.TipoSesion || '–'),
     tematica:   String(row.tematica   || row.Tematica   || ''),
     nombreBebe: String(row.nombreBebe || row.NombreBebe || '–'),
-    cumpleBebe: String(row.cumpleBebe || row.CumpleBebe || ''),
+    cumpleBebe,
     nombreMama: String(row.nombreMama || row.NombreMama || '–'),
     telefono:   String(row.telefono   || row.Telefono   || ''),
     whatsapp:   String(row.whatsapp   || row.Whatsapp   || row.WhatsApp || row.telefono || row.Telefono || ''),
-    estado:     estado,
-    timestamp:  timestamp,
+    estado,
+    timestamp,
     notas:      String(row.notas || row.Notas || '')
   };
 }
@@ -280,15 +300,12 @@ async function loadData() {
   try {
     const resp = await fetch(`${ADMIN_CONFIG.SCRIPT_URL}?action=getAll`, { mode:'cors' });
     const data = await resp.json();
-
     if (data.error) throw new Error(data.error);
-
     const raw = data.reservas || [];
     allTurnos = raw.map((row, idx) => normalizeReserva(row, idx));
-    showDebug(''); // sin error → ocultar
+    showDebug('');
   } catch(err) {
     showDebug(`⚠️ No se pudo conectar con Google Sheets.\nError: ${err.message}\n\nMostrando datos locales (si hay).`);
-    // Mantener los datos que ya había
     if (allTurnos.length === 0) allTurnos = [];
   }
   stopLoading();
@@ -338,7 +355,6 @@ function renderTurnos() {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌸</div><p>No hay reservas que coincidan</p></div>`;
     return;
   }
-
   try {
     container.innerHTML = list.map(t => buildTurnoCard(t)).join('');
   } catch(err) {
@@ -351,20 +367,25 @@ function renderTurnos() {
 // CONSTRUIR CARD
 // =====================================================
 function buildTurnoCard(t) {
-  // Fecha legible
   let dateStr = t.fecha;
   try {
     const d = new Date(t.fecha + 'T12:00:00');
     if (!isNaN(d)) dateStr = d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
   } catch(e) {}
 
-  const estadoLower = t.estado.toLowerCase();
+  // Fecha de cumple legible
+  let cumpleStr = t.cumpleBebe;
+  try {
+    if (t.cumpleBebe && t.cumpleBebe.length === 10) {
+      const dc = new Date(t.cumpleBebe + 'T12:00:00');
+      if (!isNaN(dc)) cumpleStr = dc.toLocaleDateString('es-AR', {day:'numeric',month:'long',year:'numeric'});
+    }
+  } catch(e) {}
 
-  // Número WA limpio
-  const waNum = t.whatsapp.replace(/\D/g,'');
+  const estadoLower = t.estado.toLowerCase();
+  const waNum  = t.whatsapp.replace(/\D/g,'');
   const waFull = waNum ? (waNum.startsWith('54') ? waNum : '54'+waNum) : '';
 
-  // Mensaje al CONFIRMAR (con campos editables para seña, etc.)
   const confirmMsg = encodeURIComponent(
     `Hola ${t.nombreMama}! Turno confirmado! Muchas gracias. 💕\n` +
     `Te dejo info del turno:\n\n` +
@@ -380,7 +401,6 @@ function buildTurnoCard(t) {
     `📝 Observaciones: `
   );
 
-  // Mensaje recordatorio
   const reminderMsg = encodeURIComponent(
     `Hola ${t.nombreMama}! Te recordamos la sesión de ${t.nombreBebe} 📸\n📅 ${dateStr} a las ${t.horario} hs\nLos esperamos! 💕`
   );
@@ -421,7 +441,7 @@ function buildTurnoCard(t) {
       <div class="turno-info-item"><span class="info-key">👩 Mamá</span><span class="info-val">${t.nombreMama}</span></div>
       <div class="turno-info-item"><span class="info-key">📱 WhatsApp</span><span class="info-val">${t.whatsapp || '–'}</span></div>
       ${t.tematica ? `<div class="turno-info-item"><span class="info-key">🎨 Temática</span><span class="info-val">${t.tematica}</span></div>` : ''}
-      ${t.cumpleBebe ? `<div class="turno-info-item"><span class="info-key">📆 Cumple</span><span class="info-val">${t.cumpleBebe}</span></div>` : ''}
+      ${cumpleStr ? `<div class="turno-info-item"><span class="info-key">📆 Cumple</span><span class="info-val">${cumpleStr}</span></div>` : ''}
     </div>
     ${t.notas ? `<div style="background:var(--cream-dark);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text-light);margin-bottom:14px;font-style:italic;">💬 "${t.notas}"</div>` : ''}
     <div class="turno-actions">${actionButtons}</div>
@@ -448,9 +468,9 @@ async function updateStatus(id, newStatus) {
   stopLoading();
 }
 
-function askCancel(id) { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
-function closeModal()  { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
-function confirmCancel() { if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
+function askCancel(id)  { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
+function closeModal()   { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
+function confirmCancel(){ if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
 
 // =====================================================
 // LOADING
