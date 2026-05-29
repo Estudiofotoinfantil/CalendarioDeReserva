@@ -53,14 +53,12 @@
     background: rgba(157,113,76,0.1);
   }
   .hero-logo {
-    width: 90px;
-    height: 90px;
+    width: 90px; height: 90px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--gold-light);
     margin-bottom: 16px;
-    position: relative;
-    z-index: 1;
+    position: relative; z-index: 1;
     box-shadow: 0 4px 20px rgba(157,113,76,0.2);
   }
   .studio-name {
@@ -97,9 +95,7 @@
     background: var(--white);
     padding: 16px 20px;
     border-bottom: 1px solid var(--gold-light);
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    position: sticky; top: 0; z-index: 100;
     box-shadow: 0 2px 8px rgba(157,113,76,0.07);
   }
   .steps {
@@ -109,26 +105,19 @@
     max-width: 340px;
     margin: 0 auto;
   }
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    flex: 1;
-  }
+  .step { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; }
   .step-num {
     width: 26px; height: 26px;
     border-radius: 50%;
     border: 2px solid var(--gold-light);
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 11px; font-weight: 500;
     color: var(--text-light);
     background: var(--white);
     transition: all .3s;
   }
   .step.active .step-num { background: var(--gold-1); border-color: var(--gold-1); color: white; }
-  .step.done .step-num { background: var(--success); border-color: var(--success); color: white; }
+  .step.done   .step-num { background: var(--success); border-color: var(--success); color: white; }
   .step-label { font-size: 9px; color: var(--text-light); letter-spacing: .4px; text-align:center; }
   .step.active .step-label { color: var(--gold-1); font-weight: 500; }
   .step-line { height: 2px; flex: 1; background: var(--gold-light); margin-top: -13px; z-index: -1; }
@@ -141,158 +130,77 @@
     from { opacity:0; transform: translateY(14px); }
     to   { opacity:1; transform: translateY(0); }
   }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 400;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-  .section-sub { font-size: 14px; color: var(--text-light); margin-bottom: 22px; font-weight: 300; }
+  .section-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:400; color:var(--text); margin-bottom:4px; }
+  .section-sub   { font-size:14px; color:var(--text-light); margin-bottom:22px; font-weight:300; }
 
   /* CALENDAR */
-  .cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .cal-month { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); }
+  .cal-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .cal-month  { font-family:'Playfair Display',serif; font-size:18px; color:var(--text); }
   .cal-nav {
-    background: none;
-    border: 1px solid var(--gold-light);
-    border-radius: 8px;
-    width: 32px; height: 32px;
-    cursor: pointer;
-    font-size: 16px;
-    color: var(--gold-1);
-    display: flex; align-items: center; justify-content: center;
-    transition: all .2s;
+    background: none; border: 1px solid var(--gold-light); border-radius: 8px;
+    width: 32px; height: 32px; cursor: pointer; font-size: 16px; color: var(--gold-1);
+    display: flex; align-items: center; justify-content: center; transition: all .2s;
   }
   .cal-nav:hover { background: var(--cream-dark); }
   .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-  .cal-day-name {
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-light);
-    letter-spacing: .4px;
-    padding: 5px 0;
-    text-transform: uppercase;
-  }
+  .cal-day-name { text-align:center; font-size:10px; color:var(--text-light); letter-spacing:.4px; padding:5px 0; text-transform:uppercase; }
   .cal-day {
     aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all .2s;
-    border: 2px solid transparent;
-    color: var(--text);
-    line-height: 1;
-    gap: 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-radius: 8px; font-size: 13px; cursor: pointer; transition: all .2s;
+    border: 2px solid transparent; color: var(--text); line-height: 1; gap: 2px;
   }
   .cal-day:hover:not(.disabled):not(.empty) { background: var(--cream-dark); border-color: var(--gold-2); }
-  .cal-day.selected { background: var(--gold-1); color: white; font-weight: 500; }
-  .cal-day.today { border-color: var(--gold-2); }
-  .cal-day.disabled { color: var(--gold-light); cursor: default; }
-  .cal-day.empty { cursor: default; }
-  .cal-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--success); }
+  .cal-day.selected  { background: var(--gold-1); color: white; font-weight: 500; }
+  .cal-day.today     { border-color: var(--gold-2); }
+  .cal-day.disabled  { color: var(--gold-light); cursor: default; }
+  .cal-day.empty     { cursor: default; }
+  .cal-dot { width:4px; height:4px; border-radius:50%; background:var(--success); }
   .cal-day.selected .cal-dot { background: rgba(255,255,255,0.7); }
 
   /* TIME SLOTS */
   .slots-section { margin-top: 12px; }
-  .slots-group-label {
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--gold-2);
-    font-weight: 500;
-    margin: 14px 0 8px;
-  }
+  .slots-group-label { font-size:11px; letter-spacing:1px; text-transform:uppercase; color:var(--gold-2); font-weight:500; margin:14px 0 8px; }
   .slots-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
   .slot-btn {
     padding: 13px 8px;
-    border: 1.5px solid var(--gold-light);
-    border-radius: 10px;
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    cursor: pointer;
-    text-align: center;
-    transition: all .2s;
+    border: 1.5px solid var(--gold-light); border-radius: 10px;
+    background: var(--white); font-family:'DM Sans',sans-serif; font-size:14px;
+    color: var(--text); cursor: pointer; text-align: center; transition: all .2s;
   }
-  .slot-btn:hover { border-color: var(--gold-1); background: var(--cream-dark); }
-  .slot-btn.selected { border-color: var(--gold-1); background: var(--gold-1); color: white; }
-  .slot-btn.taken { color: var(--text-light); background: var(--cream-dark); cursor: not-allowed; text-decoration: line-through; font-size: 12px; }
+  .slot-btn:hover            { border-color: var(--gold-1); background: var(--cream-dark); }
+  .slot-btn.selected         { border-color: var(--gold-1); background: var(--gold-1); color: white; }
+  .slot-btn.taken            { color: var(--text-light); background: var(--cream-dark); cursor: not-allowed; text-decoration: line-through; font-size:12px; }
   .slot-time { font-weight: 500; display: block; }
 
   /* FORM */
   .form-group { margin-bottom: 16px; }
-  .form-group label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-    color: var(--gold-1);
-    margin-bottom: 7px;
-    font-weight: 500;
-  }
+  .form-group label { display:block; font-size:11px; letter-spacing:.8px; text-transform:uppercase; color:var(--gold-1); margin-bottom:7px; font-weight:500; }
   .form-group input, .form-group select, .form-group textarea {
-    width: 100%;
-    padding: 13px 15px;
-    border: 1.5px solid var(--gold-light);
-    border-radius: 10px;
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--text);
-    outline: none;
-    transition: border-color .2s;
-    appearance: none;
+    width: 100%; padding: 13px 15px;
+    border: 1.5px solid var(--gold-light); border-radius: 10px;
+    background: var(--white); font-family:'DM Sans',sans-serif; font-size:15px;
+    color: var(--text); outline: none; transition: border-color .2s; appearance: none;
   }
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold-1); }
   .form-group textarea { resize: none; height: 75px; }
-  .form-divider {
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    color: var(--text);
-    margin: 22px 0 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--gold-light);
-  }
+  .form-divider { font-family:'Playfair Display',serif; font-size:16px; color:var(--text); margin:22px 0 16px; padding-bottom:8px; border-bottom:1px solid var(--gold-light); }
 
   /* SESSION TYPES */
   .session-types { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
   .session-type-btn {
-    padding: 14px 8px;
-    border: 1.5px solid var(--gold-light);
-    border-radius: 12px;
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    color: var(--text);
-    cursor: pointer;
-    text-align: center;
-    transition: all .2s;
+    padding: 14px 8px; border: 1.5px solid var(--gold-light); border-radius: 12px;
+    background: var(--white); font-family:'DM Sans',sans-serif; font-size:12px;
+    color: var(--text); cursor: pointer; text-align: center; transition: all .2s;
   }
-  .session-type-btn .st-icon { font-size: 22px; display: block; margin-bottom: 5px; }
-  .session-type-btn .st-label { font-weight: 500; display: block; }
-  .session-type-btn .st-sub { font-size: 10px; color: var(--text-light); display: block; margin-top: 2px; }
-  .session-type-btn:hover { border-color: var(--gold-2); background: var(--cream-dark); }
-  .session-type-btn.selected { border-color: var(--gold-1); background: var(--cream-dark); }
+  .session-type-btn .st-icon  { font-size:22px; display:block; margin-bottom:5px; }
+  .session-type-btn .st-label { font-weight:500; display:block; }
+  .session-type-btn .st-sub   { font-size:10px; color:var(--text-light); display:block; margin-top:2px; }
+  .session-type-btn:hover     { border-color: var(--gold-2); background: var(--cream-dark); }
+  .session-type-btn.selected  { border-color: var(--gold-1); background: var(--cream-dark); }
 
   /* SUMMARY */
-  .summary-card {
-    background: var(--white);
-    border: 1px solid var(--gold-light);
-    border-radius: 16px;
-    padding: 22px;
-    margin-bottom: 18px;
-  }
+  .summary-card { background:var(--white); border:1px solid var(--gold-light); border-radius:16px; padding:22px; margin-bottom:18px; }
   .summary-card h3 { font-family:'Playfair Display',serif; font-size:17px; font-weight:400; color:var(--text); margin-bottom:14px; }
   .summary-row { display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--cream-dark); font-size:14px; }
   .summary-row:last-child { border-bottom:none; }
@@ -301,88 +209,38 @@
 
   /* BUTTONS */
   .btn-primary {
-    width: 100%;
-    padding: 15px;
+    width: 100%; padding: 15px;
     background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .2s;
-    margin-top: 8px;
+    color: white; border: none; border-radius: 12px;
+    font-family:'DM Sans',sans-serif; font-size:16px; font-weight:500;
+    cursor: pointer; transition: all .2s; margin-top: 8px;
   }
-  .btn-primary:hover { opacity: .9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(157,113,76,0.3); }
-  .btn-primary:disabled { background: var(--gold-light); cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-primary:hover    { opacity:.9; transform:translateY(-1px); box-shadow:0 6px 20px rgba(157,113,76,0.3); }
+  .btn-primary:disabled { background:var(--gold-light); cursor:not-allowed; transform:none; box-shadow:none; }
   .btn-secondary {
-    width: 100%;
-    padding: 13px;
-    background: transparent;
-    color: var(--text-light);
-    border: 1.5px solid var(--gold-light);
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all .2s;
-    margin-top: 9px;
+    width: 100%; padding: 13px; background: transparent; color: var(--text-light);
+    border: 1.5px solid var(--gold-light); border-radius: 12px;
+    font-family:'DM Sans',sans-serif; font-size:14px; cursor:pointer; transition:all .2s; margin-top:9px;
   }
-  .btn-secondary:hover { border-color: var(--gold-1); color: var(--gold-1); }
+  .btn-secondary:hover { border-color:var(--gold-1); color:var(--gold-1); }
 
   /* SUCCESS */
-  .success-screen { text-align: center; padding: 36px 16px; }
-  .success-logo {
-    width: 90px; height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--gold-light);
-    margin: 0 auto 20px;
-    display: block;
-    box-shadow: 0 4px 20px rgba(157,113,76,0.2);
-  }
+  .success-screen { text-align:center; padding:36px 16px; }
+  .success-logo { width:90px; height:90px; border-radius:50%; object-fit:cover; border:3px solid var(--gold-light); margin:0 auto 20px; display:block; box-shadow:0 4px 20px rgba(157,113,76,0.2); }
   .success-screen h2 { font-family:'Playfair Display',serif; font-size:24px; font-weight:400; color:var(--text); margin-bottom:10px; }
-  .success-screen p { font-size:14px; color:var(--text-light); line-height:1.7; max-width:290px; margin:0 auto 24px; }
+  .success-screen p  { font-size:14px; color:var(--text-light); line-height:1.7; max-width:290px; margin:0 auto 24px; }
   .whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #25d366;
-    color: white;
-    padding: 13px 22px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    margin-bottom: 10px;
+    display: inline-flex; align-items:center; gap:8px;
+    background: #25d366; color: white; padding: 13px 22px;
+    border-radius: 12px; text-decoration: none; font-size:15px; font-weight:500; margin-bottom:10px;
   }
 
   /* INFO NOTE */
-  .info-note {
-    background: var(--cream-dark);
-    border-left: 3px solid var(--gold-2);
-    border-radius: 0 8px 8px 0;
-    padding: 11px 14px;
-    font-size: 13px;
-    color: var(--text-light);
-    margin-bottom: 18px;
-    line-height: 1.5;
-  }
+  .info-note { background:var(--cream-dark); border-left:3px solid var(--gold-2); border-radius:0 8px 8px 0; padding:11px 14px; font-size:13px; color:var(--text-light); margin-bottom:18px; line-height:1.5; }
 
   /* LOADING */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(253,248,242,0.92);
-    z-index: 999;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .loading-overlay.show { display: flex; }
+  .loading-overlay { display:none; position:fixed; inset:0; background:rgba(253,248,242,0.92); z-index:999; align-items:center; justify-content:center; flex-direction:column; gap:14px; }
+  .loading-overlay.show { display:flex; }
   .spinner { width:38px; height:38px; border:3px solid var(--gold-light); border-top-color:var(--gold-1); border-radius:50%; animation:spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
   .loading-text { font-family:'Playfair Display',serif; font-style:italic; color:var(--text-light); font-size:14px; }
@@ -440,12 +298,10 @@
     <p class="section-sub">Todo queda guardado de forma segura 🔒</p>
 
     <div class="form-divider">👶 Datos del bebé</div>
-
     <div class="form-group">
       <label>Nombre del bebé *</label>
       <input type="text" id="baby-name" placeholder="Ej: Sofía" required>
     </div>
-
     <div class="form-group">
       <label>Tipo de sesión *</label>
       <div class="session-types" id="session-types">
@@ -467,12 +323,10 @@
       </div>
       <input type="hidden" id="session-type" value="">
     </div>
-
     <div class="form-group">
       <label>Día que cumple meses / años *</label>
       <input type="date" id="baby-birthday" required>
     </div>
-
     <div id="tematica-wrap" style="display:none">
       <div class="form-group">
         <label>Temática elegida</label>
@@ -490,8 +344,8 @@
       <input type="tel" id="mom-phone" placeholder="Ej: 11 2345-6789" required>
     </div>
     <div class="form-group">
-      <label>WhatsApp *</label>
-      <input type="tel" id="mom-whatsapp" placeholder="Ej: 11 2345-6789 (si es distinto al teléfono)">
+      <label>WhatsApp (si es distinto al teléfono)</label>
+      <input type="tel" id="mom-whatsapp" placeholder="Ej: 11 2345-6789">
     </div>
 
     <button class="btn-primary" onclick="goToStep(4)">Ver resumen →</button>
@@ -502,7 +356,6 @@
   <div class="section" id="sec-4">
     <h2 class="section-title">Confirmá tu reserva</h2>
     <p class="section-sub">Revisá todo antes de enviar</p>
-
     <div class="summary-card">
       <h3>📅 Tu sesión</h3>
       <div class="summary-row"><span class="key">Fecha</span><span class="val" id="sum-date">–</span></div>
@@ -513,9 +366,7 @@
       <div class="summary-row"><span class="key">WhatsApp</span><span class="val" id="sum-wa">–</span></div>
       <div class="summary-row" id="sum-tematica-row" style="display:none"><span class="key">Temática</span><span class="val" id="sum-tematica">–</span></div>
     </div>
-
     <div class="info-note">⏳ Tu reserva quedará <strong>pendiente de confirmación</strong>. Te avisamos por WhatsApp en las próximas 24 hs.</div>
-
     <button class="btn-primary" id="btn-confirm" onclick="submitBooking()">✨ Confirmar reserva</button>
     <button class="btn-secondary" onclick="goToStep(3)">← Editar datos</button>
   </div>
@@ -530,7 +381,7 @@
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>
         Escribir al estudio
       </a>
-      <div style="font-size:13px; color:var(--text-light); margin-top:8px;">Si tenés alguna duda, escribinos 💕</div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:8px;">Si tenés alguna duda, escribinos 💕</div>
     </div>
   </div>
 
@@ -546,32 +397,22 @@
 // CONFIGURACIÓN
 // =====================================================
 const CONFIG = {
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwOD_c9m6Q8uN6qgqvcA7jMWepiQ1XAWrwNXAJK-j0jjY6AtCO2z0MxbdkDuklzpNZY/exec',
-  WHATSAPP: '541133408139',
+  SCRIPT_URL:       'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec',
+  WHATSAPP:         '541133408139',
   MIN_ADVANCE_DAYS: 2,
-
-  // Horarios fijos por tipo de día
-  SLOTS_WEEKDAY: ['18:00', '19:00'],           // Lun-Vie (no feriado)
-  SLOTS_SATURDAY: ['10:00', '11:00', '13:00', '14:00'], // Sábados
-
-  // Días siempre bloqueados (0=Dom, se puede habilitar desde admin)
-  DEFAULT_BLOCKED_DAYS: [0],
-
-  // Días especiales habilitados o bloqueados desde el admin
-  // Formato: { 'YYYY-MM-DD': true/false }
-  // true = habilitado aunque sea feriado/domingo
-  // false = bloqueado aunque sea día hábil
-  SPECIAL_DAYS: {}
+  SLOTS_WEEKDAY:    ['18:00', '19:00'],
+  SLOTS_SATURDAY:   ['10:00', '11:00', '13:00', '14:00'],
+  SPECIAL_DAYS:     {}   // admin puede habilitar/bloquear días (YYYY-MM-DD: true/false)
 };
 
 let state = {
-  currentMonth: new Date().getMonth(),
-  currentYear: new Date().getFullYear(),
-  selectedDate: null,
+  currentMonth:    new Date().getMonth(),
+  currentYear:     new Date().getFullYear(),
+  selectedDate:    null,
   selectedDateObj: null,
-  selectedTime: null,
+  selectedTime:    null,
   selectedSession: null,
-  bookedSlots: {}
+  bookedSlots:     {}
 };
 
 // =====================================================
@@ -582,14 +423,12 @@ const DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 
 function isAvailable(date) {
   const dateStr = fmtDate(date);
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today   = new Date(); today.setHours(0,0,0,0);
   const minDate = new Date(today); minDate.setDate(minDate.getDate() + CONFIG.MIN_ADVANCE_DAYS);
   if (date < minDate) return false;
-  // Días especiales desde admin
   if (CONFIG.SPECIAL_DAYS[dateStr] === true)  return true;
   if (CONFIG.SPECIAL_DAYS[dateStr] === false) return false;
-  // Domingo siempre bloqueado por defecto
-  if (date.getDay() === 0) return false;
+  if (date.getDay() === 0) return false; // domingo
   return true;
 }
 
@@ -612,7 +451,7 @@ function renderCalendar() {
     grid.appendChild(el);
   });
 
-  const firstDay = new Date(state.currentYear, state.currentMonth, 1).getDay();
+  const firstDay    = new Date(state.currentYear, state.currentMonth, 1).getDay();
   const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
 
   for (let i = 0; i < firstDay; i++) {
@@ -620,14 +459,12 @@ function renderCalendar() {
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(state.currentYear, state.currentMonth, d);
+    const date    = new Date(state.currentYear, state.currentMonth, d);
     const dateStr = fmtDate(date);
-    const el = document.createElement('div');
-    el.innerHTML = `<span>${d}</span>`;
-
-    const avail = isAvailable(date);
-    let cls = 'cal-day';
-
+    const el      = document.createElement('div');
+    el.innerHTML  = `<span>${d}</span>`;
+    const avail   = isAvailable(date);
+    let cls       = 'cal-day';
     if (!avail) {
       cls += ' disabled';
     } else {
@@ -644,9 +481,9 @@ function renderCalendar() {
 function fmtDate(date) { return date.toISOString().split('T')[0]; }
 
 function selectDate(date, dateStr) {
-  state.selectedDate = dateStr;
+  state.selectedDate    = dateStr;
   state.selectedDateObj = date;
-  state.selectedTime = null;
+  state.selectedTime    = null;
   document.getElementById('btn-to-2').disabled = false;
   renderCalendar();
 }
@@ -669,7 +506,7 @@ function renderSlots() {
   const section = document.getElementById('slots-section');
   section.innerHTML = '';
   const booked = state.bookedSlots[state.selectedDate] || [];
-  const slots = getSlotsForDate(state.selectedDateObj);
+  const slots  = getSlotsForDate(state.selectedDateObj);
 
   if (slots.length === 0) {
     section.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">No hay horarios para este día.</div>';
@@ -677,9 +514,8 @@ function renderSlots() {
   }
 
   const label = document.createElement('div');
-  const day = state.selectedDateObj.getDay();
   label.className = 'slots-group-label';
-  label.textContent = day === 6 ? 'Horarios — Sábado' : 'Horarios — Lunes a Viernes';
+  label.textContent = state.selectedDateObj.getDay() === 6 ? 'Horarios — Sábado' : 'Horarios — Lunes a Viernes';
   section.appendChild(label);
 
   const grid = document.createElement('div');
@@ -689,24 +525,28 @@ function renderSlots() {
     const btn = document.createElement('button');
     btn.className = 'slot-btn' + (booked.includes(time) ? ' taken' : '') + (state.selectedTime === time ? ' selected' : '');
     btn.innerHTML = `<span class="slot-time">${time} hs</span>`;
-    if (!booked.includes(time)) btn.onclick = () => { state.selectedTime = time; document.getElementById('btn-to-3').disabled = false; renderSlots(); };
+    if (!booked.includes(time)) btn.onclick = () => {
+      state.selectedTime = time;
+      document.getElementById('btn-to-3').disabled = false;
+      renderSlots();
+    };
     grid.appendChild(btn);
   });
   section.appendChild(grid);
 
   const d = new Date(state.selectedDate + 'T12:00:00');
-  document.getElementById('selected-date-label').textContent = d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long' }).replace(/^\w/, c => c.toUpperCase());
+  document.getElementById('selected-date-label').textContent =
+    d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long'}).replace(/^\w/, c => c.toUpperCase());
 }
 
 // =====================================================
-// SESION TYPE
+// TIPO DE SESIÓN
 // =====================================================
 function selectSession(btn) {
   document.querySelectorAll('.session-type-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   state.selectedSession = btn.dataset.val;
   document.getElementById('session-type').value = state.selectedSession;
-  // Mostrar campo temática si es Temático
   document.getElementById('tematica-wrap').style.display = state.selectedSession === 'Temático' ? 'block' : 'none';
 }
 
@@ -732,29 +572,31 @@ function goToStep(step) {
 
 function validateForm() {
   const required = [
-    ['baby-name','Nombre del bebé'],
+    ['baby-name',    'Nombre del bebé'],
     ['baby-birthday','Día que cumple meses/años'],
-    ['mom-name','Nombre de la mamá'],
-    ['mom-phone','Teléfono']
+    ['mom-name',     'Nombre de la mamá'],
+    ['mom-phone',    'Teléfono']
   ];
   if (!state.selectedSession) { alert('Por favor elegí el tipo de sesión'); return false; }
   for (const [id, label] of required) {
     if (!document.getElementById(id).value.trim()) {
-      alert(`Por favor completá: ${label}`); document.getElementById(id).focus(); return false;
+      alert(`Por favor completá: ${label}`);
+      document.getElementById(id).focus();
+      return false;
     }
   }
   return true;
 }
 
 function fillSummary() {
-  const d = new Date(state.selectedDate + 'T12:00:00');
+  const d  = new Date(state.selectedDate + 'T12:00:00');
   const wa = document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim();
-  document.getElementById('sum-date').textContent = d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-  document.getElementById('sum-time').textContent = state.selectedTime + ' hs';
+  document.getElementById('sum-date').textContent    = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('sum-time').textContent    = state.selectedTime + ' hs';
   document.getElementById('sum-session').textContent = state.selectedSession;
-  document.getElementById('sum-baby').textContent = document.getElementById('baby-name').value;
-  document.getElementById('sum-mom').textContent = document.getElementById('mom-name').value;
-  document.getElementById('sum-wa').textContent = wa;
+  document.getElementById('sum-baby').textContent    = document.getElementById('baby-name').value;
+  document.getElementById('sum-mom').textContent     = document.getElementById('mom-name').value;
+  document.getElementById('sum-wa').textContent      = wa;
   const tematica = document.getElementById('tematica').value;
   if (tematica) {
     document.getElementById('sum-tematica-row').style.display = 'flex';
@@ -763,22 +605,22 @@ function fillSummary() {
 }
 
 // =====================================================
-// ENVÍO
+// ENVÍO A GOOGLE SHEETS
 // =====================================================
 async function submitBooking() {
   const wa = document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim();
   const data = {
-    fecha: state.selectedDate,
-    horario: state.selectedTime,
+    fecha:      state.selectedDate,
+    horario:    state.selectedTime,
     tipoSesion: state.selectedSession,
-    tematica: document.getElementById('tematica').value,
+    tematica:   document.getElementById('tematica').value,
     nombreBebe: document.getElementById('baby-name').value,
     cumpleBebe: document.getElementById('baby-birthday').value,
     nombreMama: document.getElementById('mom-name').value,
-    telefono: document.getElementById('mom-phone').value,
-    whatsapp: wa,
-    estado: 'PENDIENTE',
-    timestamp: new Date().toISOString()
+    telefono:   document.getElementById('mom-phone').value,
+    whatsapp:   wa,
+    estado:     'PENDIENTE',
+    timestamp:  new Date().toISOString()
   };
 
   document.getElementById('loading').classList.add('show');
@@ -786,11 +628,12 @@ async function submitBooking() {
 
   try {
     await fetch(CONFIG.SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      method: 'POST',
+      mode:   'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:   JSON.stringify(data)
     });
-  } catch(e) { console.log('Demo mode', e); }
+  } catch(e) { console.log('Error al enviar:', e); }
 
   document.getElementById('loading').classList.remove('show');
   showSuccess(data);
@@ -800,14 +643,14 @@ function showSuccess(data) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-success').classList.add('active');
 
-  const waNum = data.whatsapp.replace(/\D/g,'');
+  const waNum  = data.whatsapp.replace(/\D/g,'');
   const waFull = waNum.startsWith('54') ? waNum : '54' + waNum;
-  const msg = encodeURIComponent(
+  const msg    = encodeURIComponent(
     `Hola! Acabo de realizar una reserva de sesión de fotos para el día ${data.fecha} a las ${data.horario} hs.\n` +
     `Bebé: ${data.nombreBebe} · Sesión: ${data.tipoSesion}\n` +
     `Espero confirmación, ¡gracias! 💕`
   );
-  document.getElementById('wa-link').href = `https://wa.me/541130448139?text=${msg}`;
+  document.getElementById('wa-link').href = `https://wa.me/541133408139?text=${msg}`;
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
