@@ -176,23 +176,24 @@ function cp(n){ return String.fromCodePoint(n); }
 
 function buildMsgConfirm(t, dateStr) {
   var lineas = [
-    'Hola, turno confirmado! Muchas gracias ' + cp(128149),
-    'Te dejo la info del turno:',
+    'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Turno confirmado! Muchas gracias.',
+    'Te dejo la info:',
     '',
-    cp(128197) + ' Fecha: ' + dateStr,
-    cp(8987)   + ' Hora: ' + t.horario + ' hs',
-    cp(128118) + ' Modelo: ' + t.nombreBebe,
-    cp(127874) + ' Sesi\u00f3n: ' + t.tipoSesion,
-    cp(128105) + ' Mam\u00e1: ' + t.nombreMama,
-    cp(127912) + ' Tem\u00e1tica: ' + (t.tematica || '-'),
-    cp(128176) + ' Se\u00f1a: ',
-    cp(128181) + ' Resta: ',
-    cp(9989)   + ' Valor cobrado: ',
-    cp(128203) + ' Observaciones: '
+    cp(128197) + ' *Fecha:* ' + dateStr,
+    cp(9200)   + ' *Hora:* ' + t.horario + ' hs',
+    cp(128118) + ' *Modelo:* ' + t.nombreBebe,
+    cp(127874) + ' *Sesi\u00f3n:* ' + t.tipoSesion,
+    cp(128105) + ' *Mam\u00e1:* ' + t.nombreMama,
+    cp(127912) + ' *Tem\u00e1tica:* ' + (t.tematica || '-'),
+    cp(128176) + ' *Se\u00f1a:* ',
+    cp(128181) + ' *Resta:* ',
+    cp(9989)   + ' *Valor cobrado:* ',
+    cp(128203) + ' *Observaciones:* ',
+    '',
+    'Muchas gracias, nos vemos pronto! ' + cp(128248) + cp(128149)
   ];
   return encodeURIComponent(lineas.join('\n'));
 }
-
 function buildMsgRecordatorio(t, dateStr) {
   var tema = t.tematica ? ' tem\u00e1tica ' + t.tematica : '';
   var lineas = [
