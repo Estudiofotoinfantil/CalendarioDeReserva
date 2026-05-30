@@ -507,9 +507,18 @@ Te dejo la info del turno:
 📝 Observaciones: `
   );
 
-  // Mensaje recordatorio
+  // Mensaje recordatorio personalizado
   const msgRecordatorio = encodeURIComponent(
-    `Hola ${t.nombreMama}! Te recordamos la sesión de ${t.nombreBebe} 📸\n📅 ${dateStr} a las ${t.horario} hs\n¡Los esperamos! 💕`
+`✨ Recordatorio de turno ✨
+Hola! 😊 Te recuerdo que el ${dateStr} a las ${t.horario} hs tenés tu sesión ${t.tipoSesion}${t.tematica ? ' temática ' + t.tematica : ''} de ${t.nombreBebe}.
+
+📍 Dirección: Lopez May 2946, Gregorio de Laferrere.
+
+👉🏼 Importante:
+* Traer dos cambios de vestuario para el bebé 👶
+* Máximo de personas: 2 adultos (los hermanitos pueden participar en las fotos 💕). En caso que asista abuelo o tía se cobra un adicional $10.000
+* Pedimos puntualidad a la hora de la sesión, ya que necesitamos que la modelo esté tranquilito/a y cómodo/a durante la sesión ✨
+* ¡Los esperamos! 💕📸`
   );
 
   const waConfirmBtn  = waFull ? `<a class="btn-action btn-whatsapp-action" href="https://wa.me/${waFull}?text=${msgConfirm}" target="_blank">${waIcon()} Confirmar + WA</a>` : '';
