@@ -55,6 +55,19 @@
   .search-input{margin-left:auto;padding:8px 14px;border:1.5px solid var(--gold-light);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:180px;}
   .search-input:focus{border-color:var(--gold-1);}
 
+  /* MONTH TABS */
+  .month-tabs{padding:0 16px 12px;display:flex;gap:8px;flex-wrap:wrap;overflow-x:auto;}
+  @media(min-width:600px){.month-tabs{padding:0 24px 12px;}}
+  .month-tab{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-light);cursor:pointer;transition:.2s;white-space:nowrap;}
+  .month-tab:hover{border-color:var(--gold-2);color:var(--gold-1);}
+  .month-tab.active{background:var(--gold-2);border-color:var(--gold-2);color:white;font-weight:500;}
+
+  /* MONTH GROUP HEADER */
+  .month-group-header{display:flex;align-items:center;gap:10px;margin:20px 0 10px;}
+  .month-group-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);}
+  .month-group-count{font-size:12px;color:var(--text-light);background:var(--cream-dark);border-radius:10px;padding:2px 8px;}
+  .month-group-line{flex:1;height:1px;background:var(--gold-light);}
+
   /* TURNOS */
   .turnos-wrap{padding:0 16px 100px;}
   @media(min-width:600px){.turnos-wrap{padding:0 24px 80px;}}
@@ -158,6 +171,7 @@
     <input class="search-input" type="text" id="search-input" placeholder="🔍 Buscar..." oninput="renderTurnos()">
   </div>
 
+  <div id="month-tabs" class="month-tabs"></div>
   <div class="debug-box" id="debug-box"></div>
 
   <div class="turnos-wrap">
@@ -302,6 +316,7 @@ async function loadData() {
   }
   stopLoading();
   updateStats();
+  renderMonthTabs();
   renderTurnos();
 }
 
@@ -324,16 +339,67 @@ function updateStats() {
 // =====================================================
 // RENDER
 // =====================================================
+let currentMonth = 'todos'; // filtro de mes activo
+
 function setFilter(filter, btn) {
   currentFilter = filter;
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  currentMonth = 'todos'; // resetear mes al cambiar estado
+  renderMonthTabs();
   renderTurnos();
+}
+
+function setMonthFilter(ym, btn) {
+  currentMonth = ym;
+  document.querySelectorAll('.month-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTurnos();
+}
+
+function renderMonthTabs() {
+  const container = document.getElementById('month-tabs');
+  const search    = document.getElementById('search-input').value.toLowerCase();
+
+  // Obtener lista filtrada por estado/búsqueda (sin filtro de mes)
+  let list = allTurnos;
+  if (currentFilter !== 'todos') list = list.filter(t => t.estado.toLowerCase() === currentFilter);
+  if (search) list = list.filter(t =>
+    t.nombreBebe.toLowerCase().includes(search) ||
+    t.nombreMama.toLowerCase().includes(search) ||
+    t.fecha.includes(search)
+  );
+
+  // Extraer meses únicos con fecha válida, ordenados cronológicamente
+  const monthMap = {};
+  list.forEach(t => {
+    if (!t.fecha || t.fecha.length < 7) return;
+    const ym = t.fecha.slice(0, 7); // "2026-06"
+    if (!monthMap[ym]) {
+      const d = new Date(t.fecha + 'T12:00:00');
+      monthMap[ym] = d.toLocaleDateString('es-AR', {month:'long', year:'numeric'})
+                      .replace(/^\w/, c => c.toUpperCase());
+    }
+  });
+
+  const months = Object.keys(monthMap).sort();
+
+  if (months.length <= 1) {
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = `<button class="month-tab ${currentMonth==='todos'?'active':''}" onclick="setMonthFilter('todos',this)">Todos los meses</button>`;
+  months.forEach(ym => {
+    html += `<button class="month-tab ${currentMonth===ym?'active':''}" onclick="setMonthFilter('${ym}',this)">${monthMap[ym]}</button>`;
+  });
+  container.innerHTML = html;
 }
 
 function renderTurnos() {
   const search = document.getElementById('search-input').value.toLowerCase();
   let list = allTurnos;
+
   if (currentFilter !== 'todos') list = list.filter(t => t.estado.toLowerCase() === currentFilter);
   if (search) list = list.filter(t =>
     t.nombreBebe.toLowerCase().includes(search) ||
@@ -341,14 +407,53 @@ function renderTurnos() {
     t.fecha.includes(search) ||
     t.whatsapp.includes(search)
   );
-  list.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  if (currentMonth !== 'todos') list = list.filter(t => t.fecha && t.fecha.startsWith(currentMonth));
+
+  // Ordenar: confirmados por fecha ASC (próximo primero), resto por timestamp DESC
+  if (currentFilter === 'confirmado') {
+    list.sort((a,b) => (a.fecha||'').localeCompare(b.fecha||'') || (a.horario||'').localeCompare(b.horario||''));
+  } else {
+    list.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+  }
+
+  renderMonthTabs();
 
   const container = document.getElementById('turnos-list');
   if (list.length === 0) {
     container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌸</div><p>No hay reservas que coincidan</p></div>`;
     return;
   }
-  container.innerHTML = list.map(t => buildTurnoCard(t)).join('');
+
+  // Agrupar por mes con separadores visuales
+  const groups = {};
+  list.forEach(t => {
+    const ym = (t.fecha||'').slice(0,7) || 'sin-fecha';
+    if (!groups[ym]) groups[ym] = [];
+    groups[ym].push(t);
+  });
+
+  const sortedKeys = Object.keys(groups).sort();
+  let html = '';
+  sortedKeys.forEach(ym => {
+    const items = groups[ym];
+    let label = ym;
+    try {
+      const d = new Date(ym + '-01T12:00:00');
+      label = d.toLocaleDateString('es-AR',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+    } catch(e){}
+
+    // Solo mostrar separador si hay más de un mes en total
+    if (sortedKeys.length > 1 || currentMonth === 'todos') {
+      html += `<div class="month-group-header">
+        <span class="month-group-title">${label}</span>
+        <span class="month-group-count">${items.length} ${items.length===1?'sesión':'sesiones'}</span>
+        <div class="month-group-line"></div>
+      </div>`;
+    }
+    html += items.map(t => buildTurnoCard(t)).join('');
+  });
+
+  container.innerHTML = html;
 }
 
 // =====================================================
@@ -451,6 +556,7 @@ async function updateStatus(id, newStatus) {
   const turno = allTurnos.find(t => t.id === id);
   if (turno) turno.estado = newStatus;
   updateStats();
+  renderMonthTabs();
   renderTurnos();
   try {
     await fetch(ADMIN_CONFIG.SCRIPT_URL, {
