@@ -13,13 +13,10 @@
     --success:#7cad96;--success-bg:#e8f5ee;
     --danger:#d47a6a;--danger-bg:#faeae7;
     --warning:#d4a74a;--warning-bg:#fdf3dc;
-    --info:#5b8dd9;--info-bg:#e8f0fb;
     --panel-bg:#2c1f1a;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
-
-  /* LOGIN */
   .login-screen{min-height:100vh;background:linear-gradient(145deg,#2c1f1a 0%,#4a302a 50%,#2c1f1a 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
   .login-card{background:var(--cream);border-radius:20px;padding:48px 36px;max-width:380px;width:100%;text-align:center;}
   .login-logo{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px;}
@@ -30,8 +27,6 @@
   .login-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:.2s;}
   .login-btn:hover{opacity:.9;}
   .login-error{color:var(--danger);font-size:13px;margin-top:10px;display:none;}
-
-  /* PANEL */
   .admin-panel{display:none;}
   .admin-panel.show{display:block;}
   .admin-header{background:var(--panel-bg);color:#e8c4b8;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
@@ -39,46 +34,34 @@
   .studio-sub{font-size:11px;color:var(--gold-2);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px;}
   .logout-btn{background:rgba(255,255,255,0.1);color:#e8c4b8;border:1px solid rgba(232,196,184,0.3);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
   .logout-btn:hover{background:rgba(255,255,255,0.2);}
-
-  /* STATS */
   .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px 16px 0;}
   @media(min-width:600px){.stats-row{grid-template-columns:repeat(4,1fr);padding:24px 24px 0;}}
   .stat-card{background:var(--white);border-radius:14px;padding:18px;border:1px solid var(--gold-light);}
   .stat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:400;color:var(--text);line-height:1;}
   .stat-label{font-size:12px;color:var(--text-light);margin-top:4px;}
-
-  /* CONTROLS */
   .controls{padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   @media(min-width:600px){.controls{padding:20px 24px;}}
   .filter-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;transition:.2s;}
   .filter-btn.active{background:var(--gold-1);border-color:var(--gold-1);color:white;}
   .search-input{margin-left:auto;padding:8px 14px;border:1.5px solid var(--gold-light);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:180px;}
   .search-input:focus{border-color:var(--gold-1);}
-
-  /* MONTH TABS */
   .month-tabs{padding:0 16px 12px;display:flex;gap:8px;flex-wrap:wrap;overflow-x:auto;}
   @media(min-width:600px){.month-tabs{padding:0 24px 12px;}}
   .month-tab{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-light);cursor:pointer;transition:.2s;white-space:nowrap;}
   .month-tab:hover{border-color:var(--gold-2);color:var(--gold-1);}
   .month-tab.active{background:var(--gold-2);border-color:var(--gold-2);color:white;font-weight:500;}
-
-  /* MONTH GROUP HEADER */
   .month-group-header{display:flex;align-items:center;gap:10px;margin:20px 0 10px;}
   .month-group-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);}
   .month-group-count{font-size:12px;color:var(--text-light);background:var(--cream-dark);border-radius:10px;padding:2px 8px;}
   .month-group-line{flex:1;height:1px;background:var(--gold-light);}
-
-  /* TURNOS */
   .turnos-wrap{padding:0 16px 100px;}
   @media(min-width:600px){.turnos-wrap{padding:0 24px 80px;}}
   .section-heading{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-
   .turno-card{background:var(--white);border-radius:14px;padding:18px;margin-bottom:12px;border:1px solid var(--gold-light);border-left:4px solid var(--gold-light);animation:fadeUp .3s ease;}
   @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
   .turno-card.pendiente{border-left-color:var(--warning);}
   .turno-card.confirmado{border-left-color:var(--success);}
   .turno-card.cancelado{border-left-color:var(--danger);opacity:.65;}
-
   .turno-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px;}
   .turno-date{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
   .turno-time{font-size:13px;color:var(--text-light);margin-top:2px;}
@@ -86,12 +69,10 @@
   .badge-pendiente{background:var(--warning-bg);color:var(--warning);}
   .badge-confirmado{background:var(--success-bg);color:var(--success);}
   .badge-cancelado{background:var(--danger-bg);color:var(--danger);}
-
   .turno-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
   .turno-info-item{font-size:13px;}
   .info-key{color:var(--text-light);font-size:11px;display:block;margin-bottom:2px;}
   .info-val{color:var(--text);font-weight:500;}
-
   .turno-notas{background:var(--cream-dark);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text-light);margin-bottom:14px;font-style:italic;}
   .turno-actions{display:flex;gap:8px;flex-wrap:wrap;}
   .btn-action{flex:1;min-width:110px;padding:10px 12px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.2s;text-align:center;}
@@ -102,19 +83,11 @@
   .btn-whatsapp-action{background:#e8f5ee;color:#25d366;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;}
   .btn-whatsapp-action:hover{background:#25d366;color:white;}
   .turno-id{font-size:11px;color:var(--gold-3);margin-top:8px;}
-
-  /* DEBUG */
   .debug-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin:12px 16px;font-size:12px;color:#5d4037;white-space:pre-wrap;display:none;}
-
-  /* REFRESH */
   .refresh-btn{background:var(--panel-bg);color:#e8c4b8;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:6px;}
   .refresh-btn:hover{opacity:.85;}
-
-  /* EMPTY */
   .empty-state{text-align:center;padding:60px 24px;color:var(--text-light);}
   .empty-state .empty-icon{font-size:40px;margin-bottom:12px;}
-
-  /* MODAL */
   .modal-overlay{position:fixed;inset:0;background:rgba(44,31,26,0.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
   .modal-overlay.show{display:flex;}
   .modal{background:var(--cream);border-radius:20px;padding:28px;max-width:360px;width:100%;}
@@ -124,8 +97,6 @@
   .modal-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
   .modal-cancel-btn{background:var(--cream-dark);color:var(--text-light);}
   .modal-confirm-btn{background:var(--danger);color:white;}
-
-  /* LOADING BAR */
   .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;}
   .loading-bar.loading{animation:load-bar 1.5s ease infinite;}
   @keyframes load-bar{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
@@ -134,60 +105,53 @@
 <body>
 <div class="loading-bar" id="loading-bar"></div>
 
-<!-- LOGIN -->
 <div class="login-screen" id="login-screen">
   <div class="login-card">
-    <div class="login-logo">✦ Estudio Fotoinfantil</div>
+    <div class="login-logo">&#10022; Estudio Fotoinfantil</div>
     <h1>Panel de Control</h1>
-    <p>Ingresá tu contraseña para acceder</p>
-    <input type="password" id="pwd-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    <p>Ingres&#225; tu contrase&#241;a para acceder</p>
+    <input type="password" id="pwd-input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" onkeydown="if(event.key==='Enter')doLogin()">
     <button class="login-btn" onclick="doLogin()">Ingresar</button>
-    <div class="login-error" id="login-error">Contraseña incorrecta</div>
+    <div class="login-error" id="login-error">Contrase&#241;a incorrecta</div>
   </div>
 </div>
 
-<!-- ADMIN PANEL -->
 <div class="admin-panel" id="admin-panel">
   <div class="admin-header">
     <div>
       <h1>Panel de Control</h1>
-      <span class="studio-sub">Estudio · Gestión de turnos</span>
+      <span class="studio-sub">Estudio &middot; Gesti&#243;n de turnos</span>
     </div>
     <button class="logout-btn" onclick="doLogout()">Salir</button>
   </div>
-
   <div class="stats-row">
     <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Reservas totales</div></div>
     <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendientes</div></div>
     <div class="stat-card"><div class="stat-num" id="stat-confirmed">0</div><div class="stat-label">Confirmadas</div></div>
     <div class="stat-card"><div class="stat-num" id="stat-cancelled">0</div><div class="stat-label">Canceladas</div></div>
   </div>
-
   <div class="controls">
     <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
-    <button class="filter-btn" onclick="setFilter('pendiente',this)">⏳ Pendientes</button>
-    <button class="filter-btn" onclick="setFilter('confirmado',this)">✅ Confirmados</button>
-    <button class="filter-btn" onclick="setFilter('cancelado',this)">❌ Cancelados</button>
-    <input class="search-input" type="text" id="search-input" placeholder="🔍 Buscar..." oninput="renderTurnos()">
+    <button class="filter-btn" onclick="setFilter('pendiente',this)">Pendientes</button>
+    <button class="filter-btn" onclick="setFilter('confirmado',this)">Confirmados</button>
+    <button class="filter-btn" onclick="setFilter('cancelado',this)">Cancelados</button>
+    <input class="search-input" type="text" id="search-input" placeholder="Buscar..." oninput="renderTurnos()">
   </div>
-
   <div id="month-tabs" class="month-tabs"></div>
   <div class="debug-box" id="debug-box"></div>
-
   <div class="turnos-wrap">
     <div class="section-heading">
       <span>Reservas</span>
-      <button class="refresh-btn" onclick="loadData()">↻ Actualizar</button>
+      <button class="refresh-btn" onclick="loadData()">&#8635; Actualizar</button>
     </div>
     <div id="turnos-list"></div>
   </div>
 </div>
 
-<!-- MODAL CANCELAR -->
 <div class="modal-overlay" id="cancel-modal">
   <div class="modal">
-    <h3>¿Cancelar este turno?</h3>
-    <p>El turno quedará marcado como cancelado. Podés reactivarlo después si lo necesitás.</p>
+    <h3>&#191;Cancelar este turno?</h3>
+    <p>El turno quedar&#225; marcado como cancelado. Pod&#233;s reactivarlo despu&#233;s si lo necesit&#225;s.</p>
     <div class="modal-btns">
       <button class="modal-cancel-btn" onclick="closeModal()">Volver</button>
       <button class="modal-confirm-btn" onclick="confirmCancel()">Cancelar turno</button>
@@ -196,9 +160,6 @@
 </div>
 
 <script>
-// =====================================================
-// CONFIGURACIÓN
-// =====================================================
 const ADMIN_CONFIG = {
   PASSWORD:   'estudio2025',
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec'
@@ -206,82 +167,108 @@ const ADMIN_CONFIG = {
 
 let allTurnos     = [];
 let currentFilter = 'todos';
+let currentMonth  = 'todos';
 let cancelTarget  = null;
 
-// =====================================================
-// NORMALIZAR DATOS DE GOOGLE SHEETS
-// Orden real de columnas:
-// id | timestamp | fecha | horario | tipoSesion | tematica | nombreBebe | cumpleBebe | nombreMama | estado | telefono | whatsapp
-// =====================================================
+// ── Construir mensajes WA sin emojis inline ──
+// Los emojis se arman con codepoints para evitar problemas de encoding
+function cp(n){ return String.fromCodePoint(n); }
+
+function buildMsgConfirm(t, dateStr) {
+  var lineas = [
+    'Hola, turno confirmado! Muchas gracias ' + cp(128149),
+    'Te dejo la info del turno:',
+    '',
+    cp(128197) + ' Fecha: ' + dateStr,
+    cp(8987)   + ' Hora: ' + t.horario + ' hs',
+    cp(128118) + ' Modelo: ' + t.nombreBebe,
+    cp(127874) + ' Sesi\u00f3n: ' + t.tipoSesion,
+    cp(128105) + ' Mam\u00e1: ' + t.nombreMama,
+    cp(127912) + ' Tem\u00e1tica: ' + (t.tematica || '-'),
+    cp(128176) + ' Se\u00f1a: ',
+    cp(128181) + ' Resta: ',
+    cp(9989)   + ' Valor cobrado: ',
+    cp(128203) + ' Observaciones: '
+  ];
+  return encodeURIComponent(lineas.join('\n'));
+}
+
+function buildMsgRecordatorio(t, dateStr) {
+  var tema = t.tematica ? ' tem\u00e1tica ' + t.tematica : '';
+  var lineas = [
+    cp(10024) + ' Recordatorio de turno ' + cp(10024),
+    'Hola! ' + cp(128522) + ' Te recuerdo que el ' + dateStr + ' a las ' + t.horario + ' hs ten\u00e9s tu sesi\u00f3n ' + t.tipoSesion + tema + ' de ' + t.nombreBebe + '.',
+    '',
+    cp(128205) + ' Direcci\u00f3n: Lopez May 2946, Gregorio de Laferrere.',
+    '',
+    cp(128073) + cp(127998) + ' Importante:',
+    '* Traer dos cambios de vestuario para el beb\u00e9 ' + cp(128118),
+    '* M\u00e1ximo de personas: 2 adultos (los hermanitos pueden participar en las fotos ' + cp(128149) + '). En caso que asista abuelo o t\u00eda se cobra un adicional $10.000',
+    '* Pedimos puntualidad a la hora de la sesi\u00f3n, ya que necesitamos que la modelo est\u00e9 tranquilito/a y c\u00f3modo/a durante la sesi\u00f3n ' + cp(10024),
+    '* ' + cp(161) + 'Los esperamos! ' + cp(128149) + cp(128248)
+  ];
+  return encodeURIComponent(lineas.join('\n'));
+}
+
+// ── Normalizar datos ──
 function parseHorario(v) {
-  // Con getDisplayValues Sheets devuelve texto tal como se ve: "18:00"
-  if (!v) return '–';
+  if (!v) return '--';
   if (typeof v === 'number') {
-    const min = Math.round(v * 24 * 60);
+    var min = Math.round(v * 24 * 60);
     return String(Math.floor(min/60)).padStart(2,'0') + ':' + String(min%60).padStart(2,'0');
   }
-  const s = String(v).trim();
+  var s = String(v).trim();
   if (s.startsWith('1899-') || s.startsWith('1900-')) {
-    const d = new Date(s);
+    var d = new Date(s);
     return String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0');
   }
-  let h = s.replace('.', ':');
+  var h = s.replace('.', ':');
   if (h && !h.includes(':')) h += ':00';
-  return h || '–';
+  return h || '--';
 }
 
 function parseFecha(v) {
   if (!v) return '';
-  const s = String(v).trim();
-  // YYYY-MM-DD directo (texto plano de Sheets)
-  if (s.match(/^\d{4}-\d{2}-\d{2}$/)) return s;
-  // ISO completo
+  var s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
   if (s.includes('T')) return s.split('T')[0];
-  // dd/mm/yyyy (formato visual argentino)
   if (s.includes('/')) {
-    const p = s.split('/');
+    var p = s.split('/');
     if (p.length === 3) return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
   }
   return s;
 }
 
 function normalizeReserva(row, idx) {
-  // Sheets devuelve los encabezados tal como están en la fila 1
-  // Soporta tanto minúsculas como mayúsculas en los keys
-  const g = (keys) => {
-    for (const k of keys) {
-      if (row[k] !== undefined && row[k] !== null && row[k] !== '') return row[k];
+  var g = function(keys) {
+    for (var i=0; i<keys.length; i++) {
+      if (row[keys[i]] !== undefined && row[keys[i]] !== null && row[keys[i]] !== '') return row[keys[i]];
     }
     return '';
   };
-
-  let estado = String(g(['estado','Estado']) || 'PENDIENTE').toUpperCase().trim();
+  var estado = String(g(['estado','Estado']) || 'PENDIENTE').toUpperCase().trim();
   if (!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado)) estado = 'PENDIENTE';
-
-  let ts = g(['timestamp','Timestamp']);
+  var ts = g(['timestamp','Timestamp']);
   if (ts instanceof Date) ts = ts.toISOString();
   if (!ts) ts = new Date().toISOString();
-
   return {
     id:         String(g(['id','ID']) || 'T' + String(idx+1).padStart(3,'0')),
     timestamp:  String(ts),
     fecha:      parseFecha(g(['fecha','Fecha'])),
     horario:    parseHorario(g(['horario','Horario'])),
-    tipoSesion: String(g(['tipoSesion','TipoSesion','tipo_sesion']) || '–'),
-    tematica:   String(g(['tematica','Tematica','temática']) || ''),
-    nombreBebe: String(g(['nombreBebe','NombreBebe','nombre_bebe']) || '–'),
-    cumpleBebe: parseFecha(g(['cumpleBebe','CumpleBebe','cumple_bebe'])),
-    nombreMama: String(g(['nombreMama','NombreMama','nombre_mama']) || '–'),
-    estado,
+    tipoSesion: String(g(['tipoSesion','TipoSesion']) || '--'),
+    tematica:   String(g(['tematica','Tematica']) || ''),
+    nombreBebe: String(g(['nombreBebe','NombreBebe']) || '--'),
+    cumpleBebe: parseFecha(g(['cumpleBebe','CumpleBebe'])),
+    nombreMama: String(g(['nombreMama','NombreMama']) || '--'),
+    estado:     estado,
     telefono:   String(g(['telefono','Telefono']) || ''),
     whatsapp:   String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
     notas:      String(g(['notas','Notas']) || '')
   };
 }
 
-// =====================================================
-// LOGIN
-// =====================================================
+// ── LOGIN ──
 function doLogin() {
   if (document.getElementById('pwd-input').value === ADMIN_CONFIG.PASSWORD) {
     document.getElementById('login-screen').style.display = 'none';
@@ -290,7 +277,7 @@ function doLogin() {
   } else {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('pwd-input').value = '';
-    setTimeout(() => document.getElementById('login-error').style.display = 'none', 3000);
+    setTimeout(function(){ document.getElementById('login-error').style.display = 'none'; }, 3000);
   }
 }
 function doLogout() {
@@ -299,19 +286,17 @@ function doLogout() {
   document.getElementById('pwd-input').value = '';
 }
 
-// =====================================================
-// CARGAR DATOS
-// =====================================================
+// ── CARGAR DATOS ──
 async function loadData() {
   startLoading();
   try {
-    const resp = await fetch(`${ADMIN_CONFIG.SCRIPT_URL}?action=getAll`, { mode:'cors' });
-    const data = await resp.json();
+    var resp = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getAll', { mode:'cors' });
+    var data = await resp.json();
     if (data.error) throw new Error(data.error);
-    allTurnos = (data.reservas || []).map((row, idx) => normalizeReserva(row, idx));
+    allTurnos = (data.reservas || []).map(function(row, idx){ return normalizeReserva(row, idx); });
     showDebug('');
   } catch(err) {
-    showDebug('⚠️ No se pudo conectar con Google Sheets.\nError: ' + err.message);
+    showDebug('No se pudo conectar con Google Sheets.\nError: ' + err.message);
     if (allTurnos.length === 0) allTurnos = [];
   }
   stopLoading();
@@ -321,248 +306,185 @@ async function loadData() {
 }
 
 function showDebug(msg) {
-  const box = document.getElementById('debug-box');
+  var box = document.getElementById('debug-box');
   box.style.display = msg ? 'block' : 'none';
   box.textContent = msg;
 }
 
-// =====================================================
-// STATS
-// =====================================================
+// ── STATS ──
 function updateStats() {
   document.getElementById('stat-total').textContent     = allTurnos.length;
-  document.getElementById('stat-pending').textContent   = allTurnos.filter(t=>t.estado==='PENDIENTE').length;
-  document.getElementById('stat-confirmed').textContent = allTurnos.filter(t=>t.estado==='CONFIRMADO').length;
-  document.getElementById('stat-cancelled').textContent = allTurnos.filter(t=>t.estado==='CANCELADO').length;
+  document.getElementById('stat-pending').textContent   = allTurnos.filter(function(t){return t.estado==='PENDIENTE';}).length;
+  document.getElementById('stat-confirmed').textContent = allTurnos.filter(function(t){return t.estado==='CONFIRMADO';}).length;
+  document.getElementById('stat-cancelled').textContent = allTurnos.filter(function(t){return t.estado==='CANCELADO';}).length;
 }
 
-// =====================================================
-// RENDER
-// =====================================================
-let currentMonth = 'todos'; // filtro de mes activo
-
+// ── FILTROS ──
 function setFilter(filter, btn) {
   currentFilter = filter;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  currentMonth  = 'todos';
+  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
-  currentMonth = 'todos'; // resetear mes al cambiar estado
   renderMonthTabs();
   renderTurnos();
 }
 
 function setMonthFilter(ym, btn) {
   currentMonth = ym;
-  document.querySelectorAll('.month-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.month-tab').forEach(function(b){ b.classList.remove('active'); });
   btn.classList.add('active');
   renderTurnos();
 }
 
 function renderMonthTabs() {
-  const container = document.getElementById('month-tabs');
-  const search    = document.getElementById('search-input').value.toLowerCase();
+  var container = document.getElementById('month-tabs');
+  var list = allTurnos;
+  if (currentFilter !== 'todos') list = list.filter(function(t){ return t.estado.toLowerCase() === currentFilter; });
 
-  // Obtener lista filtrada por estado/búsqueda (sin filtro de mes)
-  let list = allTurnos;
-  if (currentFilter !== 'todos') list = list.filter(t => t.estado.toLowerCase() === currentFilter);
-  if (search) list = list.filter(t =>
-    t.nombreBebe.toLowerCase().includes(search) ||
-    t.nombreMama.toLowerCase().includes(search) ||
-    t.fecha.includes(search)
-  );
-
-  // Extraer meses únicos con fecha válida, ordenados cronológicamente
-  const monthMap = {};
-  list.forEach(t => {
+  var monthMap = {};
+  list.forEach(function(t) {
     if (!t.fecha || t.fecha.length < 7) return;
-    const ym = t.fecha.slice(0, 7); // "2026-06"
+    var ym = t.fecha.slice(0, 7);
     if (!monthMap[ym]) {
-      const d = new Date(t.fecha + 'T12:00:00');
-      monthMap[ym] = d.toLocaleDateString('es-AR', {month:'long', year:'numeric'})
-                      .replace(/^\w/, c => c.toUpperCase());
+      var d = new Date(ym + '-01T12:00:00');
+      var label = d.toLocaleDateString('es-AR', {month:'long', year:'numeric'});
+      monthMap[ym] = label.charAt(0).toUpperCase() + label.slice(1);
     }
   });
 
-  const months = Object.keys(monthMap).sort();
+  var months = Object.keys(monthMap).sort();
+  if (months.length <= 1) { container.innerHTML = ''; return; }
 
-  if (months.length <= 1) {
-    container.innerHTML = '';
-    return;
-  }
-
-  let html = `<button class="month-tab ${currentMonth==='todos'?'active':''}" onclick="setMonthFilter('todos',this)">Todos los meses</button>`;
-  months.forEach(ym => {
-    html += `<button class="month-tab ${currentMonth===ym?'active':''}" onclick="setMonthFilter('${ym}',this)">${monthMap[ym]}</button>`;
+  var html = '<button class="month-tab ' + (currentMonth==='todos'?'active':'') + '" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';
+  months.forEach(function(ym) {
+    html += '<button class="month-tab ' + (currentMonth===ym?'active':'') + '" onclick="setMonthFilter(\'' + ym + '\',this)">' + monthMap[ym] + '</button>';
   });
   container.innerHTML = html;
 }
 
+// ── RENDER TURNOS ──
 function renderTurnos() {
-  const search = document.getElementById('search-input').value.toLowerCase();
-  let list = allTurnos;
+  var search = document.getElementById('search-input').value.toLowerCase();
+  var list = allTurnos;
+  if (currentFilter !== 'todos') list = list.filter(function(t){ return t.estado.toLowerCase() === currentFilter; });
+  if (search) list = list.filter(function(t){
+    return t.nombreBebe.toLowerCase().includes(search) ||
+           t.nombreMama.toLowerCase().includes(search) ||
+           t.fecha.includes(search) ||
+           t.whatsapp.includes(search);
+  });
+  if (currentMonth !== 'todos') list = list.filter(function(t){ return t.fecha && t.fecha.startsWith(currentMonth); });
 
-  if (currentFilter !== 'todos') list = list.filter(t => t.estado.toLowerCase() === currentFilter);
-  if (search) list = list.filter(t =>
-    t.nombreBebe.toLowerCase().includes(search) ||
-    t.nombreMama.toLowerCase().includes(search) ||
-    t.fecha.includes(search) ||
-    t.whatsapp.includes(search)
-  );
-  if (currentMonth !== 'todos') list = list.filter(t => t.fecha && t.fecha.startsWith(currentMonth));
-
-  // Ordenar: confirmados por fecha ASC (próximo primero), resto por timestamp DESC
   if (currentFilter === 'confirmado') {
-    list.sort((a,b) => (a.fecha||'').localeCompare(b.fecha||'') || (a.horario||'').localeCompare(b.horario||''));
+    list.sort(function(a,b){ return (a.fecha||'').localeCompare(b.fecha||'') || (a.horario||'').localeCompare(b.horario||''); });
   } else {
-    list.sort((a,b) => new Date(b.timestamp) - new Date(a.timestamp));
+    list.sort(function(a,b){ return new Date(b.timestamp) - new Date(a.timestamp); });
   }
 
   renderMonthTabs();
 
-  const container = document.getElementById('turnos-list');
+  var container = document.getElementById('turnos-list');
   if (list.length === 0) {
-    container.innerHTML = `<div class="empty-state"><div class="empty-icon">🌸</div><p>No hay reservas que coincidan</p></div>`;
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas que coincidan</p></div>';
     return;
   }
 
-  // Agrupar por mes con separadores visuales
-  const groups = {};
-  list.forEach(t => {
-    const ym = (t.fecha||'').slice(0,7) || 'sin-fecha';
+  var groups = {};
+  list.forEach(function(t) {
+    var ym = (t.fecha||'').slice(0,7) || 'sin-fecha';
     if (!groups[ym]) groups[ym] = [];
     groups[ym].push(t);
   });
 
-  const sortedKeys = Object.keys(groups).sort();
-  let html = '';
-  sortedKeys.forEach(ym => {
-    const items = groups[ym];
-    let label = ym;
+  var sortedKeys = Object.keys(groups).sort();
+  var html = '';
+  sortedKeys.forEach(function(ym) {
+    var items = groups[ym];
+    var label = ym;
     try {
-      const d = new Date(ym + '-01T12:00:00');
-      label = d.toLocaleDateString('es-AR',{month:'long',year:'numeric'}).replace(/^\w/,c=>c.toUpperCase());
+      var d = new Date(ym + '-01T12:00:00');
+      var l = d.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
+      label = l.charAt(0).toUpperCase() + l.slice(1);
     } catch(e){}
-
-    // Solo mostrar separador si hay más de un mes en total
-    if (sortedKeys.length > 1 || currentMonth === 'todos') {
-      html += `<div class="month-group-header">
-        <span class="month-group-title">${label}</span>
-        <span class="month-group-count">${items.length} ${items.length===1?'sesión':'sesiones'}</span>
-        <div class="month-group-line"></div>
-      </div>`;
+    if (sortedKeys.length > 1) {
+      html += '<div class="month-group-header">' +
+        '<span class="month-group-title">' + label + '</span>' +
+        '<span class="month-group-count">' + items.length + ' ' + (items.length===1?'sesi\u00f3n':'sesiones') + '</span>' +
+        '<div class="month-group-line"></div></div>';
     }
-    html += items.map(t => buildTurnoCard(t)).join('');
+    html += items.map(function(t){ return buildTurnoCard(t); }).join('');
   });
-
   container.innerHTML = html;
 }
 
-// =====================================================
-// CONSTRUIR CARD
-// =====================================================
-function waIcon() {
-  return `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>`;
+// ── CARD ──
+function waIconSvg() {
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>';
 }
 
 function buildTurnoCard(t) {
-  // Fecha legible
-  let dateStr = t.fecha || '–';
+  var dateStr = t.fecha || '--';
   try {
     if (t.fecha && t.fecha.length === 10) {
-      const d = new Date(t.fecha + 'T12:00:00');
+      var d = new Date(t.fecha + 'T12:00:00');
       if (!isNaN(d)) dateStr = d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
     }
   } catch(e){}
 
-  // Fecha de cumple legible
-  let cumpleStr = '';
+  var cumpleStr = '';
   try {
     if (t.cumpleBebe && t.cumpleBebe.length === 10) {
-      const dc = new Date(t.cumpleBebe + 'T12:00:00');
+      var dc = new Date(t.cumpleBebe + 'T12:00:00');
       if (!isNaN(dc)) cumpleStr = dc.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});
     }
   } catch(e){}
 
-  // Fecha de reserva
-  let reservadoStr = '–';
+  var reservadoStr = '--';
   try { reservadoStr = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e){}
 
-  const estadoLower = t.estado.toLowerCase();
-  const waNum  = t.whatsapp.replace(/\D/g,'');
-  const waFull = waNum ? (waNum.startsWith('54') ? waNum : '54'+waNum) : '';
+  var estadoLower = t.estado.toLowerCase();
+  var waNum  = t.whatsapp.replace(/\D/g,'');
+  var waFull = waNum ? (waNum.startsWith('54') ? waNum : '54'+waNum) : '';
 
-  // Mensaje de confirmación completo
-  const msgConfirm = encodeURIComponent(
-`Hola, turno confirmado! Muchas gracias 🌸
-Te dejo la info del turno:
+  var msgConfirm      = buildMsgConfirm(t, dateStr);
+  var msgRecordatorio = buildMsgRecordatorio(t, dateStr);
 
-📅 Fecha: ${dateStr}
-⏰ Hora: ${t.horario} hs
-👶 Modelo: ${t.nombreBebe}
-🎂 Sesión: ${t.tipoSesion}
-👩 Mamá: ${t.nombreMama}
-🎨 Temática: ${t.tematica || '–'}
-💰 Seña: 
-💵 Resta: 
-✅ Valor cobrado: 
-📝 Observaciones: `
-  );
+  var waConfirmBtn = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgConfirm+'" target="_blank">'+waIconSvg()+' Confirmar + WA</a>' : '';
+  var waRecordBtn  = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgRecordatorio+'" target="_blank">'+waIconSvg()+' WA recordatorio</a>' : '';
 
-  // Mensaje recordatorio personalizado
-  const msgRecordatorio = encodeURIComponent(
-`✨ Recordatorio de turno ✨
-Hola! 😊 Te recuerdo que el ${dateStr} a las ${t.horario} hs tenés tu sesión ${t.tipoSesion}${t.tematica ? ' temática ' + t.tematica : ''} de ${t.nombreBebe}.
-
-📍 Dirección: Lopez May 2946, Gregorio de Laferrere.
-
-👉🏼 Importante:
-* Traer dos cambios de vestuario para el bebé 👶
-* Máximo de personas: 2 adultos (los hermanitos pueden participar en las fotos 💕). En caso que asista abuelo o tía se cobra un adicional $10.000
-* Pedimos puntualidad a la hora de la sesión, ya que necesitamos que la modelo esté tranquilito/a y cómodo/a durante la sesión ✨
-* ¡Los esperamos! 💕📸`
-  );
-
-  const waConfirmBtn  = waFull ? `<a class="btn-action btn-whatsapp-action" href="https://wa.me/${waFull}?text=${msgConfirm}" target="_blank">${waIcon()} Confirmar + WA</a>` : '';
-  const waRecordBtn   = waFull ? `<a class="btn-action btn-whatsapp-action" href="https://wa.me/${waFull}?text=${msgRecordatorio}" target="_blank">${waIcon()} WA recordatorio</a>` : '';
-
-  const actionButtons =
+  var actionButtons =
     t.estado === 'PENDIENTE'
-      ? `<button class="btn-action btn-confirm-action" onclick="updateStatus('${t.id}','CONFIRMADO')">✅ Confirmar</button>
-         <button class="btn-action btn-cancel-action"  onclick="askCancel('${t.id}')">❌ Cancelar</button>
-         ${waConfirmBtn}`
+      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button>' +
+        '<button class="btn-action btn-cancel-action"  onclick="askCancel(\''+t.id+'\')">Cancelar</button>' +
+        waConfirmBtn
     : t.estado === 'CONFIRMADO'
-      ? `${waRecordBtn}
-         <button class="btn-action btn-cancel-action"  onclick="askCancel('${t.id}')">❌ Cancelar</button>`
-    : `<button class="btn-action btn-confirm-action"   onclick="updateStatus('${t.id}','PENDIENTE')">↩ Reactivar</button>`;
+      ? waRecordBtn +
+        '<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'
+    : '<button class="btn-action btn-confirm-action"  onclick="updateStatus(\''+t.id+'\',\'PENDIENTE\')">Reactivar</button>';
 
-  return `
-  <div class="turno-card ${estadoLower}" id="card-${t.id}">
-    <div class="turno-top">
-      <div>
-        <div class="turno-date">${dateStr}</div>
-        <div class="turno-time">🕐 ${t.horario} hs</div>
-      </div>
-      <span class="status-badge badge-${estadoLower}">${t.estado}</span>
-    </div>
-    <div class="turno-info">
-      <div class="turno-info-item"><span class="info-key">👶 Bebé</span><span class="info-val">${t.nombreBebe}</span></div>
-      <div class="turno-info-item"><span class="info-key">🎂 Tipo sesión</span><span class="info-val">${t.tipoSesion}</span></div>
-      <div class="turno-info-item"><span class="info-key">👩 Mamá</span><span class="info-val">${t.nombreMama}</span></div>
-      <div class="turno-info-item"><span class="info-key">📱 WhatsApp</span><span class="info-val">${t.whatsapp || '–'}</span></div>
-      ${t.tematica  ? `<div class="turno-info-item"><span class="info-key">🎨 Temática</span><span class="info-val">${t.tematica}</span></div>` : ''}
-      ${cumpleStr   ? `<div class="turno-info-item"><span class="info-key">📆 Cumple</span><span class="info-val">${cumpleStr}</span></div>` : ''}
-    </div>
-    ${t.notas ? `<div class="turno-notas">💬 "${t.notas}"</div>` : ''}
-    <div class="turno-actions">${actionButtons}</div>
-    <div class="turno-id">ID: ${t.id} · Reservado: ${reservadoStr}</div>
-  </div>`;
+  return '<div class="turno-card ' + estadoLower + '" id="card-' + t.id + '">' +
+    '<div class="turno-top">' +
+      '<div><div class="turno-date">' + dateStr + '</div><div class="turno-time">' + t.horario + ' hs</div></div>' +
+      '<span class="status-badge badge-' + estadoLower + '">' + t.estado + '</span>' +
+    '</div>' +
+    '<div class="turno-info">' +
+      '<div class="turno-info-item"><span class="info-key">Beb\u00e9</span><span class="info-val">' + t.nombreBebe + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Tipo sesi\u00f3n</span><span class="info-val">' + t.tipoSesion + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Mam\u00e1</span><span class="info-val">' + t.nombreMama + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + (t.whatsapp||'--') + '</span></div>' +
+      (t.tematica ? '<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">' + t.tematica + '</span></div>' : '') +
+      (cumpleStr  ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + cumpleStr + '</span></div>' : '') +
+    '</div>' +
+    (t.notas ? '<div class="turno-notas">"' + t.notas + '"</div>' : '') +
+    '<div class="turno-actions">' + actionButtons + '</div>' +
+    '<div class="turno-id">ID: ' + t.id + ' &middot; Reservado: ' + reservadoStr + '</div>' +
+  '</div>';
 }
 
-// =====================================================
-// ACCIONES
-// =====================================================
+// ── ACCIONES ──
 async function updateStatus(id, newStatus) {
   startLoading();
-  const turno = allTurnos.find(t => t.id === id);
+  var turno = allTurnos.find(function(t){ return t.id === id; });
   if (turno) turno.estado = newStatus;
   updateStats();
   renderMonthTabs();
@@ -571,7 +493,7 @@ async function updateStatus(id, newStatus) {
     await fetch(ADMIN_CONFIG.SCRIPT_URL, {
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'updateStatus', id, status: newStatus })
+      body: JSON.stringify({ action:'updateStatus', id:id, status:newStatus })
     });
   } catch(e) {}
   stopLoading();
@@ -580,12 +502,8 @@ async function updateStatus(id, newStatus) {
 function askCancel(id)   { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
 function closeModal()    { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
 function confirmCancel() { if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
-
-// =====================================================
-// LOADING
-// =====================================================
-function startLoading() { document.getElementById('loading-bar').classList.add('loading'); }
-function stopLoading()  { document.getElementById('loading-bar').classList.remove('loading'); }
+function startLoading()  { document.getElementById('loading-bar').classList.add('loading'); }
+function stopLoading()   { document.getElementById('loading-bar').classList.remove('loading'); }
 
 document.getElementById('cancel-modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
