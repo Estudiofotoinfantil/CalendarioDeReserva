@@ -3,389 +3,100 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estudio Fotoinfantil · Reservá tu sesión</title>
+<title>Estudio Fotoinfantil · Reserv&#225; tu sesi&#243;n</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --gold-1: #9d714c;
-    --gold-2: #b49c78;
-    --gold-3: #d4bc9a;
-    --gold-light: #ede0ce;
-    --cream: #fdf8f2;
-    --cream-dark: #f5ece0;
-    --white: #ffffff;
-    --text: #3a2c1e;
-    --text-light: #8a7060;
-    --success: #7cad96;
-    --shadow: rgba(61,44,38,0.08);
+    --gold-1:#9d714c;--gold-2:#b49c78;--gold-3:#d4bc9a;
+    --gold-light:#ede0ce;--cream:#fdf8f2;--cream-dark:#f5ece0;
+    --white:#ffffff;--text:#3a2c1e;--text-light:#8a7060;
+    --success:#7cad96;--shadow:rgba(61,44,38,0.08);
   }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--cream);
-    color: var(--text);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  /* HERO */
-  .hero {
-    background: linear-gradient(160deg, #fdf5ec 0%, #f5e8d4 60%, #ede0cc 100%);
-    padding: 40px 24px 32px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-  }
-  .hero::before {
-    content: '';
-    position: absolute;
-    top: -50px; right: -50px;
-    width: 180px; height: 180px;
-    border-radius: 50%;
-    background: rgba(180,156,120,0.15);
-  }
-  .hero::after {
-    content: '';
-    position: absolute;
-    bottom: -30px; left: -30px;
-    width: 120px; height: 120px;
-    border-radius: 50%;
-    background: rgba(157,113,76,0.1);
-  }
-  .hero-logo {
-    width: 90px;
-    height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--gold-light);
-    margin-bottom: 16px;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 4px 20px rgba(157,113,76,0.2);
-  }
-  .studio-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 13px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--gold-1);
-    margin-bottom: 10px;
-    position: relative; z-index:1;
-  }
-  .hero h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 400;
-    line-height: 1.25;
-    color: var(--text);
-    margin-bottom: 10px;
-    position: relative; z-index:1;
-  }
-  .hero h1 em { font-style: italic; color: var(--gold-1); }
-  .hero p {
-    font-size: 14px;
-    color: var(--text-light);
-    font-weight: 300;
-    max-width: 300px;
-    margin: 0 auto;
-    line-height: 1.6;
-    position: relative; z-index:1;
-  }
-
-  /* PROGRESS */
-  .progress-wrap {
-    background: var(--white);
-    padding: 16px 20px;
-    border-bottom: 1px solid var(--gold-light);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(157,113,76,0.07);
-  }
-  .steps {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    max-width: 340px;
-    margin: 0 auto;
-  }
-  .step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    flex: 1;
-  }
-  .step-num {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    border: 2px solid var(--gold-light);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--text-light);
-    background: var(--white);
-    transition: all .3s;
-  }
-  .step.active .step-num { background: var(--gold-1); border-color: var(--gold-1); color: white; }
-  .step.done .step-num { background: var(--success); border-color: var(--success); color: white; }
-  .step-label { font-size: 9px; color: var(--text-light); letter-spacing: .4px; text-align:center; }
-  .step.active .step-label { color: var(--gold-1); font-weight: 500; }
-  .step-line { height: 2px; flex: 1; background: var(--gold-light); margin-top: -13px; z-index: -1; }
-
-  /* CONTENT */
-  .content { padding: 24px 18px 80px; max-width: 480px; margin: 0 auto; }
-  .section { display: none; animation: fadeUp .35s ease; }
-  .section.active { display: block; }
-  @keyframes fadeUp {
-    from { opacity:0; transform: translateY(14px); }
-    to   { opacity:1; transform: translateY(0); }
-  }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    font-weight: 400;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-  .section-sub { font-size: 14px; color: var(--text-light); margin-bottom: 22px; font-weight: 300; }
-
-  /* CALENDAR */
-  .cal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .cal-month { font-family: 'Playfair Display', serif; font-size: 18px; color: var(--text); }
-  .cal-nav {
-    background: none;
-    border: 1px solid var(--gold-light);
-    border-radius: 8px;
-    width: 32px; height: 32px;
-    cursor: pointer;
-    font-size: 16px;
-    color: var(--gold-1);
-    display: flex; align-items: center; justify-content: center;
-    transition: all .2s;
-  }
-  .cal-nav:hover { background: var(--cream-dark); }
-  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
-  .cal-day-name {
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-light);
-    letter-spacing: .4px;
-    padding: 5px 0;
-    text-transform: uppercase;
-  }
-  .cal-day {
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    border-radius: 8px;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all .2s;
-    border: 2px solid transparent;
-    color: var(--text);
-    line-height: 1;
-    gap: 2px;
-  }
-  .cal-day:hover:not(.disabled):not(.empty) { background: var(--cream-dark); border-color: var(--gold-2); }
-  .cal-day.selected { background: var(--gold-1); color: white; font-weight: 500; }
-  .cal-day.today { border-color: var(--gold-2); }
-  .cal-day.disabled { color: var(--gold-light); cursor: default; }
-  .cal-day.empty { cursor: default; }
-  .cal-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--success); }
-  .cal-day.selected .cal-dot { background: rgba(255,255,255,0.7); }
-
-  /* TIME SLOTS */
-  .slots-section { margin-top: 12px; }
-  .slots-group-label {
-    font-size: 11px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--gold-2);
-    font-weight: 500;
-    margin: 14px 0 8px;
-  }
-  .slots-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; }
-  .slot-btn {
-    padding: 13px 8px;
-    border: 1.5px solid var(--gold-light);
-    border-radius: 10px;
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    color: var(--text);
-    cursor: pointer;
-    text-align: center;
-    transition: all .2s;
-  }
-  .slot-btn:hover { border-color: var(--gold-1); background: var(--cream-dark); }
-  .slot-btn.selected { border-color: var(--gold-1); background: var(--gold-1); color: white; }
-  .slot-btn.taken { color: var(--text-light); background: var(--cream-dark); cursor: not-allowed; text-decoration: line-through; font-size: 12px; }
-  .slot-time { font-weight: 500; display: block; }
-
-  /* FORM */
-  .form-group { margin-bottom: 16px; }
-  .form-group label {
-    display: block;
-    font-size: 11px;
-    letter-spacing: .8px;
-    text-transform: uppercase;
-    color: var(--gold-1);
-    margin-bottom: 7px;
-    font-weight: 500;
-  }
-  .form-group input, .form-group select, .form-group textarea {
-    width: 100%;
-    padding: 13px 15px;
-    border: 1.5px solid var(--gold-light);
-    border-radius: 10px;
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    color: var(--text);
-    outline: none;
-    transition: border-color .2s;
-    appearance: none;
-  }
-  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold-1); }
-  .form-group textarea { resize: none; height: 75px; }
-  .form-divider {
-    font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    color: var(--text);
-    margin: 22px 0 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--gold-light);
-  }
-
-  /* SESSION TYPES */
-  .session-types { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
-  .session-type-btn {
-    padding: 14px 8px;
-    border: 1.5px solid var(--gold-light);
-    border-radius: 12px;
-    background: var(--white);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    color: var(--text);
-    cursor: pointer;
-    text-align: center;
-    transition: all .2s;
-  }
-  .session-type-btn .st-icon { font-size: 22px; display: block; margin-bottom: 5px; }
-  .session-type-btn .st-label { font-weight: 500; display: block; }
-  .session-type-btn .st-sub { font-size: 10px; color: var(--text-light); display: block; margin-top: 2px; }
-  .session-type-btn:hover { border-color: var(--gold-2); background: var(--cream-dark); }
-  .session-type-btn.selected { border-color: var(--gold-1); background: var(--cream-dark); }
-
-  /* SUMMARY */
-  .summary-card {
-    background: var(--white);
-    border: 1px solid var(--gold-light);
-    border-radius: 16px;
-    padding: 22px;
-    margin-bottom: 18px;
-  }
-  .summary-card h3 { font-family:'Playfair Display',serif; font-size:17px; font-weight:400; color:var(--text); margin-bottom:14px; }
-  .summary-row { display:flex; justify-content:space-between; align-items:flex-start; padding:8px 0; border-bottom:1px solid var(--cream-dark); font-size:14px; }
-  .summary-row:last-child { border-bottom:none; }
-  .summary-row .key { color:var(--text-light); }
-  .summary-row .val { font-weight:500; text-align:right; max-width:200px; }
-
-  /* BUTTONS */
-  .btn-primary {
-    width: 100%;
-    padding: 15px;
-    background: linear-gradient(135deg, var(--gold-1), var(--gold-2));
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all .2s;
-    margin-top: 8px;
-  }
-  .btn-primary:hover { opacity: .9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(157,113,76,0.3); }
-  .btn-primary:disabled { background: var(--gold-light); cursor: not-allowed; transform: none; box-shadow: none; }
-  .btn-secondary {
-    width: 100%;
-    padding: 13px;
-    background: transparent;
-    color: var(--text-light);
-    border: 1.5px solid var(--gold-light);
-    border-radius: 12px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all .2s;
-    margin-top: 9px;
-  }
-  .btn-secondary:hover { border-color: var(--gold-1); color: var(--gold-1); }
-
-  /* SUCCESS */
-  .success-screen { text-align: center; padding: 36px 16px; }
-  .success-logo {
-    width: 90px; height: 90px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid var(--gold-light);
-    margin: 0 auto 20px;
-    display: block;
-    box-shadow: 0 4px 20px rgba(157,113,76,0.2);
-  }
-  .success-screen h2 { font-family:'Playfair Display',serif; font-size:24px; font-weight:400; color:var(--text); margin-bottom:10px; }
-  .success-screen p { font-size:14px; color:var(--text-light); line-height:1.7; max-width:290px; margin:0 auto 24px; }
-  .whatsapp-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: #25d366;
-    color: white;
-    padding: 13px 22px;
-    border-radius: 12px;
-    text-decoration: none;
-    font-size: 15px;
-    font-weight: 500;
-    margin-bottom: 10px;
-  }
-
-  /* INFO NOTE */
-  .info-note {
-    background: var(--cream-dark);
-    border-left: 3px solid var(--gold-2);
-    border-radius: 0 8px 8px 0;
-    padding: 11px 14px;
-    font-size: 13px;
-    color: var(--text-light);
-    margin-bottom: 18px;
-    line-height: 1.5;
-  }
-
-  /* LOADING */
-  .loading-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(253,248,242,0.92);
-    z-index: 999;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .loading-overlay.show { display: flex; }
-  .spinner { width:38px; height:38px; border:3px solid var(--gold-light); border-top-color:var(--gold-1); border-radius:50%; animation:spin .8s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-text { font-family:'Playfair Display',serif; font-style:italic; color:var(--text-light); font-size:14px; }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;overflow-x:hidden;}
+  .hero{background:linear-gradient(160deg,#fdf5ec 0%,#f5e8d4 60%,#ede0cc 100%);padding:40px 24px 32px;text-align:center;position:relative;overflow:hidden;}
+  .hero::before{content:'';position:absolute;top:-50px;right:-50px;width:180px;height:180px;border-radius:50%;background:rgba(180,156,120,0.15);}
+  .hero::after{content:'';position:absolute;bottom:-30px;left:-30px;width:120px;height:120px;border-radius:50%;background:rgba(157,113,76,0.1);}
+  .hero-logo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-light);margin-bottom:16px;position:relative;z-index:1;box-shadow:0 4px 20px rgba(157,113,76,0.2);}
+  .studio-name{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-1);margin-bottom:10px;position:relative;z-index:1;}
+  .hero h1{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;line-height:1.25;color:var(--text);margin-bottom:10px;position:relative;z-index:1;}
+  .hero h1 em{font-style:italic;color:var(--gold-1);}
+  .hero p{font-size:14px;color:var(--text-light);font-weight:300;max-width:300px;margin:0 auto;line-height:1.6;position:relative;z-index:1;}
+  .progress-wrap{background:var(--white);padding:16px 20px;border-bottom:1px solid var(--gold-light);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(157,113,76,0.07);}
+  .steps{display:flex;align-items:center;justify-content:center;max-width:340px;margin:0 auto;}
+  .step{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;}
+  .step-num{width:26px;height:26px;border-radius:50%;border:2px solid var(--gold-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--text-light);background:var(--white);transition:all .3s;}
+  .step.active .step-num{background:var(--gold-1);border-color:var(--gold-1);color:white;}
+  .step.done .step-num{background:var(--success);border-color:var(--success);color:white;}
+  .step-label{font-size:9px;color:var(--text-light);letter-spacing:.4px;text-align:center;}
+  .step.active .step-label{color:var(--gold-1);font-weight:500;}
+  .step-line{height:2px;flex:1;background:var(--gold-light);margin-top:-13px;z-index:-1;}
+  .content{padding:24px 18px 80px;max-width:480px;margin:0 auto;}
+  .section{display:none;animation:fadeUp .35s ease;}
+  .section.active{display:block;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+  .section-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:400;color:var(--text);margin-bottom:4px;}
+  .section-sub{font-size:14px;color:var(--text-light);margin-bottom:22px;font-weight:300;}
+  .cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .cal-month{font-family:'Playfair Display',serif;font-size:18px;color:var(--text);}
+  .cal-nav{background:none;border:1px solid var(--gold-light);border-radius:8px;width:32px;height:32px;cursor:pointer;font-size:16px;color:var(--gold-1);display:flex;align-items:center;justify-content:center;transition:all .2s;}
+  .cal-nav:hover{background:var(--cream-dark);}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+  .cal-day-name{text-align:center;font-size:10px;color:var(--text-light);letter-spacing:.4px;padding:5px 0;text-transform:uppercase;}
+  .cal-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:13px;cursor:pointer;transition:all .2s;border:2px solid transparent;color:var(--text);line-height:1;gap:2px;}
+  .cal-day:hover:not(.disabled):not(.empty){background:var(--cream-dark);border-color:var(--gold-2);}
+  .cal-day.selected{background:var(--gold-1);color:white;font-weight:500;}
+  .cal-day.today{border-color:var(--gold-2);}
+  .cal-day.disabled{color:var(--gold-light);cursor:default;}
+  .cal-day.empty{cursor:default;}
+  .cal-dot{width:4px;height:4px;border-radius:50%;background:var(--success);}
+  .cal-day.selected .cal-dot{background:rgba(255,255,255,0.7);}
+  /* Día lleno: todos los slots ocupados */
+  .cal-day.full{color:var(--gold-light);cursor:default;position:relative;}
+  .cal-day.full::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--gold-light);}
+  .slots-section{margin-top:12px;}
+  .slots-group-label{font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--gold-2);font-weight:500;margin:14px 0 8px;}
+  .slots-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;}
+  .slot-btn{padding:13px 8px;border:1.5px solid var(--gold-light);border-radius:10px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);cursor:pointer;text-align:center;transition:all .2s;}
+  .slot-btn:hover{border-color:var(--gold-1);background:var(--cream-dark);}
+  .slot-btn.selected{border-color:var(--gold-1);background:var(--gold-1);color:white;}
+  .slot-btn.taken{color:#ccc;background:var(--cream-dark);cursor:not-allowed;text-decoration:line-through;font-size:12px;border-color:var(--cream-dark);}
+  .slot-time{font-weight:500;display:block;}
+  .form-group{margin-bottom:16px;}
+  .form-group label{display:block;font-size:11px;letter-spacing:.8px;text-transform:uppercase;color:var(--gold-1);margin-bottom:7px;font-weight:500;}
+  .form-group input,.form-group select,.form-group textarea{width:100%;padding:13px 15px;border:1.5px solid var(--gold-light);border-radius:10px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;transition:border-color .2s;appearance:none;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--gold-1);}
+  .form-group textarea{resize:none;height:75px;}
+  .form-divider{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);margin:22px 0 16px;padding-bottom:8px;border-bottom:1px solid var(--gold-light);}
+  .session-types{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+  .session-type-btn{padding:14px 8px;border:1.5px solid var(--gold-light);border-radius:12px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text);cursor:pointer;text-align:center;transition:all .2s;}
+  .session-type-btn .st-icon{font-size:22px;display:block;margin-bottom:5px;}
+  .session-type-btn .st-label{font-weight:500;display:block;}
+  .session-type-btn .st-sub{font-size:10px;color:var(--text-light);display:block;margin-top:2px;}
+  .session-type-btn:hover{border-color:var(--gold-2);background:var(--cream-dark);}
+  .session-type-btn.selected{border-color:var(--gold-1);background:var(--cream-dark);}
+  .summary-card{background:var(--white);border:1px solid var(--gold-light);border-radius:16px;padding:22px;margin-bottom:18px;}
+  .summary-card h3{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;color:var(--text);margin-bottom:14px;}
+  .summary-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--cream-dark);font-size:14px;}
+  .summary-row:last-child{border-bottom:none;}
+  .summary-row .key{color:var(--text-light);}
+  .summary-row .val{font-weight:500;text-align:right;max-width:200px;}
+  .btn-primary{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:all .2s;margin-top:8px;}
+  .btn-primary:hover{opacity:.9;transform:translateY(-1px);box-shadow:0 6px 20px rgba(157,113,76,0.3);}
+  .btn-primary:disabled{background:var(--gold-light);cursor:not-allowed;transform:none;box-shadow:none;}
+  .btn-secondary{width:100%;padding:13px;background:transparent;color:var(--text-light);border:1.5px solid var(--gold-light);border-radius:12px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;margin-top:9px;}
+  .btn-secondary:hover{border-color:var(--gold-1);color:var(--gold-1);}
+  .success-screen{text-align:center;padding:36px 16px;}
+  .success-logo{width:90px;height:90px;border-radius:50%;object-fit:cover;border:3px solid var(--gold-light);margin:0 auto 20px;display:block;box-shadow:0 4px 20px rgba(157,113,76,0.2);}
+  .success-screen h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:400;color:var(--text);margin-bottom:10px;}
+  .success-screen p{font-size:14px;color:var(--text-light);line-height:1.7;max-width:290px;margin:0 auto 24px;}
+  .whatsapp-btn{display:inline-flex;align-items:center;gap:8px;background:#25d366;color:white;padding:13px 22px;border-radius:12px;text-decoration:none;font-size:15px;font-weight:500;margin-bottom:10px;}
+  .info-note{background:var(--cream-dark);border-left:3px solid var(--gold-2);border-radius:0 8px 8px 0;padding:11px 14px;font-size:13px;color:var(--text-light);margin-bottom:18px;line-height:1.5;}
+  .loading-overlay{display:none;position:fixed;inset:0;background:rgba(253,248,242,0.92);z-index:999;align-items:center;justify-content:center;flex-direction:column;gap:14px;}
+  .loading-overlay.show{display:flex;}
+  .spinner{width:38px;height:38px;border:3px solid var(--gold-light);border-top-color:var(--gold-1);border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .loading-text{font-family:'Playfair Display',serif;font-style:italic;color:var(--text-light);font-size:14px;}
 </style>
 </head>
 <body>
@@ -393,8 +104,8 @@
 <div class="hero">
   <img class="hero-logo" src="https://i.ibb.co/ks527STY/LOGO-ACTUALIZADO.jpg" alt="Estudio Fotoinfantil">
   <div class="studio-name">Estudio Fotoinfantil</div>
-  <h1>Reservá tu <em>sesión fotográfica</em></h1>
-  <p>En pocos pasos, simple y con amor ✨</p>
+  <h1>Reserv&#225; tu <em>sesi&#243;n fotogr&#225;fica</em></h1>
+  <p>En pocos pasos, simple y con amor</p>
 </div>
 
 <div class="progress-wrap">
@@ -410,130 +121,111 @@
 </div>
 
 <div class="content">
-
-  <!-- PASO 1: FECHA -->
   <div class="section active" id="sec-1">
-    <h2 class="section-title">Elegí una fecha</h2>
-    <p class="section-sub">Los días disponibles tienen un punto verde</p>
+    <h2 class="section-title">Eleg&#237; una fecha</h2>
+    <p class="section-sub">Los d&#237;as disponibles tienen un punto verde</p>
     <div class="cal-header">
-      <button class="cal-nav" onclick="prevMonth()">‹</button>
+      <button class="cal-nav" onclick="prevMonth()">&#8249;</button>
       <div class="cal-month" id="cal-month-label"></div>
-      <button class="cal-nav" onclick="nextMonth()">›</button>
+      <button class="cal-nav" onclick="nextMonth()">&#8250;</button>
     </div>
     <div class="cal-grid" id="cal-grid"></div>
-    <button class="btn-primary" id="btn-to-2" onclick="goToStep(2)" disabled>Elegir horario →</button>
+    <button class="btn-primary" id="btn-to-2" onclick="goToStep(2)" disabled>Elegir horario &#8594;</button>
   </div>
 
-  <!-- PASO 2: HORARIO -->
   <div class="section" id="sec-2">
-    <h2 class="section-title">Elegí un horario</h2>
-    <p class="section-sub" id="selected-date-label">–</p>
-    <div class="info-note">📸 Cada sesión dura aproximadamente <strong>1 hora</strong>. Llegá 10 min antes para preparar al bebé.</div>
+    <h2 class="section-title">Eleg&#237; un horario</h2>
+    <p class="section-sub" id="selected-date-label">&#8211;</p>
+    <div class="info-note">Cada sesi&#243;n dura aproximadamente <strong>1 hora</strong>. Lleg&#225; 10 min antes para preparar al beb&#233;.</div>
     <div class="slots-section" id="slots-section"></div>
-    <button class="btn-primary" id="btn-to-3" onclick="goToStep(3)" disabled style="margin-top:18px">Completar datos →</button>
-    <button class="btn-secondary" onclick="goToStep(1)">← Cambiar fecha</button>
+    <button class="btn-primary" id="btn-to-3" onclick="goToStep(3)" disabled style="margin-top:18px">Completar datos &#8594;</button>
+    <button class="btn-secondary" onclick="goToStep(1)">&#8592; Cambiar fecha</button>
   </div>
 
-  <!-- PASO 3: FORMULARIO -->
   <div class="section" id="sec-3">
     <h2 class="section-title">Tus datos</h2>
-    <p class="section-sub">Todo queda guardado de forma segura 🔒</p>
-
-    <div class="form-divider">👶 Datos del bebé</div>
-
+    <p class="section-sub">Todo queda guardado de forma segura</p>
+    <div class="form-divider">Datos del beb&#233;</div>
     <div class="form-group">
-      <label>Nombre del bebé *</label>
-      <input type="text" id="baby-name" placeholder="Ej: Sofía" required>
+      <label>Nombre del beb&#233; *</label>
+      <input type="text" id="baby-name" placeholder="Ej: Sof&#237;a" required>
     </div>
-
     <div class="form-group">
-      <label>Tipo de sesión *</label>
-      <div class="session-types" id="session-types">
+      <label>Tipo de sesi&#243;n *</label>
+      <div class="session-types">
         <button type="button" class="session-type-btn" data-val="Mes a mes" onclick="selectSession(this)">
-          <span class="st-icon">📅</span>
+          <span class="st-icon">&#128197;</span>
           <span class="st-label">Mes a mes</span>
           <span class="st-sub">Seguimiento mensual</span>
         </button>
-        <button type="button" class="session-type-btn" data-val="Temático" onclick="selectSession(this)">
-          <span class="st-icon">🎨</span>
-          <span class="st-label">Temático</span>
+        <button type="button" class="session-type-btn" data-val="Tem&#225;tico" onclick="selectSession(this)">
+          <span class="st-icon">&#127912;</span>
+          <span class="st-label">Tem&#225;tico</span>
           <span class="st-sub">Con decorado especial</span>
         </button>
-        <button type="button" class="session-type-btn" data-val="Pre añito" onclick="selectSession(this)">
-          <span class="st-icon">🎂</span>
-          <span class="st-label">Pre añito</span>
-          <span class="st-sub">¡Primer cumple!</span>
+        <button type="button" class="session-type-btn" data-val="Pre a&#241;ito" onclick="selectSession(this)">
+          <span class="st-icon">&#127874;</span>
+          <span class="st-label">Pre a&#241;ito</span>
+          <span class="st-sub">&#161;Primer cumple!</span>
         </button>
       </div>
       <input type="hidden" id="session-type" value="">
     </div>
-
     <div class="form-group">
-      <label>Día que cumple meses / años *</label>
+      <label>D&#237;a que cumple meses / a&#241;os *</label>
       <input type="date" id="baby-birthday" required>
     </div>
-
-    <div id="tematica-wrap">
-      <div class="form-group">
-        <label>Temática elegida</label>
-        <input type="text" id="tematica" placeholder="Ej: Jardín encantado, Safari, Princesa...">
-      </div>
+    <div class="form-group">
+      <label>Tem&#225;tica elegida</label>
+      <input type="text" id="tematica" placeholder="Ej: Jard&#237;n encantado, Safari, Princesa...">
     </div>
-
-    <div class="form-divider">💕 Datos de la mamá</div>
+    <div class="form-divider">Datos de la mam&#225;</div>
     <div class="form-group">
       <label>Nombre y apellido *</label>
-      <input type="text" id="mom-name" placeholder="Ej: María González" required>
+      <input type="text" id="mom-name" placeholder="Ej: Mar&#237;a Gonz&#225;lez" required>
     </div>
     <div class="form-group">
-      <label>Teléfono *</label>
+      <label>Tel&#233;fono *</label>
       <input type="tel" id="mom-phone" placeholder="Ej: 11 2345-6789" required>
     </div>
     <div class="form-group">
       <label>WhatsApp *</label>
-      <input type="tel" id="mom-whatsapp" placeholder="Ej: 11 2345-6789 (si es distinto al teléfono)">
+      <input type="tel" id="mom-whatsapp" placeholder="Ej: 11 2345-6789 (si es distinto al tel&#233;fono)">
     </div>
-
-    <button class="btn-primary" onclick="goToStep(4)">Ver resumen →</button>
-    <button class="btn-secondary" onclick="goToStep(2)">← Cambiar horario</button>
+    <button class="btn-primary" onclick="goToStep(4)">Ver resumen &#8594;</button>
+    <button class="btn-secondary" onclick="goToStep(2)">&#8592; Cambiar horario</button>
   </div>
 
-  <!-- PASO 4: CONFIRMAR -->
   <div class="section" id="sec-4">
-    <h2 class="section-title">Confirmá tu reserva</h2>
-    <p class="section-sub">Revisá todo antes de enviar</p>
-
+    <h2 class="section-title">Confirm&#225; tu reserva</h2>
+    <p class="section-sub">Revis&#225; todo antes de enviar</p>
     <div class="summary-card">
-      <h3>📅 Tu sesión</h3>
-      <div class="summary-row"><span class="key">Fecha</span><span class="val" id="sum-date">–</span></div>
-      <div class="summary-row"><span class="key">Horario</span><span class="val" id="sum-time">–</span></div>
-      <div class="summary-row"><span class="key">Tipo de sesión</span><span class="val" id="sum-session">–</span></div>
-      <div class="summary-row"><span class="key">Bebé</span><span class="val" id="sum-baby">–</span></div>
-      <div class="summary-row"><span class="key">Mamá</span><span class="val" id="sum-mom">–</span></div>
-      <div class="summary-row"><span class="key">WhatsApp</span><span class="val" id="sum-wa">–</span></div>
-      <div class="summary-row" id="sum-tematica-row" style="display:none"><span class="key">Temática</span><span class="val" id="sum-tematica">–</span></div>
+      <h3>Tu sesi&#243;n</h3>
+      <div class="summary-row"><span class="key">Fecha</span><span class="val" id="sum-date">&#8211;</span></div>
+      <div class="summary-row"><span class="key">Horario</span><span class="val" id="sum-time">&#8211;</span></div>
+      <div class="summary-row"><span class="key">Tipo de sesi&#243;n</span><span class="val" id="sum-session">&#8211;</span></div>
+      <div class="summary-row"><span class="key">Beb&#233;</span><span class="val" id="sum-baby">&#8211;</span></div>
+      <div class="summary-row"><span class="key">Mam&#225;</span><span class="val" id="sum-mom">&#8211;</span></div>
+      <div class="summary-row"><span class="key">WhatsApp</span><span class="val" id="sum-wa">&#8211;</span></div>
+      <div class="summary-row" id="sum-tematica-row" style="display:none"><span class="key">Tem&#225;tica</span><span class="val" id="sum-tematica">&#8211;</span></div>
     </div>
-
-    <div class="info-note">⏳ Tu reserva quedará <strong>pendiente de confirmación</strong>. Te avisamos por WhatsApp en las próximas 24 hs.</div>
-
-    <button class="btn-primary" id="btn-confirm" onclick="submitBooking()">✨ Confirmar reserva</button>
-    <button class="btn-secondary" onclick="goToStep(3)">← Editar datos</button>
+    <div class="info-note">Tu reserva quedar&#225; <strong>pendiente de confirmaci&#243;n</strong>. Te avisamos por WhatsApp en las pr&#243;ximas 24 hs.</div>
+    <button class="btn-primary" id="btn-confirm" onclick="submitBooking()">Confirmar reserva</button>
+    <button class="btn-secondary" onclick="goToStep(3)">&#8592; Editar datos</button>
   </div>
 
-  <!-- ÉXITO -->
   <div class="section" id="sec-success">
     <div class="success-screen">
       <img class="success-logo" src="https://i.ibb.co/ks527STY/LOGO-ACTUALIZADO.jpg" alt="Estudio Fotoinfantil">
-      <h2>¡Reserva enviada!</h2>
-      <p>Recibimos tu solicitud. Te vamos a confirmar el turno por WhatsApp en las próximas <strong>24 horas</strong>. 💕</p>
+      <h2>&#161;Reserva enviada!</h2>
+      <p>Recibimos tu solicitud. Te vamos a confirmar el turno por WhatsApp en las pr&#243;ximas <strong>24 horas</strong>.</p>
       <a class="whatsapp-btn" id="wa-link" href="#" target="_blank">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>
         Escribir al estudio
       </a>
-      <div style="font-size:13px; color:var(--text-light); margin-top:8px;">Si tenés alguna duda, escribinos 💕</div>
+      <div style="font-size:13px;color:var(--text-light);margin-top:8px;">Si ten&#233;s alguna duda, escribinos</div>
     </div>
   </div>
-
 </div>
 
 <div class="loading-overlay" id="loading">
@@ -542,98 +234,111 @@
 </div>
 
 <script>
-// =====================================================
-// CONFIGURACIÓN
-// =====================================================
 const CONFIG = {
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec',
-  WHATSAPP: '541133408139',
+  SCRIPT_URL:       'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec',
+  WHATSAPP:         '541133408139',
   MIN_ADVANCE_DAYS: 2,
-
-  // Horarios fijos por tipo de día
-  SLOTS_WEEKDAY: ['18:00', '19:00'],           // Lun-Vie (no feriado)
-  SLOTS_SATURDAY: ['10:00', '11:00', '13:00', '14:00'], // Sábados
-
-  // Días siempre bloqueados (0=Dom, se puede habilitar desde admin)
-  DEFAULT_BLOCKED_DAYS: [0],
-
-  // Días especiales habilitados o bloqueados desde el admin
-  // Formato: { 'YYYY-MM-DD': true/false }
-  // true = habilitado aunque sea feriado/domingo
-  // false = bloqueado aunque sea día hábil
-  SPECIAL_DAYS: {}
+  SLOTS_WEEKDAY:    ['18:00', '19:00'],
+  SLOTS_SATURDAY:   ['10:00', '11:00', '13:00', '14:00'],
+  SPECIAL_DAYS:     {}
 };
 
-let state = {
-  currentMonth: new Date().getMonth(),
-  currentYear: new Date().getFullYear(),
-  selectedDate: null,
+var state = {
+  currentMonth:    new Date().getMonth(),
+  currentYear:     new Date().getFullYear(),
+  selectedDate:    null,
   selectedDateObj: null,
-  selectedTime: null,
+  selectedTime:    null,
   selectedSession: null,
-  bookedSlots: {}
+  bookedSlots:     {}   // { 'YYYY-MM-DD': ['18:00','19:00'] }
 };
 
-// =====================================================
-// CALENDARIO
-// =====================================================
-const MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-const DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+// ── Cargar turnos ocupados al iniciar ──
+async function loadBookedSlots() {
+  try {
+    var resp = await fetch(CONFIG.SCRIPT_URL + '?action=getAll', { mode:'cors' });
+    var data = await resp.json();
+    var reservas = data.reservas || [];
+    var booked = {};
+    reservas.forEach(function(r) {
+      // Solo bloquear confirmados y pendientes (no cancelados)
+      var estado = String(r.estado || r.Estado || '').toUpperCase();
+      if (estado === 'CANCELADO') return;
+      var fecha   = String(r.fecha   || r.Fecha   || '').split('T')[0];
+      var horario = String(r.horario || r.Horario || '').trim();
+      if (!fecha || !horario) return;
+      if (!booked[fecha]) booked[fecha] = [];
+      if (!booked[fecha].includes(horario)) booked[fecha].push(horario);
+    });
+    state.bookedSlots = booked;
+  } catch(e) {
+    console.log('No se pudieron cargar slots:', e);
+  }
+  renderCalendar();
+}
+
+var MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 
 function isAvailable(date) {
-  const dateStr = fmtDate(date);
-  const today = new Date(); today.setHours(0,0,0,0);
-  const minDate = new Date(today); minDate.setDate(minDate.getDate() + CONFIG.MIN_ADVANCE_DAYS);
+  var dateStr = fmtDate(date);
+  var today   = new Date(); today.setHours(0,0,0,0);
+  var minDate = new Date(today); minDate.setDate(minDate.getDate() + CONFIG.MIN_ADVANCE_DAYS);
   if (date < minDate) return false;
-  // Días especiales desde admin
   if (CONFIG.SPECIAL_DAYS[dateStr] === true)  return true;
   if (CONFIG.SPECIAL_DAYS[dateStr] === false) return false;
-  // Domingo siempre bloqueado por defecto
   if (date.getDay() === 0) return false;
   return true;
 }
 
+function isDayFull(dateStr, dateObj) {
+  // Devuelve true si todos los slots del día están ocupados
+  var slots  = getSlotsForDate(dateObj);
+  var booked = state.bookedSlots[dateStr] || [];
+  return slots.length > 0 && slots.every(function(s){ return booked.includes(s); });
+}
+
 function getSlotsForDate(dateObj) {
-  const day = dateObj.getDay();
+  var day = dateObj.getDay();
   if (day === 6) return CONFIG.SLOTS_SATURDAY;
   if (day >= 1 && day <= 5) return CONFIG.SLOTS_WEEKDAY;
   return [];
 }
 
 function renderCalendar() {
-  document.getElementById('cal-month-label').textContent = `${MONTHS[state.currentMonth]} ${state.currentYear}`;
-  const grid = document.getElementById('cal-grid');
+  document.getElementById('cal-month-label').textContent = MONTHS[state.currentMonth] + ' ' + state.currentYear;
+  var grid = document.getElementById('cal-grid');
   grid.innerHTML = '';
 
-  DAYS.forEach(d => {
-    const el = document.createElement('div');
+  DAYS.forEach(function(d) {
+    var el = document.createElement('div');
     el.className = 'cal-day-name';
     el.textContent = d;
     grid.appendChild(el);
   });
 
-  const firstDay = new Date(state.currentYear, state.currentMonth, 1).getDay();
-  const daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
+  var firstDay    = new Date(state.currentYear, state.currentMonth, 1).getDay();
+  var daysInMonth = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
 
-  for (let i = 0; i < firstDay; i++) {
-    const el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
+  for (var i = 0; i < firstDay; i++) {
+    var el = document.createElement('div'); el.className = 'cal-day empty'; grid.appendChild(el);
   }
 
-  for (let d = 1; d <= daysInMonth; d++) {
-    const date = new Date(state.currentYear, state.currentMonth, d);
-    const dateStr = fmtDate(date);
-    const el = document.createElement('div');
-    el.innerHTML = `<span>${d}</span>`;
+  for (var d = 1; d <= daysInMonth; d++) {
+    var date    = new Date(state.currentYear, state.currentMonth, d);
+    var dateStr = fmtDate(date);
+    var el      = document.createElement('div');
+    el.innerHTML = '<span>' + d + '</span>';
+    var avail   = isAvailable(date);
+    var full    = avail && isDayFull(dateStr, date);
+    var cls     = 'cal-day';
 
-    const avail = isAvailable(date);
-    let cls = 'cal-day';
-
-    if (!avail) {
-      cls += ' disabled';
+    if (!avail || full) {
+      cls += full ? ' full' : ' disabled';
     } else {
-      const dot = document.createElement('div'); dot.className = 'cal-dot';
+      var dot = document.createElement('div'); dot.className = 'cal-dot';
       el.appendChild(dot);
-      el.onclick = () => selectDate(date, dateStr);
+      (function(dt, ds){ el.onclick = function(){ selectDate(dt, ds); }; })(date, dateStr);
     }
     if (dateStr === state.selectedDate) cls += ' selected';
     el.className = cls;
@@ -644,9 +349,9 @@ function renderCalendar() {
 function fmtDate(date) { return date.toISOString().split('T')[0]; }
 
 function selectDate(date, dateStr) {
-  state.selectedDate = dateStr;
+  state.selectedDate    = dateStr;
   state.selectedDateObj = date;
-  state.selectedTime = null;
+  state.selectedTime    = null;
   document.getElementById('btn-to-2').disabled = false;
   renderCalendar();
 }
@@ -662,123 +367,118 @@ function nextMonth() {
   renderCalendar();
 }
 
-// =====================================================
-// HORARIOS
-// =====================================================
 function renderSlots() {
-  const section = document.getElementById('slots-section');
+  var section = document.getElementById('slots-section');
   section.innerHTML = '';
-  const booked = state.bookedSlots[state.selectedDate] || [];
-  const slots = getSlotsForDate(state.selectedDateObj);
+  var booked = state.bookedSlots[state.selectedDate] || [];
+  var slots  = getSlotsForDate(state.selectedDateObj);
 
   if (slots.length === 0) {
-    section.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">No hay horarios para este día.</div>';
+    section.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">No hay horarios para este d&#237;a.</div>';
     return;
   }
 
-  const label = document.createElement('div');
-  const day = state.selectedDateObj.getDay();
+  var label = document.createElement('div');
   label.className = 'slots-group-label';
-  label.textContent = day === 6 ? 'Horarios — Sábado' : 'Horarios — Lunes a Viernes';
+  label.textContent = state.selectedDateObj.getDay() === 6 ? 'Horarios — S&#225;bado' : 'Horarios — Lunes a Viernes';
   section.appendChild(label);
 
-  const grid = document.createElement('div');
+  var grid = document.createElement('div');
   grid.className = 'slots-grid';
 
-  slots.forEach(time => {
-    const btn = document.createElement('button');
-    btn.className = 'slot-btn' + (booked.includes(time) ? ' taken' : '') + (state.selectedTime === time ? ' selected' : '');
-    btn.innerHTML = `<span class="slot-time">${time} hs</span>`;
-    if (!booked.includes(time)) btn.onclick = () => { state.selectedTime = time; document.getElementById('btn-to-3').disabled = false; renderSlots(); };
+  slots.forEach(function(time) {
+    var isTaken = booked.includes(time);
+    var btn = document.createElement('button');
+    btn.className = 'slot-btn' + (isTaken ? ' taken' : '') + (state.selectedTime === time ? ' selected' : '');
+    btn.innerHTML = '<span class="slot-time">' + time + ' hs</span>' + (isTaken ? '<span style="font-size:10px;display:block;color:#bbb">Ocupado</span>' : '');
+    btn.disabled = isTaken;
+    if (!isTaken) {
+      (function(t){ btn.onclick = function(){
+        state.selectedTime = t;
+        document.getElementById('btn-to-3').disabled = false;
+        renderSlots();
+      }; })(time);
+    }
     grid.appendChild(btn);
   });
   section.appendChild(grid);
 
-  const d = new Date(state.selectedDate + 'T12:00:00');
-  document.getElementById('selected-date-label').textContent = d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long' }).replace(/^\w/, c => c.toUpperCase());
+  var d = new Date(state.selectedDate + 'T12:00:00');
+  document.getElementById('selected-date-label').textContent =
+    d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long'}).replace(/^\w/, function(c){ return c.toUpperCase(); });
 }
 
-// =====================================================
-// SESION TYPE
-// =====================================================
 function selectSession(btn) {
-  document.querySelectorAll('.session-type-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelectorAll('.session-type-btn').forEach(function(b){ b.classList.remove('selected'); });
   btn.classList.add('selected');
   state.selectedSession = btn.dataset.val;
   document.getElementById('session-type').value = state.selectedSession;
-  // Mostrar campo temática si es Temático
-  // Temática siempre visible
 }
 
-// =====================================================
-// NAVEGACIÓN
-// =====================================================
 function goToStep(step) {
   if (step === 4 && !validateForm()) return;
   if (step === 4) fillSummary();
-
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById('sec-' + step).classList.add('active');
-
-  for (let i = 1; i <= 4; i++) {
-    const ind = document.getElementById('step-ind-' + i);
+  for (var i = 1; i <= 4; i++) {
+    var ind = document.getElementById('step-ind-' + i);
     ind.classList.remove('active','done');
     if (i < step) ind.classList.add('done');
     else if (i === step) ind.classList.add('active');
   }
   if (step === 2) renderSlots();
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
 
 function validateForm() {
-  const required = [
-    ['baby-name','Nombre del bebé'],
-    ['baby-birthday','Día que cumple meses/años'],
-    ['mom-name','Nombre de la mamá'],
-    ['mom-phone','Teléfono']
+  var required = [
+    ['baby-name',    'Nombre del beb\u00e9'],
+    ['baby-birthday','D\u00eda que cumple meses/a\u00f1os'],
+    ['mom-name',     'Nombre de la mam\u00e1'],
+    ['mom-phone',    'Tel\u00e9fono']
   ];
-  if (!state.selectedSession) { alert('Por favor elegí el tipo de sesión'); return false; }
-  for (const [id, label] of required) {
+  if (!state.selectedSession) { alert('Por favor eleg\u00ed el tipo de sesi\u00f3n'); return false; }
+  for (var i=0; i<required.length; i++) {
+    var id = required[i][0], label = required[i][1];
     if (!document.getElementById(id).value.trim()) {
-      alert(`Por favor completá: ${label}`); document.getElementById(id).focus(); return false;
+      alert('Por favor complet\u00e1: ' + label);
+      document.getElementById(id).focus();
+      return false;
     }
   }
   return true;
 }
 
 function fillSummary() {
-  const d = new Date(state.selectedDate + 'T12:00:00');
-  const wa = document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim();
-  document.getElementById('sum-date').textContent = d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
-  document.getElementById('sum-time').textContent = state.selectedTime + ' hs';
+  var d  = new Date(state.selectedDate + 'T12:00:00');
+  var wa = document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim();
+  document.getElementById('sum-date').textContent    = d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('sum-time').textContent    = state.selectedTime + ' hs';
   document.getElementById('sum-session').textContent = state.selectedSession;
-  document.getElementById('sum-baby').textContent = document.getElementById('baby-name').value;
-  document.getElementById('sum-mom').textContent = document.getElementById('mom-name').value;
-  document.getElementById('sum-wa').textContent = wa;
-  const tematica = document.getElementById('tematica').value;
+  document.getElementById('sum-baby').textContent    = document.getElementById('baby-name').value;
+  document.getElementById('sum-mom').textContent     = document.getElementById('mom-name').value;
+  document.getElementById('sum-wa').textContent      = wa;
+  var tematica = document.getElementById('tematica').value;
   if (tematica) {
     document.getElementById('sum-tematica-row').style.display = 'flex';
     document.getElementById('sum-tematica').textContent = tematica;
   }
 }
 
-// =====================================================
-// ENVÍO
-// =====================================================
 async function submitBooking() {
-  const wa = document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim();
-  const data = {
-    fecha: state.selectedDate,
-    horario: state.selectedTime,
+  var wa = document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim();
+  var data = {
+    fecha:      state.selectedDate,
+    horario:    state.selectedTime,
     tipoSesion: state.selectedSession,
-    tematica: document.getElementById('tematica').value,
+    tematica:   document.getElementById('tematica').value,
     nombreBebe: document.getElementById('baby-name').value,
     cumpleBebe: document.getElementById('baby-birthday').value,
     nombreMama: document.getElementById('mom-name').value,
-    telefono: document.getElementById('mom-phone').value,
-    whatsapp: wa,
-    estado: 'PENDIENTE',
-    timestamp: new Date().toISOString()
+    telefono:   document.getElementById('mom-phone').value,
+    whatsapp:   wa,
+    estado:     'PENDIENTE',
+    timestamp:  new Date().toISOString()
   };
 
   document.getElementById('loading').classList.add('show');
@@ -786,33 +486,36 @@ async function submitBooking() {
 
   try {
     await fetch(CONFIG.SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
+      method:'POST', mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(data)
     });
-  } catch(e) { console.log('Demo mode', e); }
+  } catch(e) { console.log('Error:', e); }
+
+  // Marcar el slot como ocupado localmente
+  if (!state.bookedSlots[data.fecha]) state.bookedSlots[data.fecha] = [];
+  state.bookedSlots[data.fecha].push(data.horario);
 
   document.getElementById('loading').classList.remove('show');
   showSuccess(data);
 }
 
 function showSuccess(data) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById('sec-success').classList.add('active');
-
-  const waNum = data.whatsapp.replace(/\D/g,'');
-  const waFull = waNum.startsWith('54') ? waNum : '54' + waNum;
-  const msg = encodeURIComponent(
-    `Hola! Acabo de realizar una reserva de sesión de fotos para el día ${data.fecha} a las ${data.horario} hs.\n` +
-    `Bebé: ${data.nombreBebe} · Sesión: ${data.tipoSesion}\n` +
-    `Espero confirmación, ¡gracias! 💕`
+  var waNum  = data.whatsapp.replace(/\D/g,'');
+  var waFull = waNum.startsWith('54') ? waNum : '54' + waNum;
+  var msg = encodeURIComponent(
+    'Hola! Acabo de realizar una reserva de sesi\u00f3n de fotos para el d\u00eda ' + data.fecha + ' a las ' + data.horario + ' hs.\n' +
+    'Beb\u00e9: ' + data.nombreBebe + ' \u00b7 Sesi\u00f3n: ' + data.tipoSesion + '\n' +
+    'Espero confirmaci\u00f3n, \u00a1gracias!'
   );
-  document.getElementById('wa-link').href = `https://wa.me/541130448139?text=${msg}`;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.getElementById('wa-link').href = 'https://wa.me/541133408139?text=' + msg;
+  window.scrollTo({ top:0, behavior:'smooth' });
 }
 
-// INIT
-renderCalendar();
+// INIT — cargar slots ocupados antes de mostrar calendario
+loadBookedSlots();
 </script>
 </body>
 </html>
