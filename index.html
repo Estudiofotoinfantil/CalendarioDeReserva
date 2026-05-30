@@ -218,7 +218,7 @@
     <div class="success-screen">
       <img class="success-logo" src="https://i.ibb.co/ks527STY/LOGO-ACTUALIZADO.jpg" alt="Estudio Fotoinfantil">
       <h2>&#161;Reserva enviada!</h2>
-      <p>Recibimos tu solicitud. Te vamos a confirmar el turno por WhatsApp en las pr&#243;ximas <strong>24 horas</strong>.</p>
+      <p>Recibimos tu solicitud. Te vamos a confirmar el turno por WhatsApp en los pr&#243;ximos <strong>minutos</strong>.</p>
       <a class="whatsapp-btn" id="wa-link" href="#" target="_blank">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>
         Escribir al estudio
@@ -505,10 +505,19 @@ function showSuccess(data) {
   document.getElementById('sec-success').classList.add('active');
   var waNum  = data.whatsapp.replace(/\D/g,'');
   var waFull = waNum.startsWith('54') ? waNum : '54' + waNum;
+  // Fecha linda: "01 de Junio de 2026"
+  var _d = new Date(data.fecha + 'T12:00:00');
+  var _meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  var _fechaLinda = _d.getDate().toString().padStart(2,'0') + ' de ' + _meses[_d.getMonth()] + ' de ' + _d.getFullYear();
+
+  var _cp = String.fromCodePoint;
   var msg = encodeURIComponent(
-    'Hola! Acabo de realizar una reserva de sesi\u00f3n de fotos para el d\u00eda ' + data.fecha + ' a las ' + data.horario + ' hs.\n' +
-    'Beb\u00e9: ' + data.nombreBebe + ' \u00b7 Sesi\u00f3n: ' + data.tipoSesion + '\n' +
-    'Espero confirmaci\u00f3n, \u00a1gracias!'
+    _cp(128247) + ' Hola! Acabo de realizar una reserva de sesi\u00f3n de fotos.\n\n' +
+    _cp(128197) + ' Fecha: ' + _fechaLinda + '\n' +
+    _cp(8987)   + ' Hora: ' + data.horario + ' hs\n' +
+    _cp(128118) + ' Beb\u00e9: ' + data.nombreBebe + '\n' +
+    _cp(127912) + ' Sesi\u00f3n: ' + data.tipoSesion + (data.tematica ? ' - ' + data.tematica : '') + '\n\n' +
+    'Espero confirmaci\u00f3n. \u00a1Gracias! ' + _cp(128149)
   );
   document.getElementById('wa-link').href = 'https://wa.me/541133408139?text=' + msg;
   window.scrollTo({ top:0, behavior:'smooth' });
