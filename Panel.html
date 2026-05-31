@@ -455,17 +455,55 @@ function buildTurnoCard(t) {
 
   var actionButtons =
     t.estado === 'PENDIENTE'
-      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button>' +
-        '<button class="btn-action btn-cancel-action"  onclick="askCancel(\''+t.id+'\')">Cancelar</button>' +
+      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\'' + t.id + '\',\'CONFIRMADO\')">Confirmar</button>' +
+        '<button class="btn-action btn-cancel-action"  onclick="askCancel(\'' + t.id + '\')">Cancelar</button>' +
         waConfirmBtn
     : t.estado === 'CONFIRMADO'
       ? waRecordBtn +
-        '<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'
-    : '<button class="btn-action btn-confirm-action"  onclick="updateStatus(\''+t.id+'\',\'PENDIENTE\')">Reactivar</button>';
+        '<button class="btn-action btn-cancel-action" onclick="askCancel(\'' + t.id + '\')">Cancelar</button>'
+    : '<button class="btn-action btn-confirm-action"  onclick="updateStatus(\'' + t.id + '\',\'PENDIENTE\')">Reactivar</button>';
+
+  // Badge de pago
+  var senyaNum = parseFloat((t.senya||'').replace(/[^0-9.]/g,'')) || 0;
+  var totalNum = parseFloat((t.total||'').replace(/[^0-9.]/g,'')) || 0;
+  var restaN   = totalNum - senyaNum;
+  var pagoBadge = totalNum > 0
+    ? (restaN <= 0
+        ? '<span class="pago-badge saldado"> Saldado</span>'
+        : '<span class="pago-badge pendiente-pago"> Resta $' + restaN.toLocaleString('es-AR') + '</span>')
+    : '';
+
+  var restaDisplay = totalNum > 0 ? (restaN <= 0 ? 'Saldado!' : '$' + restaN.toLocaleString('es-AR')) : '$0';
+  var restaClass   = restaN <= 0 && totalNum > 0 ? 'resta-val saldado' : 'resta-val';
+
+  var panelPago =
+    '<div class="pago-panel" id="pago-' + t.id + '">' +
+      '<div class="pago-titulo">Gesti\u00f3n de pago</div>' +
+      '<div class="pago-grid">' +
+        '<div class="pago-field">' +
+          '<label>Se\u00f1a recibida ($)</label>' +
+          '<input type="number" id="senya-' + t.id + '" value="' + (t.senya||'') + '" placeholder="Ej: 15000" oninput="calcResta(\'' + t.id + '\')">' +
+        '</div>' +
+        '<div class="pago-field">' +
+          '<label>Valor total ($)</label>' +
+          '<input type="number" id="total-' + t.id + '" value="' + (t.total||'') + '" placeholder="Ej: 55000" oninput="calcResta(\'' + t.id + '\')">' +
+        '</div>' +
+      '</div>' +
+      '<div class="pago-resta">' +
+        '<span class="resta-label">Resta cobrar:</span>' +
+        '<span class="' + restaClass + '" id="resta-' + t.id + '">' + restaDisplay + '</span>' +
+      '</div>' +
+      '<label style="font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;display:block;margin-bottom:4px;">Notas internas</label>' +
+      '<textarea class="pago-notas" id="notas-int-' + t.id + '" placeholder="Ej: beb\u00e9 tranquilo, mam\u00e1 puntual...">' + (t.notasInternas||'') + '</textarea>' +
+      '<button class="pago-save-btn" onclick="guardarPago(\'' + t.id + '\')">Guardar cambios</button>' +
+    '</div>';
 
   return '<div class="turno-card ' + estadoLower + '" id="card-' + t.id + '">' +
     '<div class="turno-top">' +
-      '<div><div class="turno-date">' + dateStr + '</div><div class="turno-time">' + t.horario + ' hs</div></div>' +
+      '<div>' +
+        '<div class="turno-date">' + dateStr + '</div>' +
+        '<div class="turno-time">' + t.horario + ' hs' + pagoBadge + '</div>' +
+      '</div>' +
       '<span class="status-badge badge-' + estadoLower + '">' + t.estado + '</span>' +
     '</div>' +
     '<div class="turno-info">' +
@@ -475,9 +513,15 @@ function buildTurnoCard(t) {
       '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + (t.whatsapp||'--') + '</span></div>' +
       (t.tematica ? '<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">' + t.tematica + '</span></div>' : '') +
       (cumpleStr  ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + cumpleStr + '</span></div>' : '') +
+      (t.senya    ? '<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$' + parseFloat(t.senya).toLocaleString('es-AR') + '</span></div>' : '') +
+      (t.total    ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + parseFloat(t.total).toLocaleString('es-AR') + '</span></div>' : '') +
     '</div>' +
     (t.notas ? '<div class="turno-notas">"' + t.notas + '"</div>' : '') +
-    '<div class="turno-actions">' + actionButtons + '</div>' +
+    '<div class="turno-actions">' +
+      actionButtons +
+      '<button class="btn-action" style="background:var(--cream-dark);color:var(--gold-1);border:1.5px solid var(--gold-light);" onclick="togglePago(\'' + t.id + '\')">$ Pago / Notas</button>' +
+    '</div>' +
+    panelPago +
     '<div class="turno-id">ID: ' + t.id + ' &middot; Reservado: ' + reservadoStr + '</div>' +
   '</div>';
 }
