@@ -64,7 +64,7 @@
   .turno-card.cancelado{border-left-color:var(--danger);opacity:.65;}
   .turno-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px;}
   .turno-date{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
-  .turno-time{font-size:13px;color:var(--text-light);margin-top:2px;}
+  .turno-time{font-size:13px;color:var(--text-light);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
   .status-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
   .badge-pendiente{background:var(--warning-bg);color:var(--warning);}
   .badge-confirmado{background:var(--success-bg);color:var(--success);}
@@ -82,6 +82,8 @@
   .btn-cancel-action:hover{background:var(--danger);color:white;}
   .btn-whatsapp-action{background:#e8f5ee;color:#25d366;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;}
   .btn-whatsapp-action:hover{background:#25d366;color:white;}
+  .btn-pago-action{background:var(--cream-dark);color:var(--gold-1);border:1.5px solid var(--gold-light);}
+  .btn-pago-action:hover{background:var(--gold-light);}
   .turno-id{font-size:11px;color:var(--gold-3);margin-top:8px;}
   .debug-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin:12px 16px;font-size:12px;color:#5d4037;white-space:pre-wrap;display:none;}
   .refresh-btn{background:var(--panel-bg);color:#e8c4b8;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:6px;}
@@ -100,6 +102,27 @@
   .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;}
   .loading-bar.loading{animation:load-bar 1.5s ease infinite;}
   @keyframes load-bar{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
+
+  /* ── PAGO PANEL ── */
+  .pago-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;letter-spacing:.3px;}
+  .pago-badge.saldado{background:var(--success-bg);color:var(--success);}
+  .pago-badge.pendiente-pago{background:var(--warning-bg);color:var(--warning);}
+  .pago-panel{display:none;margin-top:14px;background:var(--cream-dark);border-radius:10px;padding:14px;border:1px solid var(--gold-light);}
+  .pago-titulo{font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:var(--text);margin-bottom:12px;}
+  .pago-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .pago-field label{display:block;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:4px;}
+  .pago-field input{width:100%;padding:9px 11px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
+  .pago-field input:focus{border-color:var(--gold-1);}
+  .pago-resta{display:flex;align-items:center;justify-content:space-between;background:var(--white);border-radius:8px;padding:9px 12px;margin-bottom:10px;border:1px solid var(--gold-light);}
+  .resta-label{font-size:12px;color:var(--text-light);}
+  .resta-val{font-weight:600;font-size:15px;color:var(--text);}
+  .resta-val.saldado{color:var(--success);}
+  .pago-notas-label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;display:block;margin-bottom:4px;}
+  .pago-notas{width:100%;padding:9px 11px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;height:68px;margin-bottom:10px;}
+  .pago-notas:focus{border-color:var(--gold-1);}
+  .pago-save-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;}
+  .pago-save-btn:hover{opacity:.9;}
+  .pago-save-btn.saved{background:var(--success);}
 </style>
 </head>
 <body>
@@ -170,8 +193,7 @@ let currentFilter = 'todos';
 let currentMonth  = 'todos';
 let cancelTarget  = null;
 
-// ── Construir mensajes WA sin emojis inline ──
-// Los emojis se arman con codepoints para evitar problemas de encoding
+// ── WA messages ──────────────────────────────────────
 function cp(n){ return String.fromCodePoint(n); }
 
 function buildMsgConfirm(t, dateStr) {
@@ -194,6 +216,7 @@ function buildMsgConfirm(t, dateStr) {
   ];
   return encodeURIComponent(lineas.join('\n'));
 }
+
 function buildMsgRecordatorio(t, dateStr) {
   var tema = t.tematica ? ' tem\u00e1tica ' + t.tematica : '';
   var lineas = [
@@ -205,13 +228,13 @@ function buildMsgRecordatorio(t, dateStr) {
     cp(128073) + cp(127998) + ' Importante:',
     '* Traer dos cambios de vestuario para el beb\u00e9 ' + cp(128118),
     '* M\u00e1ximo de personas: 2 adultos (los hermanitos pueden participar en las fotos ' + cp(128149) + '). En caso que asista abuelo o t\u00eda se cobra un adicional $10.000',
-    '* Pedimos puntualidad a la hora de la sesi\u00f3n, ya que necesitamos que la modelo est\u00e9 tranquilito/a y c\u00f3modo/a durante la sesi\u00f3n ' + cp(10024),
+    '* Pedimos puntualidad a la hora de la sesi\u00f3n ' + cp(10024),
     '* ' + cp(161) + 'Los esperamos! ' + cp(128149) + cp(128248)
   ];
   return encodeURIComponent(lineas.join('\n'));
 }
 
-// ── Normalizar datos ──
+// ── Normalizar ───────────────────────────────────────
 function parseHorario(v) {
   if (!v) return '--';
   if (typeof v === 'number') {
@@ -242,7 +265,7 @@ function parseFecha(v) {
 
 function normalizeReserva(row, idx) {
   var g = function(keys) {
-    for (var i=0; i<keys.length; i++) {
+    for (var i = 0; i < keys.length; i++) {
       if (row[keys[i]] !== undefined && row[keys[i]] !== null && row[keys[i]] !== '') return row[keys[i]];
     }
     return '';
@@ -253,23 +276,28 @@ function normalizeReserva(row, idx) {
   if (ts instanceof Date) ts = ts.toISOString();
   if (!ts) ts = new Date().toISOString();
   return {
-    id:         String(g(['id','ID']) || 'T' + String(idx+1).padStart(3,'0')),
-    timestamp:  String(ts),
-    fecha:      parseFecha(g(['fecha','Fecha'])),
-    horario:    parseHorario(g(['horario','Horario'])),
-    tipoSesion: String(g(['tipoSesion','TipoSesion']) || '--'),
-    tematica:   String(g(['tematica','Tematica']) || ''),
-    nombreBebe: String(g(['nombreBebe','NombreBebe']) || '--'),
-    cumpleBebe: parseFecha(g(['cumpleBebe','CumpleBebe'])),
-    nombreMama: String(g(['nombreMama','NombreMama']) || '--'),
-    estado:     estado,
-    telefono:   String(g(['telefono','Telefono']) || ''),
-    whatsapp:   String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
-    notas:      String(g(['notas','Notas']) || '')
+    id:            String(g(['id','ID']) || 'T' + String(idx+1).padStart(3,'0')),
+    timestamp:     String(ts),
+    fecha:         parseFecha(g(['fecha','Fecha'])),
+    horario:       parseHorario(g(['horario','Horario'])),
+    tipoSesion:    String(g(['tipoSesion','TipoSesion']) || '--'),
+    tematica:      String(g(['tematica','Tematica']) || ''),
+    nombreBebe:    String(g(['nombreBebe','NombreBebe']) || '--'),
+    cumpleBebe:    parseFecha(g(['cumpleBebe','CumpleBebe'])),
+    nombreMama:    String(g(['nombreMama','NombreMama']) || '--'),
+    estado:        estado,
+    telefono:      String(g(['telefono','Telefono']) || ''),
+    whatsapp:      String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
+    notas:         String(g(['notas','Notas']) || ''),
+    // ── Campos de pago ──
+    senya:         String(g(['senya','Senya']) || ''),
+    total:         String(g(['total','Total']) || ''),
+    resta:         String(g(['resta','Resta']) || ''),
+    notasInternas: String(g(['notasInternas','NotasInternas']) || '')
   };
 }
 
-// ── LOGIN ──
+// ── LOGIN ────────────────────────────────────────────
 function doLogin() {
   if (document.getElementById('pwd-input').value === ADMIN_CONFIG.PASSWORD) {
     document.getElementById('login-screen').style.display = 'none';
@@ -287,7 +315,7 @@ function doLogout() {
   document.getElementById('pwd-input').value = '';
 }
 
-// ── CARGAR DATOS ──
+// ── DATOS ────────────────────────────────────────────
 async function loadData() {
   startLoading();
   try {
@@ -312,7 +340,7 @@ function showDebug(msg) {
   box.textContent = msg;
 }
 
-// ── STATS ──
+// ── STATS ────────────────────────────────────────────
 function updateStats() {
   document.getElementById('stat-total').textContent     = allTurnos.length;
   document.getElementById('stat-pending').textContent   = allTurnos.filter(function(t){return t.estado==='PENDIENTE';}).length;
@@ -320,7 +348,7 @@ function updateStats() {
   document.getElementById('stat-cancelled').textContent = allTurnos.filter(function(t){return t.estado==='CANCELADO';}).length;
 }
 
-// ── FILTROS ──
+// ── FILTROS ──────────────────────────────────────────
 function setFilter(filter, btn) {
   currentFilter = filter;
   currentMonth  = 'todos';
@@ -341,7 +369,6 @@ function renderMonthTabs() {
   var container = document.getElementById('month-tabs');
   var list = allTurnos;
   if (currentFilter !== 'todos') list = list.filter(function(t){ return t.estado.toLowerCase() === currentFilter; });
-
   var monthMap = {};
   list.forEach(function(t) {
     if (!t.fecha || t.fecha.length < 7) return;
@@ -352,10 +379,8 @@ function renderMonthTabs() {
       monthMap[ym] = label.charAt(0).toUpperCase() + label.slice(1);
     }
   });
-
   var months = Object.keys(monthMap).sort();
   if (months.length <= 1) { container.innerHTML = ''; return; }
-
   var html = '<button class="month-tab ' + (currentMonth==='todos'?'active':'') + '" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';
   months.forEach(function(ym) {
     html += '<button class="month-tab ' + (currentMonth===ym?'active':'') + '" onclick="setMonthFilter(\'' + ym + '\',this)">' + monthMap[ym] + '</button>';
@@ -363,7 +388,7 @@ function renderMonthTabs() {
   container.innerHTML = html;
 }
 
-// ── RENDER TURNOS ──
+// ── RENDER ───────────────────────────────────────────
 function renderTurnos() {
   var search = document.getElementById('search-input').value.toLowerCase();
   var list = allTurnos;
@@ -375,28 +400,23 @@ function renderTurnos() {
            t.whatsapp.includes(search);
   });
   if (currentMonth !== 'todos') list = list.filter(function(t){ return t.fecha && t.fecha.startsWith(currentMonth); });
-
   if (currentFilter === 'confirmado') {
     list.sort(function(a,b){ return (a.fecha||'').localeCompare(b.fecha||'') || (a.horario||'').localeCompare(b.horario||''); });
   } else {
     list.sort(function(a,b){ return new Date(b.timestamp) - new Date(a.timestamp); });
   }
-
   renderMonthTabs();
-
   var container = document.getElementById('turnos-list');
   if (list.length === 0) {
     container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas que coincidan</p></div>';
     return;
   }
-
   var groups = {};
   list.forEach(function(t) {
     var ym = (t.fecha||'').slice(0,7) || 'sin-fecha';
     if (!groups[ym]) groups[ym] = [];
     groups[ym].push(t);
   });
-
   var sortedKeys = Object.keys(groups).sort();
   var html = '';
   sortedKeys.forEach(function(ym) {
@@ -418,7 +438,7 @@ function renderTurnos() {
   container.innerHTML = html;
 }
 
-// ── CARD ──
+// ── CARD ─────────────────────────────────────────────
 function waIconSvg() {
   return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>';
 }
@@ -431,7 +451,6 @@ function buildTurnoCard(t) {
       if (!isNaN(d)) dateStr = d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
     }
   } catch(e){}
-
   var cumpleStr = '';
   try {
     if (t.cumpleBebe && t.cumpleBebe.length === 10) {
@@ -439,46 +458,43 @@ function buildTurnoCard(t) {
       if (!isNaN(dc)) cumpleStr = dc.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});
     }
   } catch(e){}
-
   var reservadoStr = '--';
   try { reservadoStr = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e){}
 
   var estadoLower = t.estado.toLowerCase();
   var waNum  = t.whatsapp.replace(/\D/g,'');
   var waFull = waNum ? (waNum.startsWith('54') ? waNum : '54'+waNum) : '';
-
   var msgConfirm      = buildMsgConfirm(t, dateStr);
   var msgRecordatorio = buildMsgRecordatorio(t, dateStr);
-
   var waConfirmBtn = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgConfirm+'" target="_blank">'+waIconSvg()+' Confirmar + WA</a>' : '';
   var waRecordBtn  = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgRecordatorio+'" target="_blank">'+waIconSvg()+' WA recordatorio</a>' : '';
 
   var actionButtons =
     t.estado === 'PENDIENTE'
-      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\'' + t.id + '\',\'CONFIRMADO\')">Confirmar</button>' +
-        '<button class="btn-action btn-cancel-action"  onclick="askCancel(\'' + t.id + '\')">Cancelar</button>' +
+      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button>' +
+        '<button class="btn-action btn-cancel-action"  onclick="askCancel(\''+t.id+'\')">Cancelar</button>' +
         waConfirmBtn
     : t.estado === 'CONFIRMADO'
-      ? waRecordBtn +
-        '<button class="btn-action btn-cancel-action" onclick="askCancel(\'' + t.id + '\')">Cancelar</button>'
-    : '<button class="btn-action btn-confirm-action"  onclick="updateStatus(\'' + t.id + '\',\'PENDIENTE\')">Reactivar</button>';
+      ? waRecordBtn + '<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'
+    : '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'PENDIENTE\')">Reactivar</button>';
 
   // Badge de pago
-  var senyaNum = parseFloat((t.senya||'').replace(/[^0-9.]/g,'')) || 0;
-  var totalNum = parseFloat((t.total||'').replace(/[^0-9.]/g,'')) || 0;
-  var restaN   = totalNum - senyaNum;
+  var senyaNum = parseFloat(t.senya) || 0;
+  var totalNum = parseFloat(t.total) || 0;
+  var restaNum = totalNum > 0 ? totalNum - senyaNum : 0;
   var pagoBadge = totalNum > 0
-    ? (restaN <= 0
-        ? '<span class="pago-badge saldado"> Saldado</span>'
-        : '<span class="pago-badge pendiente-pago"> Resta $' + restaN.toLocaleString('es-AR') + '</span>')
+    ? (restaNum <= 0
+        ? '<span class="pago-badge saldado">&#10003; Saldado</span>'
+        : '<span class="pago-badge pendiente-pago">Resta $' + restaNum.toLocaleString('es-AR') + '</span>')
     : '';
 
-  var restaDisplay = totalNum > 0 ? (restaN <= 0 ? 'Saldado!' : '$' + restaN.toLocaleString('es-AR')) : '$0';
-  var restaClass   = restaN <= 0 && totalNum > 0 ? 'resta-val saldado' : 'resta-val';
+  var restaDisplay = totalNum > 0 ? (restaNum <= 0 ? 'Saldado!' : '$' + restaNum.toLocaleString('es-AR')) : '$0';
+  var restaClass   = restaNum <= 0 && totalNum > 0 ? 'resta-val saldado' : 'resta-val';
 
+  // Panel pago
   var panelPago =
     '<div class="pago-panel" id="pago-' + t.id + '">' +
-      '<div class="pago-titulo">Gesti\u00f3n de pago</div>' +
+      '<div class="pago-titulo">&#128176; Gesti\u00f3n de pago</div>' +
       '<div class="pago-grid">' +
         '<div class="pago-field">' +
           '<label>Se\u00f1a recibida ($)</label>' +
@@ -493,16 +509,16 @@ function buildTurnoCard(t) {
         '<span class="resta-label">Resta cobrar:</span>' +
         '<span class="' + restaClass + '" id="resta-' + t.id + '">' + restaDisplay + '</span>' +
       '</div>' +
-      '<label style="font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;display:block;margin-bottom:4px;">Notas internas</label>' +
-      '<textarea class="pago-notas" id="notas-int-' + t.id + '" placeholder="Ej: beb\u00e9 tranquilo, mam\u00e1 puntual...">' + (t.notasInternas||'') + '</textarea>' +
-      '<button class="pago-save-btn" onclick="guardarPago(\'' + t.id + '\')">Guardar cambios</button>' +
+      '<span class="pago-notas-label">Notas internas</span>' +
+      '<textarea class="pago-notas" id="notas-int-' + t.id + '" placeholder="Ej: beb\u00e9 tranquilo, lleg\u00f3 puntual...">' + (t.notasInternas||'') + '</textarea>' +
+      '<button class="pago-save-btn" id="save-btn-' + t.id + '" onclick="guardarPago(\'' + t.id + '\')">Guardar cambios</button>' +
     '</div>';
 
   return '<div class="turno-card ' + estadoLower + '" id="card-' + t.id + '">' +
     '<div class="turno-top">' +
       '<div>' +
         '<div class="turno-date">' + dateStr + '</div>' +
-        '<div class="turno-time">' + t.horario + ' hs' + pagoBadge + '</div>' +
+        '<div class="turno-time">' + t.horario + ' hs ' + pagoBadge + '</div>' +
       '</div>' +
       '<span class="status-badge badge-' + estadoLower + '">' + t.estado + '</span>' +
     '</div>' +
@@ -511,29 +527,99 @@ function buildTurnoCard(t) {
       '<div class="turno-info-item"><span class="info-key">Tipo sesi\u00f3n</span><span class="info-val">' + t.tipoSesion + '</span></div>' +
       '<div class="turno-info-item"><span class="info-key">Mam\u00e1</span><span class="info-val">' + t.nombreMama + '</span></div>' +
       '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + (t.whatsapp||'--') + '</span></div>' +
-      (t.tematica ? '<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">' + t.tematica + '</span></div>' : '') +
-      (cumpleStr  ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + cumpleStr + '</span></div>' : '') +
-      (t.senya    ? '<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$' + parseFloat(t.senya).toLocaleString('es-AR') + '</span></div>' : '') +
-      (t.total    ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + parseFloat(t.total).toLocaleString('es-AR') + '</span></div>' : '') +
+      (t.tematica  ? '<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">' + t.tematica + '</span></div>' : '') +
+      (cumpleStr   ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + cumpleStr + '</span></div>' : '') +
+      (t.senya     ? '<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$' + parseFloat(t.senya).toLocaleString('es-AR') + '</span></div>' : '') +
+      (t.total     ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + parseFloat(t.total).toLocaleString('es-AR') + '</span></div>' : '') +
     '</div>' +
     (t.notas ? '<div class="turno-notas">"' + t.notas + '"</div>' : '') +
     '<div class="turno-actions">' +
       actionButtons +
-      '<button class="btn-action" style="background:var(--cream-dark);color:var(--gold-1);border:1.5px solid var(--gold-light);" onclick="togglePago(\'' + t.id + '\')">$ Pago / Notas</button>' +
+      '<button class="btn-action btn-pago-action" onclick="togglePago(\'' + t.id + '\')">&#128176; Pago / Notas</button>' +
     '</div>' +
     panelPago +
     '<div class="turno-id">ID: ' + t.id + ' &middot; Reservado: ' + reservadoStr + '</div>' +
   '</div>';
 }
 
-// ── ACCIONES ──
+// ── PAGO ─────────────────────────────────────────────
+function togglePago(id) {
+  var panel = document.getElementById('pago-' + id);
+  if (!panel) return;
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+function calcResta(id) {
+  var senya = parseFloat(document.getElementById('senya-' + id).value) || 0;
+  var total = parseFloat(document.getElementById('total-' + id).value) || 0;
+  var el    = document.getElementById('resta-' + id);
+  if (!el) return;
+  if (total > 0) {
+    var resta = total - senya;
+    el.textContent = resta <= 0 ? 'Saldado!' : '$' + resta.toLocaleString('es-AR');
+    el.className   = resta <= 0 ? 'resta-val saldado' : 'resta-val';
+  } else {
+    el.textContent = '$0';
+    el.className   = 'resta-val';
+  }
+}
+
+async function guardarPago(id) {
+  var senyaVal = (document.getElementById('senya-' + id).value || '').trim();
+  var totalVal = (document.getElementById('total-' + id).value || '').trim();
+  var notasVal = (document.getElementById('notas-int-' + id).value || '').trim();
+
+  var senyaNum = parseFloat(senyaVal) || 0;
+  var totalNum = parseFloat(totalVal) || 0;
+  var restaNum = totalNum > 0 ? totalNum - senyaNum : 0;
+  var restaVal = totalNum > 0 ? String(restaNum) : '';
+
+  // Actualizar en memoria
+  var turno = allTurnos.find(function(t){ return t.id === id; });
+  if (turno) {
+    turno.senya         = senyaVal;
+    turno.total         = totalVal;
+    turno.resta         = restaVal;
+    turno.notasInternas = notasVal;
+  }
+
+  var btn = document.getElementById('save-btn-' + id);
+  if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
+
+  try {
+    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
+      method: 'POST',
+      mode:   'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        action:        'updatePago',
+        id:            id,
+        senya:         senyaVal,
+        total:         totalVal,
+        resta:         restaVal,
+        notasInternas: notasVal
+      })
+    });
+    if (btn) {
+      btn.textContent  = '&#10003; Guardado!';
+      btn.classList.add('saved');
+      setTimeout(function(){
+        btn.textContent = 'Guardar cambios';
+        btn.classList.remove('saved');
+        btn.disabled = false;
+      }, 2500);
+    }
+  } catch(e) {
+    if (btn) { btn.textContent = 'Error - Reintentá'; btn.disabled = false; }
+  }
+}
+
+// ── ACCIONES ─────────────────────────────────────────
 async function updateStatus(id, newStatus) {
   startLoading();
   var turno = allTurnos.find(function(t){ return t.id === id; });
   if (turno) turno.estado = newStatus;
-  updateStats();
-  renderMonthTabs();
-  renderTurnos();
+  updateStats(); renderMonthTabs(); renderTurnos();
   try {
     await fetch(ADMIN_CONFIG.SCRIPT_URL, {
       method:'POST', mode:'no-cors',
