@@ -17,6 +17,8 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+
+  /* LOGIN */
   .login-screen{min-height:100vh;background:linear-gradient(145deg,#2c1f1a 0%,#4a302a 50%,#2c1f1a 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
   .login-card{background:var(--cream);border-radius:20px;padding:48px 36px;max-width:380px;width:100%;text-align:center;}
   .login-logo{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px;}
@@ -27,33 +29,48 @@
   .login-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:.2s;}
   .login-btn:hover{opacity:.9;}
   .login-error{color:var(--danger);font-size:13px;margin-top:10px;display:none;}
+
+  /* PANEL */
   .admin-panel{display:none;}
   .admin-panel.show{display:block;}
-  .admin-header{background:var(--panel-bg);color:#e8c4b8;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+  .admin-header{background:var(--panel-bg);color:#e8c4b8;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:10px;}
   .admin-header h1{font-family:'Playfair Display',serif;font-size:18px;font-weight:400;letter-spacing:1px;}
   .studio-sub{font-size:11px;color:var(--gold-2);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px;}
+  .header-btns{display:flex;gap:8px;align-items:center;}
   .logout-btn{background:rgba(255,255,255,0.1);color:#e8c4b8;border:1px solid rgba(232,196,184,0.3);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
   .logout-btn:hover{background:rgba(255,255,255,0.2);}
+  .config-btn{background:rgba(255,255,255,0.08);color:var(--gold-2);border:1px solid rgba(196,168,130,0.3);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;gap:5px;}
+  .config-btn:hover{background:rgba(255,255,255,0.15);}
+
+  /* STATS */
   .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px 16px 0;}
   @media(min-width:600px){.stats-row{grid-template-columns:repeat(4,1fr);padding:24px 24px 0;}}
   .stat-card{background:var(--white);border-radius:14px;padding:18px;border:1px solid var(--gold-light);}
   .stat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:400;color:var(--text);line-height:1;}
   .stat-label{font-size:12px;color:var(--text-light);margin-top:4px;}
+
+  /* CONTROLS */
   .controls{padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   @media(min-width:600px){.controls{padding:20px 24px;}}
   .filter-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;transition:.2s;}
   .filter-btn.active{background:var(--gold-1);border-color:var(--gold-1);color:white;}
   .search-input{margin-left:auto;padding:8px 14px;border:1.5px solid var(--gold-light);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:180px;}
   .search-input:focus{border-color:var(--gold-1);}
+
+  /* MONTH TABS */
   .month-tabs{padding:0 16px 12px;display:flex;gap:8px;flex-wrap:wrap;overflow-x:auto;}
   @media(min-width:600px){.month-tabs{padding:0 24px 12px;}}
   .month-tab{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-light);cursor:pointer;transition:.2s;white-space:nowrap;}
   .month-tab:hover{border-color:var(--gold-2);color:var(--gold-1);}
   .month-tab.active{background:var(--gold-2);border-color:var(--gold-2);color:white;font-weight:500;}
+
+  /* MONTH GROUPS */
   .month-group-header{display:flex;align-items:center;gap:10px;margin:20px 0 10px;}
   .month-group-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);}
   .month-group-count{font-size:12px;color:var(--text-light);background:var(--cream-dark);border-radius:10px;padding:2px 8px;}
   .month-group-line{flex:1;height:1px;background:var(--gold-light);}
+
+  /* TURNOS */
   .turnos-wrap{padding:0 16px 100px;}
   @media(min-width:600px){.turnos-wrap{padding:0 24px 80px;}}
   .section-heading{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
@@ -86,26 +103,9 @@
   .btn-pago-action{background:var(--cream-dark);color:var(--gold-1);border:1.5px solid var(--gold-light);}
   .btn-pago-action:hover{background:var(--gold-light);}
   .turno-id{font-size:11px;color:var(--gold-3);margin-top:8px;}
-  .debug-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin:12px 16px;font-size:12px;color:#5d4037;white-space:pre-wrap;display:none;}
-  .refresh-btn{background:var(--panel-bg);color:#e8c4b8;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:6px;}
-  .refresh-btn:hover{opacity:.85;}
-  .empty-state{text-align:center;padding:60px 24px;color:var(--text-light);}
-  .empty-state .empty-icon{font-size:40px;margin-bottom:12px;}
-  .modal-overlay{position:fixed;inset:0;background:rgba(44,31,26,0.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
-  .modal-overlay.show{display:flex;}
-  .modal{background:var(--cream);border-radius:20px;padding:28px;max-width:360px;width:100%;}
-  .modal h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--text);margin-bottom:8px;}
-  .modal p{font-size:14px;color:var(--text-light);margin-bottom:20px;line-height:1.6;}
-  .modal-btns{display:flex;gap:10px;}
-  .modal-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
-  .modal-cancel-btn{background:var(--cream-dark);color:var(--text-light);}
-  .modal-confirm-btn{background:var(--danger);color:white;}
-  .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;}
-  .loading-bar.loading{animation:load-bar 1.5s ease infinite;}
-  @keyframes load-bar{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
 
-  /* ── PAGO PANEL ── */
-  .pago-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;letter-spacing:.3px;}
+  /* PAGO PANEL */
+  .pago-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;}
   .pago-badge.saldado{background:var(--success-bg);color:var(--success);}
   .pago-badge.pendiente-pago{background:var(--warning-bg);color:var(--warning);}
   .pago-panel{display:none;margin-top:14px;background:var(--cream-dark);border-radius:10px;padding:14px;border:1px solid var(--gold-light);}
@@ -124,11 +124,97 @@
   .pago-save-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;}
   .pago-save-btn:hover{opacity:.9;}
   .pago-save-btn.saved{background:var(--success);}
+
+  /* ══ PANTALLA DE CONFIGURACIÓN ══ */
+  .config-screen{display:none;padding:0 0 80px;}
+  .config-screen.show{display:block;}
+  .config-header{background:var(--cream-dark);border-bottom:1px solid var(--gold-light);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+  .config-header h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--text);flex:1;}
+  .config-back-btn{background:none;border:1.5px solid var(--gold-light);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;}
+  .config-back-btn:hover{border-color:var(--gold-1);color:var(--gold-1);}
+  .config-body{padding:20px;}
+  .config-section-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);margin-bottom:6px;}
+  .config-section-sub{font-size:13px;color:var(--text-light);margin-bottom:16px;line-height:1.5;}
+
+  /* Calendario de config */
+  .cfg-cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cfg-cal-month{font-family:'Playfair Display',serif;font-size:17px;color:var(--text);}
+  .cfg-cal-nav{background:none;border:1px solid var(--gold-light);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--gold-1);display:flex;align-items:center;justify-content:center;}
+  .cfg-cal-nav:hover{background:var(--cream-dark);}
+  .cfg-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px;}
+  .cfg-day-name{text-align:center;font-size:10px;color:var(--text-light);padding:4px 0;text-transform:uppercase;}
+  .cfg-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:12px;cursor:pointer;border:2px solid transparent;color:var(--text);transition:.15s;position:relative;gap:2px;}
+  .cfg-day.empty{cursor:default;}
+  .cfg-day.past{color:var(--gold-light);cursor:default;}
+  .cfg-day:hover:not(.empty):not(.past){background:var(--cream-dark);border-color:var(--gold-2);}
+  .cfg-day.selected-day{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);font-weight:600;}
+  .cfg-day.partial{background:var(--warning-bg);border-color:var(--warning);}
+  .cfg-dot{width:4px;height:4px;border-radius:50%;}
+  .cfg-dot.bloq{background:var(--danger);}
+  .cfg-dot.part{background:var(--warning);}
+
+  /* Panel lateral de día seleccionado */
+  .cfg-day-panel{background:var(--white);border:1px solid var(--gold-light);border-radius:12px;padding:16px;margin-bottom:16px;display:none;}
+  .cfg-day-panel.show{display:block;animation:fadeUp .2s ease;}
+  .cfg-day-panel h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:var(--text);margin-bottom:12px;border-bottom:1px solid var(--gold-light);padding-bottom:8px;}
+  .cfg-opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .cfg-opt-btn{padding:9px 14px;border-radius:8px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;transition:.2s;}
+  .cfg-opt-btn:hover{border-color:var(--gold-1);}
+  .cfg-opt-btn.active-block{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);}
+  .cfg-opt-btn.active-block-slot{background:var(--warning-bg);border-color:var(--warning);color:var(--warning);}
+  .cfg-slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .cfg-slot{padding:10px 6px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;text-align:center;transition:.2s;}
+  .cfg-slot:hover{border-color:var(--warning);}
+  .cfg-slot.bloqueado{background:var(--warning-bg);border-color:var(--warning);color:var(--warning);font-weight:500;}
+
+  /* Lista de bloqueos activos */
+  .bloqueos-lista{margin-bottom:16px;}
+  .bloqueo-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--white);border:1px solid var(--gold-light);border-radius:10px;margin-bottom:8px;font-size:13px;}
+  .bloqueo-item .bloqueo-info{flex:1;}
+  .bloqueo-item .bloqueo-tipo{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:6px;}
+  .bloqueo-item .btipo-dia{background:var(--danger-bg);color:var(--danger);}
+  .bloqueo-item .btipo-slot{background:var(--warning-bg);color:var(--warning);}
+  .bloqueo-del{background:none;border:none;color:var(--text-light);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px;}
+  .bloqueo-del:hover{background:var(--danger-bg);color:var(--danger);}
+  .empty-bloqueos{text-align:center;padding:24px;color:var(--text-light);font-size:14px;}
+
+  /* Confirmar y guardar */
+  .cfg-confirm-wrap{background:var(--cream-dark);border-radius:12px;padding:16px;border:1.5px solid var(--gold-light);}
+  .cfg-confirm-wrap label{display:block;font-size:12px;color:var(--text-light);margin-bottom:8px;line-height:1.5;}
+  .cfg-confirm-wrap label strong{color:var(--text);}
+  .cfg-confirm-input{width:100%;padding:12px 14px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+  .cfg-confirm-input:focus{border-color:var(--gold-1);}
+  .cfg-save-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:.2s;}
+  .cfg-save-btn:hover{opacity:.9;}
+  .cfg-save-btn:disabled{background:var(--gold-light);cursor:not-allowed;}
+  .cfg-feedback{font-size:13px;text-align:center;margin-top:8px;min-height:18px;}
+  .cfg-feedback.ok{color:var(--success);}
+  .cfg-feedback.err{color:var(--danger);}
+
+  /* MISC */
+  .debug-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin:12px 16px;font-size:12px;color:#5d4037;white-space:pre-wrap;display:none;}
+  .refresh-btn{background:var(--panel-bg);color:#e8c4b8;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:6px;}
+  .refresh-btn:hover{opacity:.85;}
+  .empty-state{text-align:center;padding:60px 24px;color:var(--text-light);}
+  .empty-state .empty-icon{font-size:40px;margin-bottom:12px;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(44,31,26,0.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--cream);border-radius:20px;padding:28px;max-width:360px;width:100%;}
+  .modal h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--text);margin-bottom:8px;}
+  .modal p{font-size:14px;color:var(--text-light);margin-bottom:20px;line-height:1.6;}
+  .modal-btns{display:flex;gap:10px;}
+  .modal-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
+  .modal-cancel-btn{background:var(--cream-dark);color:var(--text-light);}
+  .modal-confirm-btn{background:var(--danger);color:white;}
+  .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;}
+  .loading-bar.loading{animation:load-bar 1.5s ease infinite;}
+  @keyframes load-bar{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
 </style>
 </head>
 <body>
 <div class="loading-bar" id="loading-bar"></div>
 
+<!-- LOGIN -->
 <div class="login-screen" id="login-screen">
   <div class="login-card">
     <div class="login-logo">&#10022; Estudio Fotoinfantil</div>
@@ -140,42 +226,101 @@
   </div>
 </div>
 
+<!-- ADMIN PANEL -->
 <div class="admin-panel" id="admin-panel">
+
   <div class="admin-header">
     <div>
       <h1>Panel de Control</h1>
       <span class="studio-sub">Estudio &middot; Gesti&#243;n de turnos</span>
     </div>
-    <button class="logout-btn" onclick="doLogout()">Salir</button>
-  </div>
-  <div class="stats-row">
-    <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Reservas totales</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendientes</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-confirmed">0</div><div class="stat-label">Confirmadas</div></div>
-    <div class="stat-card"><div class="stat-num" id="stat-cancelled">0</div><div class="stat-label">Canceladas</div></div>
-  </div>
-  <div class="controls">
-    <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
-    <button class="filter-btn" onclick="setFilter('pendiente',this)">Pendientes</button>
-    <button class="filter-btn" onclick="setFilter('confirmado',this)">Confirmados</button>
-    <button class="filter-btn" onclick="setFilter('cancelado',this)">Cancelados</button>
-    <input class="search-input" type="text" id="search-input" placeholder="Buscar..." oninput="renderTurnos()">
-  </div>
-  <div id="month-tabs" class="month-tabs"></div>
-  <div class="debug-box" id="debug-box"></div>
-  <div class="turnos-wrap">
-    <div class="section-heading">
-      <span>Reservas</span>
-      <button class="refresh-btn" onclick="loadData()">&#8635; Actualizar</button>
+    <div class="header-btns">
+      <button class="config-btn" onclick="showConfig()">&#9881;&#65039; Config</button>
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
     </div>
-    <div id="turnos-list"></div>
   </div>
+
+  <!-- TURNOS VIEW -->
+  <div id="turnos-view">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Reservas totales</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendientes</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-confirmed">0</div><div class="stat-label">Confirmadas</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-cancelled">0</div><div class="stat-label">Canceladas</div></div>
+    </div>
+    <div class="controls">
+      <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('pendiente',this)">Pendientes</button>
+      <button class="filter-btn" onclick="setFilter('confirmado',this)">Confirmados</button>
+      <button class="filter-btn" onclick="setFilter('cancelado',this)">Cancelados</button>
+      <input class="search-input" type="text" id="search-input" placeholder="Buscar..." oninput="renderTurnos()">
+    </div>
+    <div id="month-tabs" class="month-tabs"></div>
+    <div class="debug-box" id="debug-box"></div>
+    <div class="turnos-wrap">
+      <div class="section-heading">
+        <span>Reservas</span>
+        <button class="refresh-btn" onclick="loadData()">&#8635; Actualizar</button>
+      </div>
+      <div id="turnos-list"></div>
+    </div>
+  </div>
+
+  <!-- CONFIG VIEW -->
+  <div class="config-screen" id="config-screen">
+    <div class="config-header">
+      <button class="config-back-btn" onclick="hideConfig()">&#8592; Volver</button>
+      <h2>&#9881;&#65039; Configuraci&#243;n de d&#237;as</h2>
+    </div>
+    <div class="config-body">
+      <div class="config-section-title">Bloquear d&#237;as u horarios</div>
+      <div class="config-section-sub">
+        Tap en un d&#237;a para bloquearlo completo o elegir horarios individuales.<br>
+        <strong>Rojo</strong> = d&#237;a completo bloqueado &nbsp;|&nbsp; <strong>Naranja</strong> = solo algunos horarios bloqueados
+      </div>
+
+      <div class="cfg-cal-header">
+        <button class="cfg-cal-nav" onclick="cfgPrevMonth()">&#8249;</button>
+        <div class="cfg-cal-month" id="cfg-cal-month"></div>
+        <button class="cfg-cal-nav" onclick="cfgNextMonth()">&#8250;</button>
+      </div>
+      <div class="cfg-cal-grid" id="cfg-cal-grid"></div>
+
+      <!-- Panel del día seleccionado -->
+      <div class="cfg-day-panel" id="cfg-day-panel">
+        <h4 id="cfg-day-panel-title">D&#237;a seleccionado</h4>
+        <div class="cfg-opts">
+          <button class="cfg-opt-btn" id="btn-blq-dia" onclick="toggleBloquearDia()">
+            &#128683; Bloquear d&#237;a completo
+          </button>
+        </div>
+        <div id="cfg-slots-wrap" style="display:none">
+          <div style="font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:8px;">Horarios individuales</div>
+          <div class="cfg-slot-grid" id="cfg-slot-grid"></div>
+        </div>
+      </div>
+
+      <!-- Lista de bloqueos activos -->
+      <div class="config-section-title" style="margin-top:8px;">Bloqueos activos</div>
+      <div class="bloqueos-lista" id="bloqueos-lista"></div>
+
+      <!-- Confirmar y guardar -->
+      <div class="cfg-confirm-wrap">
+        <label>Para guardar los cambios, escrib&#237; <strong>CONFIRMAR</strong> y presion&#225; el bot&#243;n:</label>
+        <input type="text" class="cfg-confirm-input" id="cfg-confirm-input" placeholder="CONFIRMAR" oninput="checkConfirmWord()">
+        <button class="cfg-save-btn" id="cfg-save-btn" onclick="guardarConfig()" disabled>Guardar bloqueos</button>
+        <div class="cfg-feedback" id="cfg-feedback"></div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
+<!-- MODAL CANCELAR -->
 <div class="modal-overlay" id="cancel-modal">
   <div class="modal">
     <h3>&#191;Cancelar este turno?</h3>
-    <p>El turno quedar&#225; marcado como cancelado. Pod&#233;s reactivarlo despu&#233;s si lo necesit&#225;s.</p>
+    <p>El turno quedar&#225; marcado como cancelado. Pod&#233;s reactivarlo despu&#233;s.</p>
     <div class="modal-btns">
       <button class="modal-cancel-btn" onclick="closeModal()">Volver</button>
       <button class="modal-confirm-btn" onclick="confirmCancel()">Cancelar turno</button>
@@ -186,17 +331,31 @@
 <script>
 const ADMIN_CONFIG = {
   PASSWORD:   'estudio2025',
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec'
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec',
+  SLOTS_WEEKDAY:  ['18:00','19:00'],
+  SLOTS_SATURDAY: ['10:00','11:00','13:00','14:00']
 };
 
-let allTurnos     = [];
-let currentFilter = 'todos';
-let currentMonth  = 'todos';
-let cancelTarget  = null;
+// ── Estado global ─────────────────────────────────────
+var allTurnos     = [];
+var currentFilter = 'todos';
+var currentMonth  = 'todos';
+var cancelTarget  = null;
 
-// ── WA messages ──────────────────────────────────────
+// Bloqueos: array de { tipo:'dia'|'slot', fecha:'YYYY-MM-DD', horario:'HH:MM' }
+var bloqueos = [];
+
+// Estado del calendario de config
+var cfgCal = {
+  month: new Date().getMonth(),
+  year:  new Date().getFullYear(),
+  selectedDate: null
+};
+
+// ── Emojis ───────────────────────────────────────────
 function cp(n){ return String.fromCodePoint(n); }
 
+// ── WA messages ──────────────────────────────────────
 function buildMsgConfirm(t, dateStr) {
   var lineas = [
     'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Turno confirmado! Muchas gracias.',
@@ -290,7 +449,6 @@ function normalizeReserva(row, idx) {
     telefono:      String(g(['telefono','Telefono']) || ''),
     whatsapp:      String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
     notas:         String(g(['notas','Notas']) || ''),
-    // ── Campos de pago ──
     senya:         String(g(['senya','Senya']) || ''),
     total:         String(g(['total','Total']) || ''),
     resta:         String(g(['resta','Resta']) || ''),
@@ -304,6 +462,7 @@ function doLogin() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-panel').classList.add('show');
     loadData();
+    loadConfig();
   } else {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('pwd-input').value = '';
@@ -326,7 +485,7 @@ async function loadData() {
     allTurnos = (data.reservas || []).map(function(row, idx){ return normalizeReserva(row, idx); });
     showDebug('');
   } catch(err) {
-    showDebug('No se pudo conectar con Google Sheets.\nError: ' + err.message);
+    showDebug('No se pudo conectar.\nError: ' + err.message);
     if (allTurnos.length === 0) allTurnos = [];
   }
   stopLoading();
@@ -389,7 +548,7 @@ function renderMonthTabs() {
   container.innerHTML = html;
 }
 
-// ── RENDER ───────────────────────────────────────────
+// ── RENDER TURNOS ────────────────────────────────────
 function renderTurnos() {
   var search = document.getElementById('search-input').value.toLowerCase();
   var list = allTurnos;
@@ -429,10 +588,7 @@ function renderTurnos() {
       label = l.charAt(0).toUpperCase() + l.slice(1);
     } catch(e){}
     if (sortedKeys.length > 1) {
-      html += '<div class="month-group-header">' +
-        '<span class="month-group-title">' + label + '</span>' +
-        '<span class="month-group-count">' + items.length + ' ' + (items.length===1?'sesi\u00f3n':'sesiones') + '</span>' +
-        '<div class="month-group-line"></div></div>';
+      html += '<div class="month-group-header"><span class="month-group-title">' + label + '</span><span class="month-group-count">' + items.length + ' ' + (items.length===1?'sesi\u00f3n':'sesiones') + '</span><div class="month-group-line"></div></div>';
     }
     html += items.map(function(t){ return buildTurnoCard(t); }).join('');
   });
@@ -461,7 +617,6 @@ function buildTurnoCard(t) {
   } catch(e){}
   var reservadoStr = '--';
   try { reservadoStr = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e){}
-
   var estadoLower = t.estado.toLowerCase();
   var waNum  = t.whatsapp.replace(/\D/g,'');
   var waFull = waNum ? (waNum.startsWith('54') ? waNum : '54'+waNum) : '';
@@ -469,178 +624,314 @@ function buildTurnoCard(t) {
   var msgRecordatorio = buildMsgRecordatorio(t, dateStr);
   var waConfirmBtn = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgConfirm+'" target="_blank">'+waIconSvg()+' Confirmar + WA</a>' : '';
   var waRecordBtn  = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgRecordatorio+'" target="_blank">'+waIconSvg()+' WA recordatorio</a>' : '';
-
   var actionButtons =
     t.estado === 'PENDIENTE'
-      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button>' +
-        '<button class="btn-action btn-cancel-action"  onclick="askCancel(\''+t.id+'\')">Cancelar</button>' +
-        waConfirmBtn
+      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'+waConfirmBtn
     : t.estado === 'CONFIRMADO'
-      ? waRecordBtn + '<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'
+      ? waRecordBtn+'<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'
     : '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'PENDIENTE\')">Reactivar</button>';
-
-  // Badge de pago
-  var senyaNum = parseFloat(t.senya) || 0;
-  var totalNum = parseFloat(t.total) || 0;
-  var restaNum = totalNum > 0 ? totalNum - senyaNum : 0;
-  var pagoBadge = totalNum > 0
-    ? (restaNum <= 0
-        ? '<span class="pago-badge saldado">&#10003; Saldado</span>'
-        : '<span class="pago-badge pendiente-pago">Resta $' + restaNum.toLocaleString('es-AR') + '</span>')
-    : '';
-
-  var restaDisplay = totalNum > 0 ? (restaNum <= 0 ? 'Saldado!' : '$' + restaNum.toLocaleString('es-AR')) : '$0';
-  var restaClass   = restaNum <= 0 && totalNum > 0 ? 'resta-val saldado' : 'resta-val';
-
-  // Panel pago
+  var senyaNum = parseFloat(t.senya)||0, totalNum = parseFloat(t.total)||0, restaNum = totalNum-senyaNum;
+  var pagoBadge = totalNum > 0 ? (restaNum<=0 ? '<span class="pago-badge saldado">&#10003; Saldado</span>' : '<span class="pago-badge pendiente-pago">Resta $'+restaNum.toLocaleString('es-AR')+'</span>') : '';
+  var restaDisplay = totalNum>0 ? (restaNum<=0?'Saldado!':'$'+restaNum.toLocaleString('es-AR')) : '$0';
+  var restaClass   = restaNum<=0&&totalNum>0 ? 'resta-val saldado' : 'resta-val';
   var panelPago =
-    '<div class="pago-panel" id="pago-' + t.id + '">' +
-      '<div class="pago-titulo">&#128176; Gesti\u00f3n de pago</div>' +
-      '<div class="pago-grid">' +
-        '<div class="pago-field">' +
-          '<label>Se\u00f1a recibida ($)</label>' +
-          '<input type="number" id="senya-' + t.id + '" value="' + (t.senya||'') + '" placeholder="Ej: 15000" oninput="calcResta(\'' + t.id + '\')">' +
-        '</div>' +
-        '<div class="pago-field">' +
-          '<label>Valor total ($)</label>' +
-          '<input type="number" id="total-' + t.id + '" value="' + (t.total||'') + '" placeholder="Ej: 55000" oninput="calcResta(\'' + t.id + '\')">' +
-        '</div>' +
-      '</div>' +
-      '<div class="pago-resta">' +
-        '<span class="resta-label">Resta cobrar:</span>' +
-        '<span class="' + restaClass + '" id="resta-' + t.id + '">' + restaDisplay + '</span>' +
-      '</div>' +
-      '<span class="pago-notas-label">Notas internas</span>' +
-      '<textarea class="pago-notas" id="notas-int-' + t.id + '" placeholder="Ej: beb\u00e9 tranquilo, lleg\u00f3 puntual...">' + (t.notasInternas||'') + '</textarea>' +
-      '<button class="pago-save-btn" id="save-btn-' + t.id + '" onclick="guardarPago(\'' + t.id + '\')">Guardar cambios</button>' +
+    '<div class="pago-panel" id="pago-'+t.id+'">'+
+      '<div class="pago-titulo">&#128176; Gesti\u00f3n de pago</div>'+
+      '<div class="pago-grid">'+
+        '<div class="pago-field"><label>Se\u00f1a recibida ($)</label><input type="number" id="senya-'+t.id+'" value="'+(t.senya||'')+'" placeholder="Ej: 15000" oninput="calcResta(\''+t.id+'\')"></div>'+
+        '<div class="pago-field"><label>Valor total ($)</label><input type="number" id="total-'+t.id+'" value="'+(t.total||'')+'" placeholder="Ej: 55000" oninput="calcResta(\''+t.id+'\')"></div>'+
+      '</div>'+
+      '<div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="'+restaClass+'" id="resta-'+t.id+'">'+restaDisplay+'</span></div>'+
+      '<span class="pago-notas-label">Notas internas</span>'+
+      '<textarea class="pago-notas" id="notas-int-'+t.id+'" placeholder="Ej: beb\u00e9 tranquilo...">'+(t.notasInternas||'')+'</textarea>'+
+      '<button class="pago-save-btn" id="save-btn-'+t.id+'" onclick="guardarPago(\''+t.id+'\')">Guardar cambios</button>'+
     '</div>';
-
-  return '<div class="turno-card ' + estadoLower + '" id="card-' + t.id + '">' +
-    '<div class="turno-top">' +
-      '<div>' +
-        '<div class="turno-date">' + dateStr + '</div>' +
-        '<div class="turno-time">' + t.horario + ' hs ' + pagoBadge + '</div>' +
-      '</div>' +
-      '<span class="status-badge badge-' + estadoLower + '">' + t.estado + '</span>' +
-    '</div>' +
-    '<div class="turno-info">' +
-      '<div class="turno-info-item"><span class="info-key">Beb\u00e9</span><span class="info-val">' + t.nombreBebe + '</span></div>' +
-      '<div class="turno-info-item"><span class="info-key">Tipo sesi\u00f3n</span><span class="info-val">' + t.tipoSesion + '</span></div>' +
-      '<div class="turno-info-item"><span class="info-key">Mam\u00e1</span><span class="info-val">' + t.nombreMama + '</span></div>' +
-      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + (t.whatsapp||'--') + '</span></div>' +
-      (t.tematica  ? '<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">' + t.tematica + '</span></div>' : '') +
-      (cumpleStr   ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + cumpleStr + '</span></div>' : '') +
-      (t.senya     ? '<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$' + parseFloat(t.senya).toLocaleString('es-AR') + '</span></div>' : '') +
-      (t.total     ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + parseFloat(t.total).toLocaleString('es-AR') + '</span></div>' : '') +
-    '</div>' +
-    ( t.notas ? '<div class="turno-notas">"' + t.notas + '"</div>' : '' ) +
-    (t.notasInternas ? '<div class="turno-notas-int">📝 ' + t.notasInternas + '</div>' : '') +
-    '<div class="turno-actions">' +
-      actionButtons +
-      '<button class="btn-action btn-pago-action" onclick="togglePago(\'' + t.id + '\')">&#128176; Pago / Notas</button>' +
-    '</div>' +
-    panelPago +
-    '<div class="turno-id">ID: ' + t.id + ' &middot; Reservado: ' + reservadoStr + '</div>' +
+  return '<div class="turno-card '+estadoLower+'" id="card-'+t.id+'">'+
+    '<div class="turno-top"><div><div class="turno-date">'+dateStr+'</div><div class="turno-time">'+t.horario+' hs '+pagoBadge+'</div></div><span class="status-badge badge-'+estadoLower+'">'+t.estado+'</span></div>'+
+    '<div class="turno-info">'+
+      '<div class="turno-info-item"><span class="info-key">Beb\u00e9</span><span class="info-val">'+t.nombreBebe+'</span></div>'+
+      '<div class="turno-info-item"><span class="info-key">Tipo sesi\u00f3n</span><span class="info-val">'+t.tipoSesion+'</span></div>'+
+      '<div class="turno-info-item"><span class="info-key">Mam\u00e1</span><span class="info-val">'+t.nombreMama+'</span></div>'+
+      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">'+(t.whatsapp||'--')+'</span></div>'+
+      (t.tematica?'<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">'+t.tematica+'</span></div>':'')+
+      (cumpleStr?'<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">'+cumpleStr+'</span></div>':'')+
+      (t.senya?'<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$'+parseFloat(t.senya).toLocaleString('es-AR')+'</span></div>':'')+
+      (t.total?'<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$'+parseFloat(t.total).toLocaleString('es-AR')+'</span></div>':'')+
+    '</div>'+
+    (t.notas?'<div class="turno-notas">"'+t.notas+'"</div>':'')+
+    (t.notasInternas?'<div class="turno-notas-int">&#128203; '+t.notasInternas+'</div>':'')+
+    '<div class="turno-actions">'+actionButtons+'<button class="btn-action btn-pago-action" onclick="togglePago(\''+t.id+'\')">&#128176; Pago / Notas</button></div>'+
+    panelPago+
+    '<div class="turno-id">ID: '+t.id+' &middot; Reservado: '+reservadoStr+'</div>'+
   '</div>';
 }
 
 // ── PAGO ─────────────────────────────────────────────
 function togglePago(id) {
-  var panel = document.getElementById('pago-' + id);
+  var panel = document.getElementById('pago-'+id);
   if (!panel) return;
   panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
 }
-
 function calcResta(id) {
-  var senya = parseFloat(document.getElementById('senya-' + id).value) || 0;
-  var total = parseFloat(document.getElementById('total-' + id).value) || 0;
-  var el    = document.getElementById('resta-' + id);
+  var s = parseFloat(document.getElementById('senya-'+id).value)||0;
+  var t = parseFloat(document.getElementById('total-'+id).value)||0;
+  var el = document.getElementById('resta-'+id);
   if (!el) return;
-  if (total > 0) {
-    var resta = total - senya;
-    el.textContent = resta <= 0 ? 'Saldado!' : '$' + resta.toLocaleString('es-AR');
-    el.className   = resta <= 0 ? 'resta-val saldado' : 'resta-val';
-  } else {
-    el.textContent = '$0';
-    el.className   = 'resta-val';
-  }
+  if (t>0){var r=t-s;el.textContent=r<=0?'Saldado!':'$'+r.toLocaleString('es-AR');el.className=r<=0?'resta-val saldado':'resta-val';}
+  else{el.textContent='$0';el.className='resta-val';}
 }
-
 async function guardarPago(id) {
-  var senyaVal = (document.getElementById('senya-' + id).value || '').trim();
-  var totalVal = (document.getElementById('total-' + id).value || '').trim();
-  var notasVal = (document.getElementById('notas-int-' + id).value || '').trim();
-
-  var senyaNum = parseFloat(senyaVal) || 0;
-  var totalNum = parseFloat(totalVal) || 0;
-  var restaNum = totalNum > 0 ? totalNum - senyaNum : 0;
-  var restaVal = totalNum > 0 ? String(restaNum) : '';
-
-  // Actualizar en memoria
-  var turno = allTurnos.find(function(t){ return t.id === id; });
-  if (turno) {
-    turno.senya         = senyaVal;
-    turno.total         = totalVal;
-    turno.resta         = restaVal;
-    turno.notasInternas = notasVal;
-  }
-
-  var btn = document.getElementById('save-btn-' + id);
-  if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
-
+  var senyaVal=(document.getElementById('senya-'+id).value||'').trim();
+  var totalVal=(document.getElementById('total-'+id).value||'').trim();
+  var notasVal=(document.getElementById('notas-int-'+id).value||'').trim();
+  var sN=parseFloat(senyaVal)||0, tN=parseFloat(totalVal)||0;
+  var restaVal=tN>0?String(tN-sN):'';
+  var turno=allTurnos.find(function(t){return t.id===id;});
+  if(turno){turno.senya=senyaVal;turno.total=totalVal;turno.resta=restaVal;turno.notasInternas=notasVal;}
+  var btn=document.getElementById('save-btn-'+id);
+  if(btn){btn.textContent='Guardando...';btn.disabled=true;}
   try {
-    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
-      method: 'POST',
-      mode:   'no-cors',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        action:        'updatePago',
-        id:            id,
-        senya:         senyaVal,
-        total:         totalVal,
-        resta:         restaVal,
-        notasInternas: notasVal
-      })
-    });
-    if (btn) {
-      btn.textContent  = '&#10003; Guardado!';
-      btn.classList.add('saved');
-      setTimeout(function(){
-        btn.textContent = 'Guardar cambios';
-        btn.classList.remove('saved');
-        btn.disabled = false;
-      }, 2500);
-    }
+    await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updatePago',id:id,senya:senyaVal,total:totalVal,resta:restaVal,notasInternas:notasVal})});
+    if(btn){btn.textContent='&#10003; Guardado!';btn.classList.add('saved');setTimeout(function(){btn.textContent='Guardar cambios';btn.classList.remove('saved');btn.disabled=false;},2500);}
   } catch(e) {
-    if (btn) { btn.textContent = 'Error - Reintentá'; btn.disabled = false; }
+    if(btn){btn.textContent='Error - Reintent\u00e1';btn.disabled=false;}
   }
 }
 
 // ── ACCIONES ─────────────────────────────────────────
 async function updateStatus(id, newStatus) {
   startLoading();
-  var turno = allTurnos.find(function(t){ return t.id === id; });
-  if (turno) turno.estado = newStatus;
-  updateStats(); renderMonthTabs(); renderTurnos();
+  var turno=allTurnos.find(function(t){return t.id===id;});
+  if(turno)turno.estado=newStatus;
+  updateStats();renderMonthTabs();renderTurnos();
+  try{await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updateStatus',id:id,status:newStatus})});}catch(e){}
+  stopLoading();
+}
+function askCancel(id){cancelTarget=id;document.getElementById('cancel-modal').classList.add('show');}
+function closeModal(){document.getElementById('cancel-modal').classList.remove('show');cancelTarget=null;}
+function confirmCancel(){if(cancelTarget)updateStatus(cancelTarget,'CANCELADO');closeModal();}
+function startLoading(){document.getElementById('loading-bar').classList.add('loading');}
+function stopLoading(){document.getElementById('loading-bar').classList.remove('loading');}
+document.getElementById('cancel-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// ═══════════════════════════════════════════════════════
+// ── CONFIGURACIÓN DE BLOQUEOS ──────────────────────────
+// ═══════════════════════════════════════════════════════
+function showConfig() {
+  document.getElementById('turnos-view').style.display = 'none';
+  document.getElementById('config-screen').classList.add('show');
+  renderCfgCalendar();
+  renderBloqueosList();
+}
+function hideConfig() {
+  document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('turnos-view').style.display = 'block';
+}
+
+// Cargar bloqueos desde Sheets al login
+async function loadConfig() {
+  try {
+    var resp = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getConfig', { mode:'cors' });
+    var data = await resp.json();
+    bloqueos = (data.bloqueos || []).map(function(b){
+      return { tipo: b.tipo||'dia', fecha: b.fecha||'', horario: b.horario||'' };
+    });
+  } catch(e) {
+    bloqueos = [];
+  }
+}
+
+// ── Calendario de config ──
+var CFG_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var CFG_DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+
+function cfgPrevMonth() {
+  if (cfgCal.month===0){cfgCal.month=11;cfgCal.year--;}else cfgCal.month--;
+  cfgCal.selectedDate=null;
+  document.getElementById('cfg-day-panel').classList.remove('show');
+  renderCfgCalendar();
+}
+function cfgNextMonth() {
+  if (cfgCal.month===11){cfgCal.month=0;cfgCal.year++;}else cfgCal.month++;
+  cfgCal.selectedDate=null;
+  document.getElementById('cfg-day-panel').classList.remove('show');
+  renderCfgCalendar();
+}
+
+function renderCfgCalendar() {
+  document.getElementById('cfg-cal-month').textContent = CFG_MONTHS[cfgCal.month] + ' ' + cfgCal.year;
+  var grid = document.getElementById('cfg-cal-grid');
+  grid.innerHTML = '';
+
+  CFG_DAYS.forEach(function(d){
+    var el=document.createElement('div');el.className='cfg-day-name';el.textContent=d;grid.appendChild(el);
+  });
+
+  var today     = new Date(); today.setHours(0,0,0,0);
+  var firstDay  = new Date(cfgCal.year, cfgCal.month, 1).getDay();
+  var daysInMo  = new Date(cfgCal.year, cfgCal.month+1, 0).getDate();
+
+  for(var i=0;i<firstDay;i++){var e=document.createElement('div');e.className='cfg-day empty';grid.appendChild(e);}
+
+  for(var d=1;d<=daysInMo;d++){
+    var date    = new Date(cfgCal.year, cfgCal.month, d);
+    var dateStr = fmtDateCfg(date);
+    var el      = document.createElement('div');
+    el.innerHTML = '<span>'+d+'</span>';
+    var isPast  = date < today;
+    var cls     = 'cfg-day';
+
+    // Estado de bloqueo
+    var tieneBlqDia  = bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
+    var tieneBlqSlot = bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===dateStr;});
+
+    if(isPast){
+      cls+=' past';
+    } else {
+      if(tieneBlqDia){ cls+=' selected-day'; var dot=document.createElement('div');dot.className='cfg-dot bloq';el.appendChild(dot); }
+      else if(tieneBlqSlot){ cls+=' partial'; var dot=document.createElement('div');dot.className='cfg-dot part';el.appendChild(dot); }
+      if(cfgCal.selectedDate===dateStr) cls+=' selected-day';
+      (function(ds,dt){el.onclick=function(){cfgSelectDay(ds,dt);};})(dateStr,date);
+    }
+    el.className=cls;
+    grid.appendChild(el);
+  }
+}
+
+function fmtDateCfg(date){ return date.toISOString().split('T')[0]; }
+
+function cfgSelectDay(dateStr, dateObj) {
+  cfgCal.selectedDate = dateStr;
+  renderCfgCalendar();
+
+  var panel = document.getElementById('cfg-day-panel');
+  panel.classList.add('show');
+
+  // Título
+  var d = new Date(dateStr + 'T12:00:00');
+  document.getElementById('cfg-day-panel-title').textContent =
+    d.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
+
+  // Estado del botón "bloquear día completo"
+  var tieneBlqDia = bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
+  var btnDia = document.getElementById('btn-blq-dia');
+  if(tieneBlqDia){
+    btnDia.textContent = '✅ Día bloqueado (tap para desbloquear)';
+    btnDia.className   = 'cfg-opt-btn active-block';
+  } else {
+    btnDia.textContent = '🚫 Bloquear día completo';
+    btnDia.className   = 'cfg-opt-btn';
+  }
+
+  // Slots
+  var dow = dateObj.getDay();
+  var slots = dow===6 ? ADMIN_CONFIG.SLOTS_SATURDAY : (dow>=1&&dow<=5 ? ADMIN_CONFIG.SLOTS_WEEKDAY : []);
+  var slotsWrap = document.getElementById('cfg-slots-wrap');
+  var slotGrid  = document.getElementById('cfg-slot-grid');
+
+  if(slots.length>0 && !tieneBlqDia){
+    slotsWrap.style.display='block';
+    slotGrid.innerHTML='';
+    slots.forEach(function(time){
+      var isBloq = bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===dateStr&&b.horario===time;});
+      var btn=document.createElement('button');
+      btn.className='cfg-slot'+(isBloq?' bloqueado':'');
+      btn.textContent=time+' hs'+(isBloq?' 🔒':'');
+      btn.onclick=function(){toggleBloquearSlot(dateStr,time);};
+      slotGrid.appendChild(btn);
+    });
+  } else {
+    slotsWrap.style.display='none';
+  }
+}
+
+function toggleBloquearDia() {
+  var dateStr = cfgCal.selectedDate;
+  if(!dateStr) return;
+  var idx = bloqueos.findIndex(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
+  if(idx>=0){
+    // Desbloquear
+    bloqueos.splice(idx,1);
+  } else {
+    // Bloquear día: eliminar slots individuales del mismo día y agregar día completo
+    bloqueos = bloqueos.filter(function(b){return !(b.fecha===dateStr);});
+    bloqueos.push({tipo:'dia', fecha:dateStr, horario:''});
+  }
+  renderCfgCalendar();
+  cfgSelectDay(dateStr, new Date(dateStr+'T12:00:00'));
+  renderBloqueosList();
+}
+
+function toggleBloquearSlot(dateStr, horario) {
+  var idx = bloqueos.findIndex(function(b){return b.tipo==='slot'&&b.fecha===dateStr&&b.horario===horario;});
+  if(idx>=0){
+    bloqueos.splice(idx,1);
+  } else {
+    bloqueos.push({tipo:'slot', fecha:dateStr, horario:horario});
+  }
+  renderCfgCalendar();
+  cfgSelectDay(dateStr, new Date(dateStr+'T12:00:00'));
+  renderBloqueosList();
+}
+
+// ── Lista de bloqueos activos ──
+function renderBloqueosList() {
+  var container = document.getElementById('bloqueos-lista');
+  if(bloqueos.length===0){
+    container.innerHTML='<div class="empty-bloqueos">No hay d\u00edas bloqueados</div>';
+    return;
+  }
+  var sorted = bloqueos.slice().sort(function(a,b){return (a.fecha+a.horario).localeCompare(b.fecha+b.horario);});
+  var html='';
+  sorted.forEach(function(b, idx){
+    var d = new Date(b.fecha+'T12:00:00');
+    var label = d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    var tipoLabel = b.tipo==='dia' ? 'D\u00eda completo' : b.horario+' hs';
+    var tipoClass = b.tipo==='dia' ? 'btipo-dia' : 'btipo-slot';
+    html+='<div class="bloqueo-item">'+
+      '<div class="bloqueo-info">'+label+' <span class="bloqueo-tipo '+tipoClass+'">'+tipoLabel+'</span></div>'+
+      '<button class="bloqueo-del" onclick="eliminarBloqueo('+bloqueos.indexOf(b)+')">&#10005;</button>'+
+    '</div>';
+  });
+  container.innerHTML=html;
+}
+
+function eliminarBloqueo(idx) {
+  bloqueos.splice(idx,1);
+  renderCfgCalendar();
+  if(cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate+'T12:00:00'));
+  renderBloqueosList();
+}
+
+// ── Confirmar y guardar ──
+function checkConfirmWord() {
+  var val = document.getElementById('cfg-confirm-input').value.trim().toUpperCase();
+  document.getElementById('cfg-save-btn').disabled = (val !== 'CONFIRMAR');
+}
+
+async function guardarConfig() {
+  var btn = document.getElementById('cfg-save-btn');
+  var feedback = document.getElementById('cfg-feedback');
+  btn.disabled=true; btn.textContent='Guardando...';
+  feedback.textContent=''; feedback.className='cfg-feedback';
+
   try {
     await fetch(ADMIN_CONFIG.SCRIPT_URL, {
       method:'POST', mode:'no-cors',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'updateStatus', id:id, status:newStatus })
+      body: JSON.stringify({ action:'saveConfig', bloqueos: bloqueos })
     });
-  } catch(e) {}
-  stopLoading();
+    btn.textContent='Guardado!';
+    feedback.textContent='Bloqueos guardados correctamente en Google Sheets.';
+    feedback.className='cfg-feedback ok';
+    document.getElementById('cfg-confirm-input').value='';
+    setTimeout(function(){ btn.textContent='Guardar bloqueos'; btn.disabled=true; feedback.textContent=''; },3000);
+  } catch(e) {
+    btn.textContent='Guardar bloqueos'; btn.disabled=false;
+    feedback.textContent='Error al guardar. Verific\u00e1 la conexi\u00f3n.';
+    feedback.className='cfg-feedback err';
+  }
 }
-
-function askCancel(id)   { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
-function closeModal()    { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
-function confirmCancel() { if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
-function startLoading()  { document.getElementById('loading-bar').classList.add('loading'); }
-function stopLoading()   { document.getElementById('loading-bar').classList.remove('loading'); }
-
-document.getElementById('cancel-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeModal();
-});
 </script>
 </body>
 </html>
