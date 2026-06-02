@@ -256,7 +256,8 @@ var state = {
   selectedSession: null,
   bookedSlots:  {},  // { 'YYYY-MM-DD': ['18:00','19:00'] }  — turnos reservados
   blockedDays:  [],  // ['YYYY-MM-DD', ...]                  — días completos bloqueados por admin
-  blockedSlots: {}   // { 'YYYY-MM-DD': ['18:00'] }          — slots bloqueados por admin
+  blockedSlots: {},  // { 'YYYY-MM-DD': ['18:00'] }          — slots bloqueados por admin
+  extraSlots:   {}   // { 'YYYY-MM-DD': ['15:00'] }          — horarios extra habilitados por admin
 };
 
 // ── Cargar datos al iniciar: turnos + bloqueos del admin ──
@@ -289,6 +290,7 @@ async function initApp() {
     var bloqueos = data2.bloqueos || [];
     var blockedDays  = [];
     var blockedSlots = {};
+    var extraSlots   = {};
     bloqueos.forEach(function(b) {
       if (!b.fecha) return;
       if (b.tipo === 'dia') {
@@ -296,10 +298,14 @@ async function initApp() {
       } else if (b.tipo === 'slot' && b.horario) {
         if (!blockedSlots[b.fecha]) blockedSlots[b.fecha] = [];
         if (!blockedSlots[b.fecha].includes(b.horario)) blockedSlots[b.fecha].push(b.horario);
+      } else if (b.tipo === 'slot_extra' && b.horario) {
+        if (!extraSlots[b.fecha]) extraSlots[b.fecha] = [];
+        if (!extraSlots[b.fecha].includes(b.horario)) extraSlots[b.fecha].push(b.horario);
       }
     });
     state.blockedDays  = blockedDays;
     state.blockedSlots = blockedSlots;
+    state.extraSlots   = extraSlots;
   } catch(e) {
     console.log('Error cargando bloqueos:', e);
   }
@@ -325,10 +331,19 @@ function isAvailable(date) {
 }
 
 function getSlotsForDate(dateObj) {
-  var day = dateObj.getDay();
-  if (day === 6) return CONFIG.SLOTS_SATURDAY;
-  if (day >= 1 && day <= 5) return CONFIG.SLOTS_WEEKDAY;
-  return [];
+  var day     = dateObj.getDay();
+  var dateStr = fmtDate(dateObj);
+  var base    = [];
+  if (day === 6)                    base = CONFIG.SLOTS_SATURDAY.slice();
+  else if (day >= 1 && day <= 5)    base = CONFIG.SLOTS_WEEKDAY.slice();
+  // Agregar horarios extra habilitados por el admin
+  var extras = state.extraSlots[dateStr] || [];
+  extras.forEach(function(h){
+    if (!base.includes(h)) base.push(h);
+  });
+  // Ordenar cronológicamente
+  base.sort();
+  return base;
 }
 
 function getEffectiveTakenSlots(dateStr) {
