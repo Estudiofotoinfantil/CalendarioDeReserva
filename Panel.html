@@ -149,9 +149,12 @@
   .cfg-day:hover:not(.empty):not(.past){background:var(--cream-dark);border-color:var(--gold-2);}
   .cfg-day.selected-day{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);font-weight:600;}
   .cfg-day.partial{background:var(--warning-bg);border-color:var(--warning);}
+  .cfg-day.has-extra{background:var(--success-bg);border-color:var(--success);}
+  .cfg-day.partial.has-extra{background:linear-gradient(135deg,var(--warning-bg) 50%,var(--success-bg) 50%);border-color:var(--gold-2);}
   .cfg-dot{width:4px;height:4px;border-radius:50%;}
   .cfg-dot.bloq{background:var(--danger);}
   .cfg-dot.part{background:var(--warning);}
+  .cfg-dot.extra{background:var(--success);}
 
   /* Panel lateral de día seleccionado */
   .cfg-day-panel{background:var(--white);border:1px solid var(--gold-light);border-radius:12px;padding:16px;margin-bottom:16px;display:none;}
@@ -161,19 +164,34 @@
   .cfg-opt-btn{padding:9px 14px;border-radius:8px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;transition:.2s;}
   .cfg-opt-btn:hover{border-color:var(--gold-1);}
   .cfg-opt-btn.active-block{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);}
-  .cfg-opt-btn.active-block-slot{background:var(--warning-bg);border-color:var(--warning);color:var(--warning);}
   .cfg-slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
   .cfg-slot{padding:10px 6px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;text-align:center;transition:.2s;}
   .cfg-slot:hover{border-color:var(--warning);}
   .cfg-slot.bloqueado{background:var(--warning-bg);border-color:var(--warning);color:var(--warning);font-weight:500;}
+
+  /* ── HORARIO EXTRA ── */
+  .cfg-extra-section{margin-top:14px;padding-top:14px;border-top:1px dashed var(--gold-light);}
+  .cfg-extra-title{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--success);font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+  .cfg-extra-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .cfg-extra-input{flex:1;padding:9px 12px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;text-align:center;letter-spacing:1px;}
+  .cfg-extra-input:focus{border-color:var(--success);}
+  .cfg-extra-input::placeholder{color:var(--gold-3);font-size:13px;}
+  .cfg-extra-add-btn{padding:9px 14px;background:var(--success-bg);color:var(--success);border:1.5px solid var(--success);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:.2s;}
+  .cfg-extra-add-btn:hover{background:var(--success);color:white;}
+  .cfg-extra-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .cfg-extra-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--success-bg);border:1.5px solid var(--success);border-radius:20px;font-size:12px;color:var(--success);font-weight:500;}
+  .cfg-extra-tag-del{background:none;border:none;cursor:pointer;color:var(--success);font-size:14px;line-height:1;padding:0 2px;}
+  .cfg-extra-tag-del:hover{color:var(--danger);}
+  .cfg-extra-error{font-size:12px;color:var(--danger);margin-top:4px;display:none;}
 
   /* Lista de bloqueos activos */
   .bloqueos-lista{margin-bottom:16px;}
   .bloqueo-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--white);border:1px solid var(--gold-light);border-radius:10px;margin-bottom:8px;font-size:13px;}
   .bloqueo-item .bloqueo-info{flex:1;}
   .bloqueo-item .bloqueo-tipo{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:6px;}
-  .bloqueo-item .btipo-dia{background:var(--danger-bg);color:var(--danger);}
-  .bloqueo-item .btipo-slot{background:var(--warning-bg);color:var(--warning);}
+  .btipo-dia{background:var(--danger-bg);color:var(--danger);}
+  .btipo-slot{background:var(--warning-bg);color:var(--warning);}
+  .btipo-extra{background:var(--success-bg);color:var(--success);}
   .bloqueo-del{background:none;border:none;color:var(--text-light);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px;}
   .bloqueo-del:hover{background:var(--danger-bg);color:var(--danger);}
   .empty-bloqueos{text-align:center;padding:24px;color:var(--text-light);font-size:14px;}
@@ -228,7 +246,6 @@
 
 <!-- ADMIN PANEL -->
 <div class="admin-panel" id="admin-panel">
-
   <div class="admin-header">
     <div>
       <h1>Panel de Control</h1>
@@ -273,10 +290,12 @@
       <h2>&#9881;&#65039; Configuraci&#243;n de d&#237;as</h2>
     </div>
     <div class="config-body">
-      <div class="config-section-title">Bloquear d&#237;as u horarios</div>
+      <div class="config-section-title">Gesti&#243;n de d&#237;as y horarios</div>
       <div class="config-section-sub">
-        Tap en un d&#237;a para bloquearlo completo o elegir horarios individuales.<br>
-        <strong>Rojo</strong> = d&#237;a completo bloqueado &nbsp;|&nbsp; <strong>Naranja</strong> = solo algunos horarios bloqueados
+        Tap en un d&#237;a para configurar bloqueos u horarios extras.<br>
+        <span style="color:var(--danger);font-weight:500;">&#9632; Rojo</span> = d&#237;a bloqueado &nbsp;
+        <span style="color:var(--warning);font-weight:500;">&#9632; Naranja</span> = horario bloqueado &nbsp;
+        <span style="color:var(--success);font-weight:500;">&#9632; Verde</span> = horario extra habilitado
       </div>
 
       <div class="cfg-cal-header">
@@ -289,31 +308,55 @@
       <!-- Panel del día seleccionado -->
       <div class="cfg-day-panel" id="cfg-day-panel">
         <h4 id="cfg-day-panel-title">D&#237;a seleccionado</h4>
+
+        <!-- Bloquear día completo -->
         <div class="cfg-opts">
           <button class="cfg-opt-btn" id="btn-blq-dia" onclick="toggleBloquearDia()">
             &#128683; Bloquear d&#237;a completo
           </button>
         </div>
+
+        <!-- Horarios normales para bloquear individualmente -->
         <div id="cfg-slots-wrap" style="display:none">
-          <div style="font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:8px;">Horarios individuales</div>
+          <div style="font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:8px;">Bloquear horarios normales</div>
           <div class="cfg-slot-grid" id="cfg-slot-grid"></div>
+        </div>
+
+        <!-- ── SECCIÓN HORARIOS EXTRA ── -->
+        <div class="cfg-extra-section" id="cfg-extra-section" style="display:none">
+          <div class="cfg-extra-title">
+            <span>&#10024;</span> Agregar horario especial
+          </div>
+          <div class="cfg-extra-row">
+            <input
+              type="text"
+              class="cfg-extra-input"
+              id="cfg-extra-input"
+              placeholder="Ej: 15:00"
+              maxlength="5"
+              oninput="formatExtraInput(this)"
+              onkeydown="if(event.key==='Enter')agregarSlotExtra()"
+            >
+            <button class="cfg-extra-add-btn" onclick="agregarSlotExtra()">+ Agregar</button>
+          </div>
+          <div class="cfg-extra-error" id="cfg-extra-error">Formato inv&#225;lido. Usá HH:MM (ej: 15:00)</div>
+          <div class="cfg-extra-list" id="cfg-extra-list"></div>
         </div>
       </div>
 
-      <!-- Lista de bloqueos activos -->
-      <div class="config-section-title" style="margin-top:8px;">Bloqueos activos</div>
+      <!-- Lista de todos los cambios activos -->
+      <div class="config-section-title" style="margin-top:8px;">Cambios activos</div>
       <div class="bloqueos-lista" id="bloqueos-lista"></div>
 
       <!-- Confirmar y guardar -->
       <div class="cfg-confirm-wrap">
         <label>Para guardar los cambios, escrib&#237; <strong>CONFIRMAR</strong> y presion&#225; el bot&#243;n:</label>
         <input type="text" class="cfg-confirm-input" id="cfg-confirm-input" placeholder="CONFIRMAR" oninput="checkConfirmWord()">
-        <button class="cfg-save-btn" id="cfg-save-btn" onclick="guardarConfig()" disabled>Guardar bloqueos</button>
+        <button class="cfg-save-btn" id="cfg-save-btn" onclick="guardarConfig()" disabled>Guardar cambios</button>
         <div class="cfg-feedback" id="cfg-feedback"></div>
       </div>
     </div>
   </div>
-
 </div>
 
 <!-- MODAL CANCELAR -->
@@ -336,137 +379,91 @@ const ADMIN_CONFIG = {
   SLOTS_SATURDAY: ['10:00','11:00','13:00','14:00']
 };
 
-// ── Estado global ─────────────────────────────────────
 var allTurnos     = [];
 var currentFilter = 'todos';
 var currentMonth  = 'todos';
 var cancelTarget  = null;
+var bloqueos      = [];
+var cfgCal        = { month: new Date().getMonth(), year: new Date().getFullYear(), selectedDate: null };
 
-// Bloqueos: array de { tipo:'dia'|'slot', fecha:'YYYY-MM-DD', horario:'HH:MM' }
-var bloqueos = [];
-
-// Estado del calendario de config
-var cfgCal = {
-  month: new Date().getMonth(),
-  year:  new Date().getFullYear(),
-  selectedDate: null
-};
-
-// ── Emojis ───────────────────────────────────────────
+// ── Emojis ──
 function cp(n){ return String.fromCodePoint(n); }
 
-// ── WA messages ──────────────────────────────────────
+// ── WA ──
 function buildMsgConfirm(t, dateStr) {
   var lineas = [
     'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Turno confirmado! Muchas gracias.',
-    'Te dejo la info:',
-    '',
-    cp(128197) + ' *Fecha:* ' + dateStr,
-    cp(9200)   + ' *Hora:* ' + t.horario + ' hs',
-    cp(128118) + ' *Modelo:* ' + t.nombreBebe,
-    cp(127874) + ' *Sesi\u00f3n:* ' + t.tipoSesion,
-    cp(128105) + ' *Mam\u00e1:* ' + t.nombreMama,
-    cp(127912) + ' *Tem\u00e1tica:* ' + (t.tematica || '-'),
-    cp(128176) + ' *Se\u00f1a:* ',
-    cp(128181) + ' *Resta:* ',
-    cp(9989)   + ' *Valor cobrado:* ',
-    cp(128203) + ' *Observaciones:* ',
-    '',
-    'Muchas gracias, nos vemos pronto! ' + cp(128248) + cp(128149)
+    'Te dejo la info:','',
+    cp(128197)+' *Fecha:* '+dateStr, cp(9200)+' *Hora:* '+t.horario+' hs',
+    cp(128118)+' *Modelo:* '+t.nombreBebe, cp(127874)+' *Sesi\u00f3n:* '+t.tipoSesion,
+    cp(128105)+' *Mam\u00e1:* '+t.nombreMama, cp(127912)+' *Tem\u00e1tica:* '+(t.tematica||'-'),
+    cp(128176)+' *Se\u00f1a:* ', cp(128181)+' *Resta:* ',
+    cp(9989)+' *Valor cobrado:* ', cp(128203)+' *Observaciones:* ','',
+    'Muchas gracias, nos vemos pronto! '+cp(128248)+cp(128149)
   ];
   return encodeURIComponent(lineas.join('\n'));
 }
-
 function buildMsgRecordatorio(t, dateStr) {
-  var tema = t.tematica ? ' tem\u00e1tica ' + t.tematica : '';
+  var tema = t.tematica ? ' tem\u00e1tica '+t.tematica : '';
   var lineas = [
-    cp(10024) + ' Recordatorio de turno ' + cp(10024),
-    'Hola! ' + cp(128522) + ' Te recuerdo que el ' + dateStr + ' a las ' + t.horario + ' hs ten\u00e9s tu sesi\u00f3n ' + t.tipoSesion + tema + ' de ' + t.nombreBebe + '.',
-    '',
-    cp(128205) + ' Direcci\u00f3n: Lopez May 2946, Gregorio de Laferrere.',
-    '',
-    cp(128073) + cp(127998) + ' Importante:',
-    '* Traer dos cambios de vestuario para el beb\u00e9 ' + cp(128118),
-    '* M\u00e1ximo de personas: 2 adultos (los hermanitos pueden participar en las fotos ' + cp(128149) + '). En caso que asista abuelo o t\u00eda se cobra un adicional $10.000',
-    '* Pedimos puntualidad a la hora de la sesi\u00f3n ' + cp(10024),
-    '* ' + cp(161) + 'Los esperamos! ' + cp(128149) + cp(128248)
+    cp(10024)+' Recordatorio de turno '+cp(10024),
+    'Hola! '+cp(128522)+' Te recuerdo que el '+dateStr+' a las '+t.horario+' hs ten\u00e9s tu sesi\u00f3n '+t.tipoSesion+tema+' de '+t.nombreBebe+'.','',
+    cp(128205)+' Direcci\u00f3n: Lopez May 2946, Gregorio de Laferrere.','',
+    cp(128073)+cp(127998)+' Importante:',
+    '* Traer dos cambios de vestuario para el beb\u00e9 '+cp(128118),
+    '* M\u00e1ximo de personas: 2 adultos (los hermanitos pueden participar en las fotos '+cp(128149)+'). En caso que asista abuelo o t\u00eda se cobra un adicional $10.000',
+    '* Pedimos puntualidad a la hora de la sesi\u00f3n '+cp(10024),
+    '* '+cp(161)+'Los esperamos! '+cp(128149)+cp(128248)
   ];
   return encodeURIComponent(lineas.join('\n'));
 }
 
-// ── Normalizar ───────────────────────────────────────
+// ── Normalizar ──
 function parseHorario(v) {
   if (!v) return '--';
-  if (typeof v === 'number') {
-    var min = Math.round(v * 24 * 60);
-    return String(Math.floor(min/60)).padStart(2,'0') + ':' + String(min%60).padStart(2,'0');
-  }
+  if (typeof v === 'number') { var min=Math.round(v*24*60); return String(Math.floor(min/60)).padStart(2,'0')+':'+String(min%60).padStart(2,'0'); }
   var s = String(v).trim();
-  if (s.startsWith('1899-') || s.startsWith('1900-')) {
-    var d = new Date(s);
-    return String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0');
-  }
+  if (s.startsWith('1899-')||s.startsWith('1900-')) { var d=new Date(s); return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0'); }
   var h = s.replace('.', ':');
   if (h && !h.includes(':')) h += ':00';
   return h || '--';
 }
-
 function parseFecha(v) {
   if (!v) return '';
   var s = String(v).trim();
   if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
   if (s.includes('T')) return s.split('T')[0];
-  if (s.includes('/')) {
-    var p = s.split('/');
-    if (p.length === 3) return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
-  }
+  if (s.includes('/')) { var p=s.split('/'); if(p.length===3) return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0'); }
   return s;
 }
-
 function normalizeReserva(row, idx) {
-  var g = function(keys) {
-    for (var i = 0; i < keys.length; i++) {
-      if (row[keys[i]] !== undefined && row[keys[i]] !== null && row[keys[i]] !== '') return row[keys[i]];
-    }
-    return '';
-  };
-  var estado = String(g(['estado','Estado']) || 'PENDIENTE').toUpperCase().trim();
-  if (!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado)) estado = 'PENDIENTE';
-  var ts = g(['timestamp','Timestamp']);
-  if (ts instanceof Date) ts = ts.toISOString();
-  if (!ts) ts = new Date().toISOString();
+  var g = function(keys){ for(var i=0;i<keys.length;i++){ if(row[keys[i]]!==undefined&&row[keys[i]]!==null&&row[keys[i]]!=='') return row[keys[i]]; } return ''; };
+  var estado = String(g(['estado','Estado'])||'PENDIENTE').toUpperCase().trim();
+  if(!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado)) estado='PENDIENTE';
+  var ts=g(['timestamp','Timestamp']); if(ts instanceof Date) ts=ts.toISOString(); if(!ts) ts=new Date().toISOString();
   return {
-    id:            String(g(['id','ID']) || 'T' + String(idx+1).padStart(3,'0')),
-    timestamp:     String(ts),
-    fecha:         parseFecha(g(['fecha','Fecha'])),
-    horario:       parseHorario(g(['horario','Horario'])),
-    tipoSesion:    String(g(['tipoSesion','TipoSesion']) || '--'),
-    tematica:      String(g(['tematica','Tematica']) || ''),
-    nombreBebe:    String(g(['nombreBebe','NombreBebe']) || '--'),
-    cumpleBebe:    parseFecha(g(['cumpleBebe','CumpleBebe'])),
-    nombreMama:    String(g(['nombreMama','NombreMama']) || '--'),
-    estado:        estado,
-    telefono:      String(g(['telefono','Telefono']) || ''),
-    whatsapp:      String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
-    notas:         String(g(['notas','Notas']) || ''),
-    senya:         String(g(['senya','Senya']) || ''),
-    total:         String(g(['total','Total']) || ''),
-    resta:         String(g(['resta','Resta']) || ''),
-    notasInternas: String(g(['notasInternas','NotasInternas']) || '')
+    id:String(g(['id','ID'])||'T'+String(idx+1).padStart(3,'0')), timestamp:String(ts),
+    fecha:parseFecha(g(['fecha','Fecha'])), horario:parseHorario(g(['horario','Horario'])),
+    tipoSesion:String(g(['tipoSesion','TipoSesion'])||'--'), tematica:String(g(['tematica','Tematica'])||''),
+    nombreBebe:String(g(['nombreBebe','NombreBebe'])||'--'), cumpleBebe:parseFecha(g(['cumpleBebe','CumpleBebe'])),
+    nombreMama:String(g(['nombreMama','NombreMama'])||'--'), estado,
+    telefono:String(g(['telefono','Telefono'])||''), whatsapp:String(g(['whatsapp','Whatsapp','WhatsApp'])||g(['telefono','Telefono'])||''),
+    notas:String(g(['notas','Notas'])||''), senya:String(g(['senya','Senya'])||''),
+    total:String(g(['total','Total'])||''), resta:String(g(['resta','Resta'])||''),
+    notasInternas:String(g(['notasInternas','NotasInternas'])||'')
   };
 }
 
-// ── LOGIN ────────────────────────────────────────────
+// ── LOGIN ──
 function doLogin() {
   if (document.getElementById('pwd-input').value === ADMIN_CONFIG.PASSWORD) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('admin-panel').classList.add('show');
-    loadData();
-    loadConfig();
+    loadData(); loadConfig();
   } else {
     document.getElementById('login-error').style.display = 'block';
     document.getElementById('pwd-input').value = '';
-    setTimeout(function(){ document.getElementById('login-error').style.display = 'none'; }, 3000);
+    setTimeout(function(){ document.getElementById('login-error').style.display='none'; }, 3000);
   }
 }
 function doLogout() {
@@ -475,234 +472,122 @@ function doLogout() {
   document.getElementById('pwd-input').value = '';
 }
 
-// ── DATOS ────────────────────────────────────────────
+// ── DATOS ──
 async function loadData() {
   startLoading();
   try {
-    var resp = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getAll', { mode:'cors' });
+    var resp = await fetch(ADMIN_CONFIG.SCRIPT_URL+'?action=getAll', {mode:'cors'});
     var data = await resp.json();
-    if (data.error) throw new Error(data.error);
-    allTurnos = (data.reservas || []).map(function(row, idx){ return normalizeReserva(row, idx); });
+    if(data.error) throw new Error(data.error);
+    allTurnos = (data.reservas||[]).map(function(row,idx){ return normalizeReserva(row,idx); });
     showDebug('');
-  } catch(err) {
-    showDebug('No se pudo conectar.\nError: ' + err.message);
-    if (allTurnos.length === 0) allTurnos = [];
-  }
-  stopLoading();
-  updateStats();
-  renderMonthTabs();
-  renderTurnos();
+  } catch(err) { showDebug('No se pudo conectar.\nError: '+err.message); if(allTurnos.length===0) allTurnos=[]; }
+  stopLoading(); updateStats(); renderMonthTabs(); renderTurnos();
+}
+function showDebug(msg){ var box=document.getElementById('debug-box'); box.style.display=msg?'block':'none'; box.textContent=msg; }
+
+// ── STATS ──
+function updateStats(){
+  document.getElementById('stat-total').textContent=allTurnos.length;
+  document.getElementById('stat-pending').textContent=allTurnos.filter(function(t){return t.estado==='PENDIENTE';}).length;
+  document.getElementById('stat-confirmed').textContent=allTurnos.filter(function(t){return t.estado==='CONFIRMADO';}).length;
+  document.getElementById('stat-cancelled').textContent=allTurnos.filter(function(t){return t.estado==='CANCELADO';}).length;
 }
 
-function showDebug(msg) {
-  var box = document.getElementById('debug-box');
-  box.style.display = msg ? 'block' : 'none';
-  box.textContent = msg;
-}
-
-// ── STATS ────────────────────────────────────────────
-function updateStats() {
-  document.getElementById('stat-total').textContent     = allTurnos.length;
-  document.getElementById('stat-pending').textContent   = allTurnos.filter(function(t){return t.estado==='PENDIENTE';}).length;
-  document.getElementById('stat-confirmed').textContent = allTurnos.filter(function(t){return t.estado==='CONFIRMADO';}).length;
-  document.getElementById('stat-cancelled').textContent = allTurnos.filter(function(t){return t.estado==='CANCELADO';}).length;
-}
-
-// ── FILTROS ──────────────────────────────────────────
+// ── FILTROS ──
 function setFilter(filter, btn) {
-  currentFilter = filter;
-  currentMonth  = 'todos';
-  document.querySelectorAll('.filter-btn').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  renderMonthTabs();
-  renderTurnos();
+  currentFilter=filter; currentMonth='todos';
+  document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active'); renderMonthTabs(); renderTurnos();
 }
-
 function setMonthFilter(ym, btn) {
-  currentMonth = ym;
-  document.querySelectorAll('.month-tab').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  renderTurnos();
+  currentMonth=ym;
+  document.querySelectorAll('.month-tab').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active'); renderTurnos();
 }
-
 function renderMonthTabs() {
-  var container = document.getElementById('month-tabs');
-  var list = allTurnos;
-  if (currentFilter !== 'todos') list = list.filter(function(t){ return t.estado.toLowerCase() === currentFilter; });
-  var monthMap = {};
-  list.forEach(function(t) {
-    if (!t.fecha || t.fecha.length < 7) return;
-    var ym = t.fecha.slice(0, 7);
-    if (!monthMap[ym]) {
-      var d = new Date(ym + '-01T12:00:00');
-      var label = d.toLocaleDateString('es-AR', {month:'long', year:'numeric'});
-      monthMap[ym] = label.charAt(0).toUpperCase() + label.slice(1);
-    }
-  });
-  var months = Object.keys(monthMap).sort();
-  if (months.length <= 1) { container.innerHTML = ''; return; }
-  var html = '<button class="month-tab ' + (currentMonth==='todos'?'active':'') + '" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';
-  months.forEach(function(ym) {
-    html += '<button class="month-tab ' + (currentMonth===ym?'active':'') + '" onclick="setMonthFilter(\'' + ym + '\',this)">' + monthMap[ym] + '</button>';
-  });
-  container.innerHTML = html;
+  var container=document.getElementById('month-tabs');
+  var list=allTurnos;
+  if(currentFilter!=='todos') list=list.filter(function(t){return t.estado.toLowerCase()===currentFilter;});
+  var monthMap={};
+  list.forEach(function(t){ if(!t.fecha||t.fecha.length<7)return; var ym=t.fecha.slice(0,7); if(!monthMap[ym]){ var d=new Date(ym+'-01T12:00:00'); var label=d.toLocaleDateString('es-AR',{month:'long',year:'numeric'}); monthMap[ym]=label.charAt(0).toUpperCase()+label.slice(1); } });
+  var months=Object.keys(monthMap).sort();
+  if(months.length<=1){container.innerHTML='';return;}
+  var html='<button class="month-tab '+(currentMonth==='todos'?'active':'')+'" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';
+  months.forEach(function(ym){ html+='<button class="month-tab '+(currentMonth===ym?'active':'')+'" onclick="setMonthFilter(\''+ym+'\',this)">'+monthMap[ym]+'</button>'; });
+  container.innerHTML=html;
 }
 
-// ── RENDER TURNOS ────────────────────────────────────
+// ── RENDER TURNOS ──
 function renderTurnos() {
-  var search = document.getElementById('search-input').value.toLowerCase();
-  var list = allTurnos;
-  if (currentFilter !== 'todos') list = list.filter(function(t){ return t.estado.toLowerCase() === currentFilter; });
-  if (search) list = list.filter(function(t){
-    return t.nombreBebe.toLowerCase().includes(search) ||
-           t.nombreMama.toLowerCase().includes(search) ||
-           t.fecha.includes(search) ||
-           t.whatsapp.includes(search);
-  });
-  if (currentMonth !== 'todos') list = list.filter(function(t){ return t.fecha && t.fecha.startsWith(currentMonth); });
-  if (currentFilter === 'confirmado') {
-    list.sort(function(a,b){ return (a.fecha||'').localeCompare(b.fecha||'') || (a.horario||'').localeCompare(b.horario||''); });
-  } else {
-    list.sort(function(a,b){ return new Date(b.timestamp) - new Date(a.timestamp); });
-  }
+  var search=document.getElementById('search-input').value.toLowerCase();
+  var list=allTurnos;
+  if(currentFilter!=='todos') list=list.filter(function(t){return t.estado.toLowerCase()===currentFilter;});
+  if(search) list=list.filter(function(t){ return t.nombreBebe.toLowerCase().includes(search)||t.nombreMama.toLowerCase().includes(search)||t.fecha.includes(search)||t.whatsapp.includes(search); });
+  if(currentMonth!=='todos') list=list.filter(function(t){return t.fecha&&t.fecha.startsWith(currentMonth);});
+  if(currentFilter==='confirmado'){ list.sort(function(a,b){return (a.fecha||'').localeCompare(b.fecha||'')||(a.horario||'').localeCompare(b.horario||'');}); }
+  else{ list.sort(function(a,b){return new Date(b.timestamp)-new Date(a.timestamp);}); }
   renderMonthTabs();
-  var container = document.getElementById('turnos-list');
-  if (list.length === 0) {
-    container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas que coincidan</p></div>';
-    return;
-  }
-  var groups = {};
-  list.forEach(function(t) {
-    var ym = (t.fecha||'').slice(0,7) || 'sin-fecha';
-    if (!groups[ym]) groups[ym] = [];
-    groups[ym].push(t);
+  var container=document.getElementById('turnos-list');
+  if(list.length===0){ container.innerHTML='<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas que coincidan</p></div>'; return; }
+  var groups={};
+  list.forEach(function(t){ var ym=(t.fecha||'').slice(0,7)||'sin-fecha'; if(!groups[ym])groups[ym]=[]; groups[ym].push(t); });
+  var sortedKeys=Object.keys(groups).sort();
+  var html='';
+  sortedKeys.forEach(function(ym){
+    var items=groups[ym]; var label=ym;
+    try{ var d=new Date(ym+'-01T12:00:00'); var l=d.toLocaleDateString('es-AR',{month:'long',year:'numeric'}); label=l.charAt(0).toUpperCase()+l.slice(1); }catch(e){}
+    if(sortedKeys.length>1){ html+='<div class="month-group-header"><span class="month-group-title">'+label+'</span><span class="month-group-count">'+items.length+' '+(items.length===1?'sesi\u00f3n':'sesiones')+'</span><div class="month-group-line"></div></div>'; }
+    html+=items.map(function(t){return buildTurnoCard(t);}).join('');
   });
-  var sortedKeys = Object.keys(groups).sort();
-  var html = '';
-  sortedKeys.forEach(function(ym) {
-    var items = groups[ym];
-    var label = ym;
-    try {
-      var d = new Date(ym + '-01T12:00:00');
-      var l = d.toLocaleDateString('es-AR',{month:'long',year:'numeric'});
-      label = l.charAt(0).toUpperCase() + l.slice(1);
-    } catch(e){}
-    if (sortedKeys.length > 1) {
-      html += '<div class="month-group-header"><span class="month-group-title">' + label + '</span><span class="month-group-count">' + items.length + ' ' + (items.length===1?'sesi\u00f3n':'sesiones') + '</span><div class="month-group-line"></div></div>';
-    }
-    html += items.map(function(t){ return buildTurnoCard(t); }).join('');
-  });
-  container.innerHTML = html;
+  container.innerHTML=html;
 }
 
-// ── CARD ─────────────────────────────────────────────
-function waIconSvg() {
-  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>';
-}
+// ── CARD ──
+function waIconSvg(){ return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>'; }
 
 function buildTurnoCard(t) {
-  var dateStr = t.fecha || '--';
-  try {
-    if (t.fecha && t.fecha.length === 10) {
-      var d = new Date(t.fecha + 'T12:00:00');
-      if (!isNaN(d)) dateStr = d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
-    }
-  } catch(e){}
-  var cumpleStr = '';
-  try {
-    if (t.cumpleBebe && t.cumpleBebe.length === 10) {
-      var dc = new Date(t.cumpleBebe + 'T12:00:00');
-      if (!isNaN(dc)) cumpleStr = dc.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});
-    }
-  } catch(e){}
-  var reservadoStr = '--';
-  try { reservadoStr = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e){}
-  var estadoLower = t.estado.toLowerCase();
-  var waNum  = t.whatsapp.replace(/\D/g,'');
-  var waFull = waNum ? (waNum.startsWith('54') ? waNum : '54'+waNum) : '';
-  var msgConfirm      = buildMsgConfirm(t, dateStr);
-  var msgRecordatorio = buildMsgRecordatorio(t, dateStr);
-  var waConfirmBtn = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgConfirm+'" target="_blank">'+waIconSvg()+' Confirmar + WA</a>' : '';
-  var waRecordBtn  = waFull ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgRecordatorio+'" target="_blank">'+waIconSvg()+' WA recordatorio</a>' : '';
-  var actionButtons =
-    t.estado === 'PENDIENTE'
-      ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'+waConfirmBtn
-    : t.estado === 'CONFIRMADO'
-      ? waRecordBtn+'<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'
-    : '<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'PENDIENTE\')">Reactivar</button>';
-  var senyaNum = parseFloat(t.senya)||0, totalNum = parseFloat(t.total)||0, restaNum = totalNum-senyaNum;
-  var pagoBadge = totalNum > 0 ? (restaNum<=0 ? '<span class="pago-badge saldado">&#10003; Saldado</span>' : '<span class="pago-badge pendiente-pago">Resta $'+restaNum.toLocaleString('es-AR')+'</span>') : '';
-  var restaDisplay = totalNum>0 ? (restaNum<=0?'Saldado!':'$'+restaNum.toLocaleString('es-AR')) : '$0';
-  var restaClass   = restaNum<=0&&totalNum>0 ? 'resta-val saldado' : 'resta-val';
-  var panelPago =
-    '<div class="pago-panel" id="pago-'+t.id+'">'+
-      '<div class="pago-titulo">&#128176; Gesti\u00f3n de pago</div>'+
-      '<div class="pago-grid">'+
-        '<div class="pago-field"><label>Se\u00f1a recibida ($)</label><input type="number" id="senya-'+t.id+'" value="'+(t.senya||'')+'" placeholder="Ej: 15000" oninput="calcResta(\''+t.id+'\')"></div>'+
-        '<div class="pago-field"><label>Valor total ($)</label><input type="number" id="total-'+t.id+'" value="'+(t.total||'')+'" placeholder="Ej: 55000" oninput="calcResta(\''+t.id+'\')"></div>'+
-      '</div>'+
-      '<div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="'+restaClass+'" id="resta-'+t.id+'">'+restaDisplay+'</span></div>'+
-      '<span class="pago-notas-label">Notas internas</span>'+
-      '<textarea class="pago-notas" id="notas-int-'+t.id+'" placeholder="Ej: beb\u00e9 tranquilo...">'+(t.notasInternas||'')+'</textarea>'+
-      '<button class="pago-save-btn" id="save-btn-'+t.id+'" onclick="guardarPago(\''+t.id+'\')">Guardar cambios</button>'+
-    '</div>';
-  return '<div class="turno-card '+estadoLower+'" id="card-'+t.id+'">'+
-    '<div class="turno-top"><div><div class="turno-date">'+dateStr+'</div><div class="turno-time">'+t.horario+' hs '+pagoBadge+'</div></div><span class="status-badge badge-'+estadoLower+'">'+t.estado+'</span></div>'+
-    '<div class="turno-info">'+
-      '<div class="turno-info-item"><span class="info-key">Beb\u00e9</span><span class="info-val">'+t.nombreBebe+'</span></div>'+
-      '<div class="turno-info-item"><span class="info-key">Tipo sesi\u00f3n</span><span class="info-val">'+t.tipoSesion+'</span></div>'+
-      '<div class="turno-info-item"><span class="info-key">Mam\u00e1</span><span class="info-val">'+t.nombreMama+'</span></div>'+
-      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">'+(t.whatsapp||'--')+'</span></div>'+
-      (t.tematica?'<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">'+t.tematica+'</span></div>':'')+
-      (cumpleStr?'<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">'+cumpleStr+'</span></div>':'')+
-      (t.senya?'<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$'+parseFloat(t.senya).toLocaleString('es-AR')+'</span></div>':'')+
-      (t.total?'<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$'+parseFloat(t.total).toLocaleString('es-AR')+'</span></div>':'')+
-    '</div>'+
-    (t.notas?'<div class="turno-notas">"'+t.notas+'"</div>':'')+
-    (t.notasInternas?'<div class="turno-notas-int">&#128203; '+t.notasInternas+'</div>':'')+
-    '<div class="turno-actions">'+actionButtons+'<button class="btn-action btn-pago-action" onclick="togglePago(\''+t.id+'\')">&#128176; Pago / Notas</button></div>'+
-    panelPago+
-    '<div class="turno-id">ID: '+t.id+' &middot; Reservado: '+reservadoStr+'</div>'+
-  '</div>';
+  var dateStr=t.fecha||'--';
+  try{ if(t.fecha&&t.fecha.length===10){var d=new Date(t.fecha+'T12:00:00');if(!isNaN(d))dateStr=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}}catch(e){}
+  var cumpleStr='';
+  try{ if(t.cumpleBebe&&t.cumpleBebe.length===10){var dc=new Date(t.cumpleBebe+'T12:00:00');if(!isNaN(dc))cumpleStr=dc.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});}}catch(e){}
+  var reservadoStr='--'; try{reservadoStr=new Date(t.timestamp).toLocaleDateString('es-AR');}catch(e){}
+  var estadoLower=t.estado.toLowerCase();
+  var waNum=t.whatsapp.replace(/\D/g,''); var waFull=waNum?(waNum.startsWith('54')?waNum:'54'+waNum):'';
+  var msgConfirm=buildMsgConfirm(t,dateStr); var msgRecordatorio=buildMsgRecordatorio(t,dateStr);
+  var waConfirmBtn=waFull?'<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgConfirm+'" target="_blank">'+waIconSvg()+' Confirmar + WA</a>':'';
+  var waRecordBtn=waFull?'<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+waFull+'?text='+msgRecordatorio+'" target="_blank">'+waIconSvg()+' WA recordatorio</a>':'';
+  var actionButtons=
+    t.estado==='PENDIENTE'?'<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'+waConfirmBtn
+    :t.estado==='CONFIRMADO'?waRecordBtn+'<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'
+    :'<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'PENDIENTE\')">Reactivar</button>';
+  var senyaNum=parseFloat(t.senya)||0,totalNum=parseFloat(t.total)||0,restaNum=totalNum-senyaNum;
+  var pagoBadge=totalNum>0?(restaNum<=0?'<span class="pago-badge saldado">&#10003; Saldado</span>':'<span class="pago-badge pendiente-pago">Resta $'+restaNum.toLocaleString('es-AR')+'</span>'):'';
+  var restaDisplay=totalNum>0?(restaNum<=0?'Saldado!':'$'+restaNum.toLocaleString('es-AR')):'$0';
+  var restaClass=restaNum<=0&&totalNum>0?'resta-val saldado':'resta-val';
+  var panelPago='<div class="pago-panel" id="pago-'+t.id+'"><div class="pago-titulo">&#128176; Gesti\u00f3n de pago</div><div class="pago-grid"><div class="pago-field"><label>Se\u00f1a recibida ($)</label><input type="number" id="senya-'+t.id+'" value="'+(t.senya||'')+'" placeholder="Ej: 15000" oninput="calcResta(\''+t.id+'\')"></div><div class="pago-field"><label>Valor total ($)</label><input type="number" id="total-'+t.id+'" value="'+(t.total||'')+'" placeholder="Ej: 55000" oninput="calcResta(\''+t.id+'\')"></div></div><div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="'+restaClass+'" id="resta-'+t.id+'">'+restaDisplay+'</span></div><span class="pago-notas-label">Notas internas</span><textarea class="pago-notas" id="notas-int-'+t.id+'" placeholder="Ej: beb\u00e9 tranquilo...">'+(t.notasInternas||'')+'</textarea><button class="pago-save-btn" id="save-btn-'+t.id+'" onclick="guardarPago(\''+t.id+'\')">Guardar cambios</button></div>';
+  return '<div class="turno-card '+estadoLower+'" id="card-'+t.id+'"><div class="turno-top"><div><div class="turno-date">'+dateStr+'</div><div class="turno-time">'+t.horario+' hs '+pagoBadge+'</div></div><span class="status-badge badge-'+estadoLower+'">'+t.estado+'</span></div><div class="turno-info"><div class="turno-info-item"><span class="info-key">Beb\u00e9</span><span class="info-val">'+t.nombreBebe+'</span></div><div class="turno-info-item"><span class="info-key">Tipo sesi\u00f3n</span><span class="info-val">'+t.tipoSesion+'</span></div><div class="turno-info-item"><span class="info-key">Mam\u00e1</span><span class="info-val">'+t.nombreMama+'</span></div><div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">'+(t.whatsapp||'--')+'</span></div>'+(t.tematica?'<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">'+t.tematica+'</span></div>':'')+(cumpleStr?'<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">'+cumpleStr+'</span></div>':'')+(t.senya?'<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$'+parseFloat(t.senya).toLocaleString('es-AR')+'</span></div>':'')+(t.total?'<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$'+parseFloat(t.total).toLocaleString('es-AR')+'</span></div>':'')+'</div>'+(t.notas?'<div class="turno-notas">"'+t.notas+'"</div>':'')+(t.notasInternas?'<div class="turno-notas-int">&#128203; '+t.notasInternas+'</div>':'')+'<div class="turno-actions">'+actionButtons+'<button class="btn-action btn-pago-action" onclick="togglePago(\''+t.id+'\')">&#128176; Pago / Notas</button></div>'+panelPago+'<div class="turno-id">ID: '+t.id+' &middot; Reservado: '+reservadoStr+'</div></div>';
 }
 
-// ── PAGO ─────────────────────────────────────────────
-function togglePago(id) {
-  var panel = document.getElementById('pago-'+id);
-  if (!panel) return;
-  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
-}
-function calcResta(id) {
-  var s = parseFloat(document.getElementById('senya-'+id).value)||0;
-  var t = parseFloat(document.getElementById('total-'+id).value)||0;
-  var el = document.getElementById('resta-'+id);
-  if (!el) return;
-  if (t>0){var r=t-s;el.textContent=r<=0?'Saldado!':'$'+r.toLocaleString('es-AR');el.className=r<=0?'resta-val saldado':'resta-val';}
-  else{el.textContent='$0';el.className='resta-val';}
-}
+// ── PAGO ──
+function togglePago(id){ var p=document.getElementById('pago-'+id); if(!p)return; p.style.display=p.style.display==='block'?'none':'block'; }
+function calcResta(id){ var s=parseFloat(document.getElementById('senya-'+id).value)||0; var t=parseFloat(document.getElementById('total-'+id).value)||0; var el=document.getElementById('resta-'+id); if(!el)return; if(t>0){var r=t-s;el.textContent=r<=0?'Saldado!':'$'+r.toLocaleString('es-AR');el.className=r<=0?'resta-val saldado':'resta-val';}else{el.textContent='$0';el.className='resta-val';} }
 async function guardarPago(id) {
   var senyaVal=(document.getElementById('senya-'+id).value||'').trim();
   var totalVal=(document.getElementById('total-'+id).value||'').trim();
   var notasVal=(document.getElementById('notas-int-'+id).value||'').trim();
-  var sN=parseFloat(senyaVal)||0, tN=parseFloat(totalVal)||0;
-  var restaVal=tN>0?String(tN-sN):'';
-  var turno=allTurnos.find(function(t){return t.id===id;});
-  if(turno){turno.senya=senyaVal;turno.total=totalVal;turno.resta=restaVal;turno.notasInternas=notasVal;}
-  var btn=document.getElementById('save-btn-'+id);
-  if(btn){btn.textContent='Guardando...';btn.disabled=true;}
-  try {
+  var sN=parseFloat(senyaVal)||0,tN=parseFloat(totalVal)||0; var restaVal=tN>0?String(tN-sN):'';
+  var turno=allTurnos.find(function(t){return t.id===id;}); if(turno){turno.senya=senyaVal;turno.total=totalVal;turno.resta=restaVal;turno.notasInternas=notasVal;}
+  var btn=document.getElementById('save-btn-'+id); if(btn){btn.textContent='Guardando...';btn.disabled=true;}
+  try{
     await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updatePago',id:id,senya:senyaVal,total:totalVal,resta:restaVal,notasInternas:notasVal})});
     if(btn){btn.textContent='&#10003; Guardado!';btn.classList.add('saved');setTimeout(function(){btn.textContent='Guardar cambios';btn.classList.remove('saved');btn.disabled=false;},2500);}
-  } catch(e) {
-    if(btn){btn.textContent='Error - Reintent\u00e1';btn.disabled=false;}
-  }
+  }catch(e){if(btn){btn.textContent='Error - Reintent\u00e1';btn.disabled=false;}}
 }
 
-// ── ACCIONES ─────────────────────────────────────────
-async function updateStatus(id, newStatus) {
-  startLoading();
-  var turno=allTurnos.find(function(t){return t.id===id;});
-  if(turno)turno.estado=newStatus;
+// ── ACCIONES ──
+async function updateStatus(id,newStatus){
+  startLoading(); var turno=allTurnos.find(function(t){return t.id===id;}); if(turno)turno.estado=newStatus;
   updateStats();renderMonthTabs();renderTurnos();
   try{await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updateStatus',id:id,status:newStatus})});}catch(e){}
   stopLoading();
@@ -714,220 +599,223 @@ function startLoading(){document.getElementById('loading-bar').classList.add('lo
 function stopLoading(){document.getElementById('loading-bar').classList.remove('loading');}
 document.getElementById('cancel-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-// ═══════════════════════════════════════════════════════
-// ── CONFIGURACIÓN DE BLOQUEOS ──────────────────────────
-// ═══════════════════════════════════════════════════════
-function showConfig() {
-  document.getElementById('turnos-view').style.display = 'none';
+// ═══════════════════════════════════════════════
+// ── CONFIGURACIÓN ──
+// ═══════════════════════════════════════════════
+function showConfig(){
+  document.getElementById('turnos-view').style.display='none';
   document.getElementById('config-screen').classList.add('show');
-  renderCfgCalendar();
-  renderBloqueosList();
+  renderCfgCalendar(); renderBloqueosList();
 }
-function hideConfig() {
+function hideConfig(){
   document.getElementById('config-screen').classList.remove('show');
-  document.getElementById('turnos-view').style.display = 'block';
+  document.getElementById('turnos-view').style.display='block';
 }
 
-// Cargar bloqueos desde Sheets al login
-async function loadConfig() {
-  try {
-    var resp = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getConfig', { mode:'cors' });
-    var data = await resp.json();
-    bloqueos = (data.bloqueos || []).map(function(b){
-      return { tipo: b.tipo||'dia', fecha: b.fecha||'', horario: b.horario||'' };
-    });
-  } catch(e) {
-    bloqueos = [];
-  }
+async function loadConfig(){
+  try{
+    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL+'?action=getConfig',{mode:'cors'});
+    var data=await resp.json();
+    bloqueos=(data.bloqueos||[]).map(function(b){ return {tipo:b.tipo||'dia',fecha:b.fecha||'',horario:b.horario||''}; });
+  }catch(e){ bloqueos=[]; }
 }
 
-// ── Calendario de config ──
-var CFG_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-var CFG_DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+// ── Calendario config ──
+var CFG_MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var CFG_DAYS=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 
-function cfgPrevMonth() {
-  if (cfgCal.month===0){cfgCal.month=11;cfgCal.year--;}else cfgCal.month--;
-  cfgCal.selectedDate=null;
-  document.getElementById('cfg-day-panel').classList.remove('show');
-  renderCfgCalendar();
-}
-function cfgNextMonth() {
-  if (cfgCal.month===11){cfgCal.month=0;cfgCal.year++;}else cfgCal.month++;
-  cfgCal.selectedDate=null;
-  document.getElementById('cfg-day-panel').classList.remove('show');
-  renderCfgCalendar();
-}
+function cfgPrevMonth(){ if(cfgCal.month===0){cfgCal.month=11;cfgCal.year--;}else cfgCal.month--; cfgCal.selectedDate=null; document.getElementById('cfg-day-panel').classList.remove('show'); renderCfgCalendar(); }
+function cfgNextMonth(){ if(cfgCal.month===11){cfgCal.month=0;cfgCal.year++;}else cfgCal.month++; cfgCal.selectedDate=null; document.getElementById('cfg-day-panel').classList.remove('show'); renderCfgCalendar(); }
 
-function renderCfgCalendar() {
-  document.getElementById('cfg-cal-month').textContent = CFG_MONTHS[cfgCal.month] + ' ' + cfgCal.year;
-  var grid = document.getElementById('cfg-cal-grid');
-  grid.innerHTML = '';
-
-  CFG_DAYS.forEach(function(d){
-    var el=document.createElement('div');el.className='cfg-day-name';el.textContent=d;grid.appendChild(el);
-  });
-
-  var today     = new Date(); today.setHours(0,0,0,0);
-  var firstDay  = new Date(cfgCal.year, cfgCal.month, 1).getDay();
-  var daysInMo  = new Date(cfgCal.year, cfgCal.month+1, 0).getDate();
-
+function renderCfgCalendar(){
+  document.getElementById('cfg-cal-month').textContent=CFG_MONTHS[cfgCal.month]+' '+cfgCal.year;
+  var grid=document.getElementById('cfg-cal-grid'); grid.innerHTML='';
+  CFG_DAYS.forEach(function(d){var el=document.createElement('div');el.className='cfg-day-name';el.textContent=d;grid.appendChild(el);});
+  var today=new Date();today.setHours(0,0,0,0);
+  var firstDay=new Date(cfgCal.year,cfgCal.month,1).getDay();
+  var daysInMo=new Date(cfgCal.year,cfgCal.month+1,0).getDate();
   for(var i=0;i<firstDay;i++){var e=document.createElement('div');e.className='cfg-day empty';grid.appendChild(e);}
-
   for(var d=1;d<=daysInMo;d++){
-    var date    = new Date(cfgCal.year, cfgCal.month, d);
-    var dateStr = fmtDateCfg(date);
-    var el      = document.createElement('div');
-    el.innerHTML = '<span>'+d+'</span>';
-    var isPast  = date < today;
-    var cls     = 'cfg-day';
-
-    // Estado de bloqueo
-    var tieneBlqDia  = bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
-    var tieneBlqSlot = bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===dateStr;});
-
-    if(isPast){
-      cls+=' past';
-    } else {
+    var date=new Date(cfgCal.year,cfgCal.month,d);
+    var dateStr=fmtDateCfg(date);
+    var el=document.createElement('div'); el.innerHTML='<span>'+d+'</span>';
+    var isPast=date<today;
+    var tieneBlqDia=bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
+    var tieneBlqSlot=bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===dateStr;});
+    var tieneExtra=bloqueos.some(function(b){return b.tipo==='slot_extra'&&b.fecha===dateStr;});
+    var cls='cfg-day';
+    if(isPast){ cls+=' past'; }
+    else{
       if(tieneBlqDia){ cls+=' selected-day'; var dot=document.createElement('div');dot.className='cfg-dot bloq';el.appendChild(dot); }
+      else if(tieneBlqSlot&&tieneExtra){ cls+=' partial'; var dot=document.createElement('div');dot.className='cfg-dot part';el.appendChild(dot); var dot2=document.createElement('div');dot2.className='cfg-dot extra';el.appendChild(dot2); }
       else if(tieneBlqSlot){ cls+=' partial'; var dot=document.createElement('div');dot.className='cfg-dot part';el.appendChild(dot); }
+      else if(tieneExtra){ cls+=' has-extra'; var dot=document.createElement('div');dot.className='cfg-dot extra';el.appendChild(dot); }
       if(cfgCal.selectedDate===dateStr) cls+=' selected-day';
       (function(ds,dt){el.onclick=function(){cfgSelectDay(ds,dt);};})(dateStr,date);
     }
-    el.className=cls;
-    grid.appendChild(el);
+    el.className=cls; grid.appendChild(el);
   }
 }
 
 function fmtDateCfg(date){ return date.toISOString().split('T')[0]; }
 
-function cfgSelectDay(dateStr, dateObj) {
-  cfgCal.selectedDate = dateStr;
-  renderCfgCalendar();
+function cfgSelectDay(dateStr, dateObj){
+  cfgCal.selectedDate=dateStr; renderCfgCalendar();
+  var panel=document.getElementById('cfg-day-panel'); panel.classList.add('show');
+  var d=new Date(dateStr+'T12:00:00');
+  document.getElementById('cfg-day-panel-title').textContent=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
 
-  var panel = document.getElementById('cfg-day-panel');
-  panel.classList.add('show');
+  // Botón bloquear día
+  var tieneBlqDia=bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
+  var btnDia=document.getElementById('btn-blq-dia');
+  btnDia.textContent=tieneBlqDia?'&#10003; D\u00eda bloqueado (tap para desbloquear)':'&#128683; Bloquear d\u00eda completo';
+  btnDia.className=tieneBlqDia?'cfg-opt-btn active-block':'cfg-opt-btn';
 
-  // Título
-  var d = new Date(dateStr + 'T12:00:00');
-  document.getElementById('cfg-day-panel-title').textContent =
-    d.toLocaleDateString('es-AR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});
-
-  // Estado del botón "bloquear día completo"
-  var tieneBlqDia = bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
-  var btnDia = document.getElementById('btn-blq-dia');
-  if(tieneBlqDia){
-    btnDia.textContent = '✅ Día bloqueado (tap para desbloquear)';
-    btnDia.className   = 'cfg-opt-btn active-block';
-  } else {
-    btnDia.textContent = '🚫 Bloquear día completo';
-    btnDia.className   = 'cfg-opt-btn';
-  }
-
-  // Slots
-  var dow = dateObj.getDay();
-  var slots = dow===6 ? ADMIN_CONFIG.SLOTS_SATURDAY : (dow>=1&&dow<=5 ? ADMIN_CONFIG.SLOTS_WEEKDAY : []);
-  var slotsWrap = document.getElementById('cfg-slots-wrap');
-  var slotGrid  = document.getElementById('cfg-slot-grid');
-
-  if(slots.length>0 && !tieneBlqDia){
-    slotsWrap.style.display='block';
-    slotGrid.innerHTML='';
+  // Slots normales
+  var dow=dateObj.getDay();
+  var slots=dow===6?ADMIN_CONFIG.SLOTS_SATURDAY:(dow>=1&&dow<=5?ADMIN_CONFIG.SLOTS_WEEKDAY:[]);
+  var slotsWrap=document.getElementById('cfg-slots-wrap');
+  var slotGrid=document.getElementById('cfg-slot-grid');
+  if(slots.length>0&&!tieneBlqDia){
+    slotsWrap.style.display='block'; slotGrid.innerHTML='';
     slots.forEach(function(time){
-      var isBloq = bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===dateStr&&b.horario===time;});
+      var isBloq=bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===dateStr&&b.horario===time;});
       var btn=document.createElement('button');
       btn.className='cfg-slot'+(isBloq?' bloqueado':'');
-      btn.textContent=time+' hs'+(isBloq?' 🔒':'');
+      btn.textContent=time+' hs'+(isBloq?' \uD83D\uDD12':'');
       btn.onclick=function(){toggleBloquearSlot(dateStr,time);};
       slotGrid.appendChild(btn);
     });
+  } else { slotsWrap.style.display='none'; }
+
+  // Sección horarios extra — siempre visible (excepto si el día está bloqueado completo)
+  var extraSection=document.getElementById('cfg-extra-section');
+  if(!tieneBlqDia){
+    extraSection.style.display='block';
+    document.getElementById('cfg-extra-input').value='';
+    document.getElementById('cfg-extra-error').style.display='none';
+    renderExtraList(dateStr);
   } else {
-    slotsWrap.style.display='none';
+    extraSection.style.display='none';
   }
 }
 
-function toggleBloquearDia() {
-  var dateStr = cfgCal.selectedDate;
-  if(!dateStr) return;
-  var idx = bloqueos.findIndex(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
-  if(idx>=0){
-    // Desbloquear
-    bloqueos.splice(idx,1);
-  } else {
-    // Bloquear día: eliminar slots individuales del mismo día y agregar día completo
-    bloqueos = bloqueos.filter(function(b){return !(b.fecha===dateStr);});
-    bloqueos.push({tipo:'dia', fecha:dateStr, horario:''});
+// ── Bloqueos ──
+function toggleBloquearDia(){
+  var dateStr=cfgCal.selectedDate; if(!dateStr)return;
+  var idx=bloqueos.findIndex(function(b){return b.tipo==='dia'&&b.fecha===dateStr;});
+  if(idx>=0){ bloqueos.splice(idx,1); }
+  else{ bloqueos=bloqueos.filter(function(b){return !(b.fecha===dateStr);}); bloqueos.push({tipo:'dia',fecha:dateStr,horario:''}); }
+  renderCfgCalendar(); cfgSelectDay(dateStr,new Date(dateStr+'T12:00:00')); renderBloqueosList();
+}
+function toggleBloquearSlot(dateStr,horario){
+  var idx=bloqueos.findIndex(function(b){return b.tipo==='slot'&&b.fecha===dateStr&&b.horario===horario;});
+  if(idx>=0){bloqueos.splice(idx,1);}else{bloqueos.push({tipo:'slot',fecha:dateStr,horario:horario});}
+  renderCfgCalendar(); cfgSelectDay(dateStr,new Date(dateStr+'T12:00:00')); renderBloqueosList();
+}
+
+// ── Horarios extra ──
+function formatExtraInput(input){
+  // Auto-insertar : después de los 2 primeros dígitos
+  var v=input.value.replace(/[^0-9:]/g,'');
+  if(v.length===2&&!v.includes(':')) v=v+':';
+  input.value=v;
+}
+
+function validarHorario(h){
+  var re=/^([01]?\d|2[0-3]):([0-5]\d)$/;
+  return re.test(h);
+}
+
+function agregarSlotExtra(){
+  var dateStr=cfgCal.selectedDate; if(!dateStr)return;
+  var input=document.getElementById('cfg-extra-input');
+  var errEl=document.getElementById('cfg-extra-error');
+  var horario=input.value.trim();
+
+  // Validar formato
+  if(!validarHorario(horario)){
+    errEl.style.display='block';
+    input.focus(); return;
   }
+  errEl.style.display='none';
+
+  // Normalizar a HH:MM
+  var parts=horario.split(':');
+  horario=parts[0].padStart(2,'0')+':'+parts[1];
+
+  // Verificar que no exista ya
+  var yaExiste=bloqueos.some(function(b){return b.tipo==='slot_extra'&&b.fecha===dateStr&&b.horario===horario;});
+  if(yaExiste){ input.value=''; return; }
+
+  bloqueos.push({tipo:'slot_extra',fecha:dateStr,horario:horario});
+  input.value='';
   renderCfgCalendar();
-  cfgSelectDay(dateStr, new Date(dateStr+'T12:00:00'));
+  cfgSelectDay(dateStr,new Date(dateStr+'T12:00:00'));
   renderBloqueosList();
 }
 
-function toggleBloquearSlot(dateStr, horario) {
-  var idx = bloqueos.findIndex(function(b){return b.tipo==='slot'&&b.fecha===dateStr&&b.horario===horario;});
-  if(idx>=0){
-    bloqueos.splice(idx,1);
-  } else {
-    bloqueos.push({tipo:'slot', fecha:dateStr, horario:horario});
-  }
-  renderCfgCalendar();
-  cfgSelectDay(dateStr, new Date(dateStr+'T12:00:00'));
-  renderBloqueosList();
+function eliminarSlotExtra(dateStr, horario){
+  var idx=bloqueos.findIndex(function(b){return b.tipo==='slot_extra'&&b.fecha===dateStr&&b.horario===horario;});
+  if(idx>=0){bloqueos.splice(idx,1);}
+  renderCfgCalendar(); cfgSelectDay(dateStr,new Date(dateStr+'T12:00:00')); renderBloqueosList();
 }
 
-// ── Lista de bloqueos activos ──
-function renderBloqueosList() {
-  var container = document.getElementById('bloqueos-lista');
-  if(bloqueos.length===0){
-    container.innerHTML='<div class="empty-bloqueos">No hay d\u00edas bloqueados</div>';
-    return;
-  }
-  var sorted = bloqueos.slice().sort(function(a,b){return (a.fecha+a.horario).localeCompare(b.fecha+b.horario);});
+function renderExtraList(dateStr){
+  var container=document.getElementById('cfg-extra-list');
+  var extras=bloqueos.filter(function(b){return b.tipo==='slot_extra'&&b.fecha===dateStr;});
+  extras.sort(function(a,b){return a.horario.localeCompare(b.horario);});
+  if(extras.length===0){container.innerHTML='<span style="font-size:12px;color:var(--text-light);">Ning\u00fan horario extra agregado</span>';return;}
+  container.innerHTML=extras.map(function(b){
+    return '<span class="cfg-extra-tag">'+b.horario+' hs <button class="cfg-extra-tag-del" onclick="eliminarSlotExtra(\''+b.fecha+'\',\''+b.horario+'\')">&#10005;</button></span>';
+  }).join('');
+}
+
+// ── Lista general de cambios ──
+function renderBloqueosList(){
+  var container=document.getElementById('bloqueos-lista');
+  if(bloqueos.length===0){container.innerHTML='<div class="empty-bloqueos">No hay cambios configurados</div>';return;}
+  var sorted=bloqueos.slice().sort(function(a,b){return (a.fecha+a.horario).localeCompare(b.fecha+b.horario);});
   var html='';
-  sorted.forEach(function(b, idx){
-    var d = new Date(b.fecha+'T12:00:00');
-    var label = d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-    var tipoLabel = b.tipo==='dia' ? 'D\u00eda completo' : b.horario+' hs';
-    var tipoClass = b.tipo==='dia' ? 'btipo-dia' : 'btipo-slot';
-    html+='<div class="bloqueo-item">'+
-      '<div class="bloqueo-info">'+label+' <span class="bloqueo-tipo '+tipoClass+'">'+tipoLabel+'</span></div>'+
-      '<button class="bloqueo-del" onclick="eliminarBloqueo('+bloqueos.indexOf(b)+')">&#10005;</button>'+
-    '</div>';
+  sorted.forEach(function(b){
+    var d=new Date(b.fecha+'T12:00:00');
+    var label=d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+    var tipoLabel, tipoClass;
+    if(b.tipo==='dia'){tipoLabel='D\u00eda completo';tipoClass='btipo-dia';}
+    else if(b.tipo==='slot'){tipoLabel=b.horario+' hs (bloqueado)';tipoClass='btipo-slot';}
+    else{tipoLabel=b.horario+' hs \u2728 Extra';tipoClass='btipo-extra';}
+    var realIdx=bloqueos.indexOf(b);
+    html+='<div class="bloqueo-item"><div class="bloqueo-info">'+label+' <span class="bloqueo-tipo '+tipoClass+'">'+tipoLabel+'</span></div><button class="bloqueo-del" onclick="eliminarBloqueo('+realIdx+')">&#10005;</button></div>';
   });
   container.innerHTML=html;
 }
 
-function eliminarBloqueo(idx) {
+function eliminarBloqueo(idx){
   bloqueos.splice(idx,1);
   renderCfgCalendar();
-  if(cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate+'T12:00:00'));
+  if(cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate,new Date(cfgCal.selectedDate+'T12:00:00'));
   renderBloqueosList();
 }
 
 // ── Confirmar y guardar ──
-function checkConfirmWord() {
-  var val = document.getElementById('cfg-confirm-input').value.trim().toUpperCase();
-  document.getElementById('cfg-save-btn').disabled = (val !== 'CONFIRMAR');
+function checkConfirmWord(){
+  var val=document.getElementById('cfg-confirm-input').value.trim().toUpperCase();
+  document.getElementById('cfg-save-btn').disabled=(val!=='CONFIRMAR');
 }
-
-async function guardarConfig() {
-  var btn = document.getElementById('cfg-save-btn');
-  var feedback = document.getElementById('cfg-feedback');
+async function guardarConfig(){
+  var btn=document.getElementById('cfg-save-btn');
+  var feedback=document.getElementById('cfg-feedback');
   btn.disabled=true; btn.textContent='Guardando...';
   feedback.textContent=''; feedback.className='cfg-feedback';
-
-  try {
-    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ action:'saveConfig', bloqueos: bloqueos })
-    });
+  try{
+    await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'saveConfig',bloqueos:bloqueos})});
     btn.textContent='Guardado!';
-    feedback.textContent='Bloqueos guardados correctamente en Google Sheets.';
+    feedback.textContent='Cambios guardados correctamente en Google Sheets.';
     feedback.className='cfg-feedback ok';
     document.getElementById('cfg-confirm-input').value='';
-    setTimeout(function(){ btn.textContent='Guardar bloqueos'; btn.disabled=true; feedback.textContent=''; },3000);
-  } catch(e) {
-    btn.textContent='Guardar bloqueos'; btn.disabled=false;
+    setTimeout(function(){btn.textContent='Guardar cambios';btn.disabled=true;feedback.textContent='';},3000);
+  }catch(e){
+    btn.textContent='Guardar cambios';btn.disabled=false;
     feedback.textContent='Error al guardar. Verific\u00e1 la conexi\u00f3n.';
     feedback.className='cfg-feedback err';
   }
