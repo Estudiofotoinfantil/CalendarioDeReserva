@@ -392,7 +392,7 @@ function parseFecha(v){if(!v)return'';var s=String(v).trim();if(/^\d{4}-\d{2}-\d
 function normalizeReserva(row,idx){var g=function(k){for(var i=0;i<k.length;i++){if(row[k[i]]!==undefined&&row[k[i]]!==null&&row[k[i]]!=='')return row[k[i]];}return'';};var estado=String(g(['estado','Estado'])||'PENDIENTE').toUpperCase().trim();if(!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado))estado='PENDIENTE';var ts=g(['timestamp','Timestamp']);if(ts instanceof Date)ts=ts.toISOString();if(!ts)ts=new Date().toISOString();return{id:String(g(['id','ID'])||'T'+String(idx+1).padStart(3,'0')),timestamp:String(ts),fecha:parseFecha(g(['fecha','Fecha'])),horario:parseHorario(g(['horario','Horario'])),tipoSesion:String(g(['tipoSesion','TipoSesion'])||'--'),tematica:String(g(['tematica','Tematica'])||''),nombreBebe:String(g(['nombreBebe','NombreBebe'])||'--'),cumpleBebe:parseFecha(g(['cumpleBebe','CumpleBebe'])),nombreMama:String(g(['nombreMama','NombreMama'])||'--'),estado,telefono:String(g(['telefono','Telefono'])||''),whatsapp:String(g(['whatsapp','Whatsapp','WhatsApp'])||g(['telefono','Telefono'])||''),notas:String(g(['notas','Notas'])||''),senya:String(g(['senya','Senya'])||''),total:String(g(['total','Total'])||''),resta:String(g(['resta','Resta'])||''),notasInternas:String(g(['notasInternas','NotasInternas'])||'')};}
 function doLogin(){if(document.getElementById('pwd-input').value===ADMIN_CONFIG.PASSWORD){document.getElementById('login-screen').style.display='none';document.getElementById('admin-panel').classList.add('show');loadData();loadConfig();}else{document.getElementById('login-error').style.display='block';document.getElementById('pwd-input').value='';setTimeout(function(){document.getElementById('login-error').style.display='none';},3000);}}
 function doLogout(){document.getElementById('admin-panel').classList.remove('show');document.getElementById('login-screen').style.display='flex';document.getElementById('pwd-input').value='';}
-async function loadData(){startLoading();try{var r=await fetch(ADMIN_CONFIG.SCRIPT_URL+'?action=getAll',{mode:'cors'});var d=await r.json();if(d.error)throw new Error(d.error);allTurnos=(d.reservas||[]).map(function(row,idx){return normalizeReserva(row,idx);});showDebug('');}catch(err){showDebug('No se pudo conectar.\nError: '+err.message);if(allTurnos.length===0)allTurnos=[];}stopLoading();updateStats();renderMonthTabs();renderTurnos();detectarConflictos();}
+async function loadData(){startLoading();try{var r=await fetch(ADMIN_CONFIG.SCRIPT_URL+'?action=getAll',{mode:'cors'});var d=await r.json();if(d.error)throw new Error(d.error);allTurnos=(d.reservas||[]).map(function(row,idx){return normalizeReserva(row,idx);}).filter(function(t){return t.id&&t.id!==''&&(t.nombreBebe!=='--'||t.fecha!=='');});showDebug('');}catch(err){showDebug('No se pudo conectar.\nError: '+err.message);if(allTurnos.length===0)allTurnos=[];}stopLoading();updateStats();renderMonthTabs();renderTurnos();detectarConflictos();}
 function showDebug(m){var b=document.getElementById('debug-box');b.style.display=m?'block':'none';b.textContent=m;}
 function detectarConflictos(){var map={};allTurnos.forEach(function(t){if(t.estado==='CANCELADO')return;var k=t.fecha+'_'+t.horario;if(!map[k])map[k]=[];map[k].push(t.id);});allTurnos.forEach(function(t){var k=t.fecha+'_'+t.horario;t.tieneConflicto=!!(map[k]&&map[k].length>1);});var n=Object.values(map).filter(function(ids){return ids.length>1;}).length;if(n>0)showDebug('\u26a0\ufe0f CONFLICTO: '+n+' horario(s) con m\u00e1s de una reserva activa (borde rojo).');}
 function updateStats(){document.getElementById('stat-total').textContent=allTurnos.length;document.getElementById('stat-pending').textContent=allTurnos.filter(function(t){return t.estado==='PENDIENTE';}).length;document.getElementById('stat-confirmed').textContent=allTurnos.filter(function(t){return t.estado==='CONFIRMADO';}).length;document.getElementById('stat-cancelled').textContent=allTurnos.filter(function(t){return t.estado==='CANCELADO';}).length;}
@@ -517,13 +517,11 @@ async function sendMessage(){
   aiHistory.push({role:'user',content:text});
   var loading=addLoadingMsg();
   var hoyStr=new Date().toISOString().split('T')[0];
-  var ctx=JSON.stringify(allTurnos.map(function(t){return{id:t.id,fecha:t.fecha,horario:t.horario,nombreBebe:t.nombreBebe,nombreMama:t.nombreMama,tipoSesion:t.tipoSesion,tematica:t.tematica,estado:t.estado,cumpleBebe:t.cumpleBebe,whatsapp:t.whatsapp,senya:t.senya,total:t.total,resta:t.resta};}));
+  var ctx=JSON.stringify(allTurnos.filter(function(t){return t.estado!=='CANCELADO';}).map(function(t){return{id:t.id,fecha:t.fecha,horario:t.horario,nombreBebe:t.nombreBebe,nombreMama:t.nombreMama,tipoSesion:t.tipoSesion,tematica:t.tematica,estado:t.estado,cumpleBebe:t.cumpleBebe,whatsapp:t.whatsapp,senya:t.senya,total:t.total,resta:t.resta};}));
   try{
-    var params='?action=geminiChat'
-      +'&hoy='+encodeURIComponent(hoyStr)
-      +'&turnosCtx='+encodeURIComponent(ctx)
-      +'&messages='+encodeURIComponent(JSON.stringify(aiHistory.slice(0,-1)));
-    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL+params,{mode:'cors'});
+    // POST con text/plain evita el preflight CORS — el Script lo parsea igual
+    var payload=JSON.stringify({action:'geminiChat',hoy:hoyStr,turnosCtx:ctx,messages:aiHistory.slice(0,-1)});
+    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:payload});
     var data=await resp.json();
     if(!data.ok)throw new Error(data.error||'Error del servidor');
     var rt=data.reply;
@@ -535,7 +533,7 @@ async function sendMessage(){
     if(am){try{var action=JSON.parse(am[1]);pendingAction=action;addActionCard(action);}catch(e){}}
   }catch(e){
     loading.bub.classList.remove('ai-typing');
-    loading.bub.innerHTML='\u274C No pude conectarme al servidor. Verific\u00e1 que el Script est\u00e9 reimplementado correctamente.';
+    loading.bub.innerHTML='\u274C Error: '+e.message;
   }
   document.getElementById('ai-send-btn').disabled=false;
   document.getElementById('ai-messages').scrollTop=document.getElementById('ai-messages').scrollHeight;
