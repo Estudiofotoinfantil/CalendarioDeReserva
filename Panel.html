@@ -519,9 +519,8 @@ async function sendMessage(){
   var ctx=JSON.stringify(allTurnos.map(function(t){return{id:t.id,fecha:t.fecha,horario:t.horario,nombreBebe:t.nombreBebe,nombreMama:t.nombreMama,tipoSesion:t.tipoSesion,tematica:t.tematica,estado:t.estado,cumpleBebe:t.cumpleBebe,whatsapp:t.whatsapp,senya:t.senya,total:t.total,resta:t.resta};}));
   var sys='Sos el asistente IA del Estudio Fotoinfantil. Hoy es '+hoyStr+'.\nTurnos: '+ctx+'\n\nPod\u00e9s: resumir sesiones, buscar por nombre, alertar cumplea\u00f1os, reportar pagos pendientes, confirmar/cancelar/reprogramar turnos.\n\nCuando el usuario pida un cambio, respond\u00e9 en lenguaje natural Y al final inclu\u00ed:\n```action\n{"tipo":"updateStatus"|"reprogramar","id":"T123","newStatus":"CONFIRMADO|CANCELADO","newFecha":"YYYY-MM-DD","newHorario":"HH:MM","descripcion":"descripci\u00f3n del cambio"}\n```\nSi falta info para ejecutar el cambio, pregunt\u00e1 antes. Respond\u00e9 en espa\u00f1ol argentino, tono c\u00e1lido y conciso.';
   try{
-    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'geminiChat',hoy:hoyStr,turnosCtx:ctx,messages:aiHistory.slice(0,-1)})});
-    // no-cors no devuelve body — usamos cors con un segundo intento
-    var resp2=await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'geminiChat',hoy:hoyStr,turnosCtx:ctx,messages:aiHistory.slice(0,-1)})});
+    var geminiParams='?action=geminiChat&hoy='+encodeURIComponent(hoyStr)+'&turnosCtx='+encodeURIComponent(ctx)+'&messages='+encodeURIComponent(JSON.stringify(aiHistory.slice(0,-1)));
+    var resp2=await fetch(ADMIN_CONFIG.SCRIPT_URL+geminiParams,{mode:'cors'});
     var data=await resp2.json();
     if(!data.ok)throw new Error(data.error||'sin respuesta');
     var rt=data.reply;
