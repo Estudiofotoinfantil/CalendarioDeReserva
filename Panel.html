@@ -342,7 +342,7 @@
       <div class="ai-header-icon">&#129302;</div>
       <div class="ai-header-info">
         <h3>Asistente Fotoinfantil</h3>
-        <p>Powered by Gemini AI &mdash; Gestion&#225; turnos en lenguaje natural</p>
+        <p>Gemini AI &mdash; Gestion&#225; turnos en lenguaje natural</p>
       </div>
       <button class="ai-back-btn" onclick="hideAI()">&#8592; Volver</button>
     </div>
@@ -381,7 +381,6 @@
 </div>
 
 <script>
-const GEMINI_API_KEY='TU_CLAVE_GEMINI_AQUI'; // <-- Pegá tu clave de Gemini API acá
 const ADMIN_CONFIG={PASSWORD:'estudio2025',SCRIPT_URL:'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec',SLOTS_WEEKDAY:['18:00','19:00'],SLOTS_SATURDAY:['10:00','11:00','13:00','14:00']};
 var allTurnos=[],currentFilter='todos',currentMonth='todos',cancelTarget=null,bloqueos=[],pendingAction=null,aiHistory=[];
 var cfgCal={month:new Date().getMonth(),year:new Date().getFullYear(),selectedDate:null};
@@ -461,10 +460,10 @@ async function cargarResumen(){
   if(cumples.length===0)ctx+='Ninguno.';
   else ctx+=cumples.map(function(c){return c.nombre+' el '+c.fecha+(c.dias===0?' (HOY!)':(c.dias===1?' (ma\u00f1ana)':' (en '+c.dias+' d\u00edas)'));}).join(', ');
   try{
-    var geminiUrl='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_API_KEY;
-    var resp=await fetch(geminiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:[{parts:[{text:'Resum\u00ed en 2-3 oraciones cortas y c\u00e1lidas el d\u00eda para el panel de un estudio fotogr\u00e1fico infantil. Datos: '+ctx+'. Us\u00e1 espa\u00f1ol argentino, tono c\u00e1lido y profesional. Si hay cumplea\u00f1os hoy celebr\u00e1lo con alegr\u00eda.'}]}]})});
+    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL+'?action=geminiResumen&ctx='+encodeURIComponent(ctx),{mode:'cors'});
     var data=await resp.json();
-    el.textContent=data.candidates[0].content.parts[0].text;el.className='ai-resumen-content';
+    if(data.ok&&data.reply){el.textContent=data.reply;el.className='ai-resumen-content';}
+    else throw new Error(data.error||'sin respuesta');
   }catch(e){
     var txt='';
     if(sesHoy.length===0)txt='Hoy no hay sesiones programadas.';
@@ -520,13 +519,12 @@ async function sendMessage(){
   var ctx=JSON.stringify(allTurnos.map(function(t){return{id:t.id,fecha:t.fecha,horario:t.horario,nombreBebe:t.nombreBebe,nombreMama:t.nombreMama,tipoSesion:t.tipoSesion,tematica:t.tematica,estado:t.estado,cumpleBebe:t.cumpleBebe,whatsapp:t.whatsapp,senya:t.senya,total:t.total,resta:t.resta};}));
   var sys='Sos el asistente IA del Estudio Fotoinfantil. Hoy es '+hoyStr+'.\nTurnos: '+ctx+'\n\nPod\u00e9s: resumir sesiones, buscar por nombre, alertar cumplea\u00f1os, reportar pagos pendientes, confirmar/cancelar/reprogramar turnos.\n\nCuando el usuario pida un cambio, respond\u00e9 en lenguaje natural Y al final inclu\u00ed:\n```action\n{"tipo":"updateStatus"|"reprogramar","id":"T123","newStatus":"CONFIRMADO|CANCELADO","newFecha":"YYYY-MM-DD","newHorario":"HH:MM","descripcion":"descripci\u00f3n del cambio"}\n```\nSi falta info para ejecutar el cambio, pregunt\u00e1 antes. Respond\u00e9 en espa\u00f1ol argentino, tono c\u00e1lido y conciso.';
   try{
-    var geminiUrl='https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+GEMINI_API_KEY;
-    var geminiMsgs=[{role:'user',parts:[{text:sys}]},{role:'model',parts:[{text:'Entendido. Soy el asistente del Estudio Fotoinfantil y voy a ayudarte a gestionar los turnos.'}]}];
-    aiHistory.slice(0,-1).forEach(function(m){geminiMsgs.push({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]});});
-    geminiMsgs.push({role:'user',parts:[{text:text}]});
-    var resp=await fetch(geminiUrl,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({contents:geminiMsgs,generationConfig:{maxOutputTokens:800,temperature:0.7}})});
-    var data=await resp.json();
-    var rt=data.candidates[0].content.parts[0].text;
+    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'geminiChat',hoy:hoyStr,turnosCtx:ctx,messages:aiHistory.slice(0,-1)})});
+    // no-cors no devuelve body — usamos cors con un segundo intento
+    var resp2=await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'geminiChat',hoy:hoyStr,turnosCtx:ctx,messages:aiHistory.slice(0,-1)})});
+    var data=await resp2.json();
+    if(!data.ok)throw new Error(data.error||'sin respuesta');
+    var rt=data.reply;
     aiHistory.push({role:'assistant',content:rt});
     var am=rt.match(/```action\n([\s\S]*?)\n```/);
     var dt=rt.replace(/```action[\s\S]*?```/g,'').trim();
@@ -546,7 +544,18 @@ async function ejecutarAccion(){
   document.querySelectorAll('.ai-accion-card').forEach(function(c){c.closest('.ai-msg').remove();});
   var loading=addLoadingMsg();
   try{
-    if(action.tipo==='bloquearDia'||action.tipo==='desbloquearDia'||action.tipo==='bloquearSlot'||action.tipo==='desbloquearSlot'||action.tipo==='agregarSlotExtra'){
+    if(action.tipo==='updateStatus'){
+      await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updateStatus',id:action.id,status:action.newStatus})});
+      var t=allTurnos.find(function(x){return x.id===action.id;});if(t)t.estado=action.newStatus;
+      updateStats();renderMonthTabs();renderTurnos();
+      loading.div.remove();addMsg('ai','✅ Listo! El turno fue actualizado correctamente.');
+    }else if(action.tipo==='reprogramar'){
+      await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reprogramar',id:action.id,newFecha:action.newFecha,newHorario:action.newHorario})});
+      var t=allTurnos.find(function(x){return x.id===action.id;});
+      if(t){if(action.newFecha)t.fecha=action.newFecha;if(action.newHorario)t.horario=action.newHorario;}
+      updateStats();renderMonthTabs();renderTurnos();
+      loading.div.remove();addMsg('ai','✅ Turno reprogramado! Los cambios se guardaron en Sheets.');
+    }else if(['bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'].indexOf(action.tipo)>=0){
       var fecha=action.fecha;
       if(action.tipo==='bloquearDia'){
         bloqueos=bloqueos.filter(function(b){return b.fecha!==fecha;});
@@ -563,21 +572,9 @@ async function ejecutarAccion(){
         if(!existe2)bloqueos.push({tipo:'slot_extra',fecha:fecha,horario:action.horario,nota:''});
       }
       await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'saveConfig',bloqueos:bloqueos})});
-      loading.div.remove();addMsg('ai','✅ Listo! La configuración fue actualizada y guardada.');
-      aiHistory.push({role:'assistant',content:'Acción ejecutada: '+action.descripcion});
-    }else if(action.tipo==='updateStatus'){
-      await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updateStatus',id:action.id,status:action.newStatus})});
-      var t=allTurnos.find(function(x){return x.id===action.id;});if(t)t.estado=action.newStatus;
-      updateStats();renderMonthTabs();renderTurnos();
-      loading.div.remove();addMsg('ai','\u2705 Listo! El turno fue actualizado correctamente.');
-    }else if(action.tipo==='reprogramar'){
-      await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reprogramar',id:action.id,newFecha:action.newFecha,newHorario:action.newHorario})});
-      var t=allTurnos.find(function(x){return x.id===action.id;});
-      if(t){if(action.newFecha)t.fecha=action.newFecha;if(action.newHorario)t.horario=action.newHorario;}
-      updateStats();renderMonthTabs();renderTurnos();
-      loading.div.remove();addMsg('ai','\u2705 Turno reprogramado! Los cambios se guardaron en Sheets.');
+      loading.div.remove();addMsg('ai','✅ Listo! La configuración fue actualizada y guardada en Sheets.');
     }
-    aiHistory.push({role:'assistant',content:'Acci\u00f3n ejecutada: '+action.descripcion});
+    aiHistory.push({role:'assistant',content:'Acción ejecutada: '+action.descripcion});
   }catch(e){loading.bub.classList.remove('ai-typing');loading.bub.innerHTML='\u274C Error al ejecutar. Intent\u00e1 de nuevo.';}
 }
 function cancelarAccion(){
