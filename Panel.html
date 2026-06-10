@@ -832,11 +832,18 @@ function renderTurnos() {
            t.whatsapp.includes(search);
   });
   if (currentMonth !== 'todos') list = list.filter(function(t) { return t.fecha && t.fecha.startsWith(currentMonth); });
-  if (currentFilter === 'confirmado') {
-    list.sort(function(a,b) { return (a.fecha||'').localeCompare(b.fecha||'') || (a.horario||'').localeCompare(b.horario||''); });
-  } else {
-    list.sort(function(a,b) { return new Date(b.timestamp) - new Date(a.timestamp); });
-  }
+  // Siempre ordenar por proximidad: fecha ascendente, luego horario ascendente
+  var hoyStr = new Date().toISOString().split('T')[0];
+  list.sort(function(a, b) {
+    var fa = a.fecha || '9999-99-99';
+    var fb = b.fecha || '9999-99-99';
+    // Turnos sin fecha van al final
+    if (!a.fecha && b.fecha) return 1;
+    if (a.fecha && !b.fecha) return -1;
+    var dateCmp = fa.localeCompare(fb);
+    if (dateCmp !== 0) return dateCmp;
+    return (a.horario || '').localeCompare(b.horario || '');
+  });
   renderMonthTabs();
   var container = document.getElementById('turnos-list');
   if (list.length === 0) {
