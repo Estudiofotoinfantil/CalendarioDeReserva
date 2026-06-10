@@ -17,6 +17,8 @@
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+
+  /* ═══════ LOGIN ═══════ */
   .login-screen{min-height:100vh;background:linear-gradient(145deg,#2c1f1a 0%,#4a302a 50%,#2c1f1a 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
   .login-card{background:var(--cream);border-radius:20px;padding:48px 36px;max-width:380px;width:100%;text-align:center;}
   .login-logo{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px;}
@@ -27,6 +29,8 @@
   .login-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:.2s;}
   .login-btn:hover{opacity:.9;}
   .login-error{color:var(--danger);font-size:13px;margin-top:10px;display:none;}
+
+  /* ═══════ ADMIN PANEL ═══════ */
   .admin-panel{display:none;}
   .admin-panel.show{display:block;}
   .admin-header{background:var(--panel-bg);color:#e8c4b8;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px;}
@@ -39,11 +43,60 @@
   .config-btn:hover{background:rgba(255,255,255,0.15);}
   .ai-btn{background:linear-gradient(135deg,#2d3561,#4a3080);color:#c9b8f0;border:1px solid rgba(150,120,220,0.4);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
   .ai-btn:hover{opacity:.85;}
+
+  /* ═══════ PANEL SESIONES DEL DÍA ═══════ */
+  .daily-panel{margin:20px 16px 0;border-radius:18px;overflow:hidden;border:1px solid var(--gold-light);background:var(--white);animation:fadeUp .5s ease;}
+  @media(min-width:600px){.daily-panel{margin:24px 24px 0;}}
+  .daily-header{background:linear-gradient(135deg,#2c1f1a 0%,#4a302a 100%);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+  .daily-header-icon{width:38px;height:38px;border-radius:50%;background:rgba(196,168,130,0.2);border:1px solid rgba(196,168,130,0.4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .daily-header-text h2{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:#e8c4b8;letter-spacing:.5px;}
+  .daily-header-text p{font-size:11px;color:var(--gold-2);margin-top:2px;letter-spacing:1px;text-transform:uppercase;}
+  .daily-header-date{margin-left:auto;text-align:right;}
+  .daily-header-date .date-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;color:#e8c4b8;line-height:1;}
+  .daily-header-date .date-mes{font-size:10px;color:var(--gold-2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+  .daily-sections{display:grid;grid-template-columns:1fr 1fr;}
+  .daily-section{padding:16px 20px;}
+  .daily-section:first-child{border-right:1px solid var(--gold-light);}
+  .section-label{display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+  .section-label-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dot-today{background:var(--gold-1);}
+  .dot-tomorrow{background:var(--success);}
+  .section-label-text{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;color:var(--text-light);}
+  .section-label-count{margin-left:auto;font-size:11px;color:var(--text-light);background:var(--cream-dark);border-radius:20px;padding:2px 8px;}
+  .sesion-card{border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--gold-light);background:var(--cream);opacity:0;transform:translateY(10px);transition:opacity .4s ease,transform .4s ease;}
+  .sesion-card.visible{opacity:1;transform:translateY(0);}
+  .sesion-card.today-card{border-left-color:var(--gold-1);}
+  .sesion-card.tomorrow-card{border-left-color:var(--success);}
+  .sesion-hora{display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap;}
+  .hora-badge{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:var(--gold-1);}
+  .hora-sep{font-size:10px;color:var(--gold-3);}
+  .hora-estado{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;letter-spacing:.3px;}
+  .estado-confirmado-badge{background:var(--success-bg);color:var(--success);}
+  .estado-pendiente-badge{background:var(--warning-bg);color:var(--warning);}
+  .sesion-bebe{font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:var(--text);margin-bottom:3px;}
+  .sesion-meta{font-size:12px;color:var(--text-light);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .meta-tematica{background:var(--gold-light);color:var(--gold-1);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500;}
+  .sesion-mama{font-size:11px;color:var(--text-light);margin-top:4px;}
+  .shimmer-line{height:10px;border-radius:4px;background:linear-gradient(90deg,var(--cream-dark) 25%,var(--gold-light) 50%,var(--cream-dark) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+  .shimmer-card{padding:12px;border-radius:10px;background:var(--cream);margin-bottom:8px;}
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  .empty-day{text-align:center;padding:20px 10px;color:var(--text-light);}
+  .empty-day .empty-icon{font-size:22px;margin-bottom:5px;}
+  .empty-day p{font-size:13px;line-height:1.5;}
+  .empty-day .empty-note{font-size:11px;color:var(--gold-3);margin-top:3px;font-style:italic;}
+  .warm-note{background:linear-gradient(135deg,var(--cream),var(--cream-dark));border-top:1px solid var(--gold-light);padding:12px 20px;display:flex;align-items:flex-start;gap:8px;}
+  .warm-note-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .warm-note-text{font-size:13px;color:var(--text-light);line-height:1.5;font-style:italic;}
+  .warm-note-text strong{color:var(--gold-1);font-style:normal;font-weight:500;}
+
+  /* ═══════ STATS ═══════ */
   .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px 16px 0;}
   @media(min-width:600px){.stats-row{grid-template-columns:repeat(4,1fr);padding:24px 24px 0;}}
   .stat-card{background:var(--white);border-radius:14px;padding:18px;border:1px solid var(--gold-light);}
   .stat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:400;color:var(--text);line-height:1;}
   .stat-label{font-size:12px;color:var(--text-light);margin-top:4px;}
+
+  /* ═══════ CONTROLES ═══════ */
   .controls{padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
   @media(min-width:600px){.controls{padding:20px 24px;}}
   .filter-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;transition:.2s;}
@@ -55,6 +108,8 @@
   .month-tab{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-light);cursor:pointer;transition:.2s;white-space:nowrap;}
   .month-tab:hover{border-color:var(--gold-2);color:var(--gold-1);}
   .month-tab.active{background:var(--gold-2);border-color:var(--gold-2);color:white;font-weight:500;}
+
+  /* ═══════ TURNOS ═══════ */
   .month-group-header{display:flex;align-items:center;gap:10px;margin:20px 0 10px;}
   .month-group-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);}
   .month-group-count{font-size:12px;color:var(--text-light);background:var(--cream-dark);border-radius:10px;padding:2px 8px;}
@@ -112,7 +167,8 @@
   .pago-save-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;}
   .pago-save-btn:hover{opacity:.9;}
   .pago-save-btn.saved{background:var(--success);}
-  /* CONFIG */
+
+  /* ═══════ CONFIG ═══════ */
   .config-screen{display:none;padding:0 0 80px;}
   .config-screen.show{display:block;}
   .config-header{background:var(--cream-dark);border-bottom:1px solid var(--gold-light);padding:16px 20px;display:flex;align-items:center;gap:12px;}
@@ -179,7 +235,8 @@
   .cfg-save-btn:disabled{background:var(--gold-light);cursor:not-allowed;}
   .cfg-feedback{font-size:13px;text-align:center;margin-top:8px;min-height:18px;}
   .cfg-feedback.ok{color:var(--success);}.cfg-feedback.err{color:var(--danger);}
-  /* IA */
+
+  /* ═══════ IA ═══════ */
   .ai-screen{display:none;flex-direction:column;height:calc(100vh - 53px);}
   .ai-screen.show{display:flex;}
   .ai-header{background:linear-gradient(135deg,#1e2340,#2d1f45);padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(150,120,220,0.3);}
@@ -223,7 +280,8 @@
   .ai-send-btn{width:40px;height:40px;background:linear-gradient(135deg,#5b4db8,#8b5cf6);border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
   .ai-send-btn:hover{opacity:.85;}
   .ai-send-btn:disabled{opacity:.4;cursor:not-allowed;}
-  /* MISC */
+
+  /* ═══════ MISC ═══════ */
   .debug-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin:12px 16px;font-size:12px;color:#5d4037;white-space:pre-wrap;display:none;}
   .refresh-btn{background:var(--panel-bg);color:#e8c4b8;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:6px;}
   .refresh-btn:hover{opacity:.85;}
@@ -246,6 +304,7 @@
 <body>
 <div class="loading-bar" id="loading-bar"></div>
 
+<!-- ═══════ LOGIN ═══════ -->
 <div class="login-screen" id="login-screen">
   <div class="login-card">
     <div class="login-logo">&#10022; Estudio Fotoinfantil</div>
@@ -257,7 +316,9 @@
   </div>
 </div>
 
+<!-- ═══════ ADMIN PANEL ═══════ -->
 <div class="admin-panel" id="admin-panel">
+
   <div class="admin-header">
     <div><h1>Panel de Control</h1><span class="studio-sub">Estudio &middot; Gesti&#243;n</span></div>
     <div class="header-btns">
@@ -267,7 +328,52 @@
     </div>
   </div>
 
+  <!-- VISTA TURNOS -->
   <div id="turnos-view">
+
+    <!-- ═══ PANEL SESIONES DEL DÍA ═══ -->
+    <div class="daily-panel" id="daily-panel">
+      <div class="daily-header">
+        <div class="daily-header-icon">📷</div>
+        <div class="daily-header-text">
+          <h2>Sesiones del d&#237;a</h2>
+          <p>Estudio Fotoinfantil</p>
+        </div>
+        <div class="daily-header-date">
+          <div class="date-num" id="dp-fecha-num">--</div>
+          <div class="date-mes" id="dp-fecha-mes">--</div>
+        </div>
+      </div>
+      <div class="daily-sections">
+        <div class="daily-section">
+          <div class="section-label">
+            <div class="section-label-dot dot-today"></div>
+            <span class="section-label-text">Hoy</span>
+            <span class="section-label-count" id="dp-count-hoy">...</span>
+          </div>
+          <div id="dp-list-hoy">
+            <div class="shimmer-card"><div class="shimmer-line" style="width:40%;margin-bottom:8px;"></div><div class="shimmer-line" style="width:70%;margin-bottom:6px;"></div><div class="shimmer-line" style="width:55%;"></div></div>
+            <div class="shimmer-card"><div class="shimmer-line" style="width:35%;margin-bottom:8px;"></div><div class="shimmer-line" style="width:65%;margin-bottom:6px;"></div><div class="shimmer-line" style="width:50%;"></div></div>
+          </div>
+        </div>
+        <div class="daily-section">
+          <div class="section-label">
+            <div class="section-label-dot dot-tomorrow"></div>
+            <span class="section-label-text">Ma&#241;ana</span>
+            <span class="section-label-count" id="dp-count-maniana">...</span>
+          </div>
+          <div id="dp-list-maniana">
+            <div class="shimmer-card"><div class="shimmer-line" style="width:40%;margin-bottom:8px;"></div><div class="shimmer-line" style="width:65%;margin-bottom:6px;"></div><div class="shimmer-line" style="width:50%;"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="warm-note" id="dp-warm-note" style="display:none;">
+        <span class="warm-note-icon">&#10024;</span>
+        <span class="warm-note-text" id="dp-warm-text"></span>
+      </div>
+    </div>
+    <!-- FIN PANEL SESIONES DEL DÍA -->
+
     <div class="stats-row">
       <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Reservas totales</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendientes</div></div>
@@ -289,6 +395,7 @@
     </div>
   </div>
 
+  <!-- CONFIG -->
   <div class="config-screen" id="config-screen">
     <div class="config-header">
       <button class="config-back-btn" onclick="hideConfig()">&#8592; Volver</button>
@@ -337,6 +444,7 @@
     </div>
   </div>
 
+  <!-- IA -->
   <div class="ai-screen" id="ai-screen">
     <div class="ai-header">
       <div class="ai-header-icon">&#129302;</div>
@@ -367,8 +475,10 @@
       <button class="ai-send-btn" id="ai-send-btn" onclick="sendMessage()">&#10148;</button>
     </div>
   </div>
-</div>
 
+</div><!-- fin admin-panel -->
+
+<!-- MODAL -->
 <div class="modal-overlay" id="cancel-modal">
   <div class="modal">
     <h3>&#191;Cancelar este turno?</h3>
@@ -381,207 +491,923 @@
 </div>
 
 <script>
-const ADMIN_CONFIG={PASSWORD:'estudio2025',SCRIPT_URL:'https://script.google.com/macros/s/AKfycbyEKM_4aseVa8oZs0whSSrWXZjGew1Qqwo0oA9lQ6AvUP-eMoAcSsXkbg1E7nK0VOUVuQ/exec',SLOTS_WEEKDAY:['18:00','19:00'],SLOTS_SATURDAY:['10:00','11:00','13:00','14:00']};
-var allTurnos=[],currentFilter='todos',currentMonth='todos',cancelTarget=null,bloqueos=[],pendingAction=null,aiHistory=[];
-var cfgCal={month:new Date().getMonth(),year:new Date().getFullYear(),selectedDate:null};
-function cp(n){return String.fromCodePoint(n);}
-function buildMsgConfirm(t,ds){var l=['Hola '+t.nombreMama+'! '+cp(128149)+' Turno confirmado! Muchas gracias.','Te dejo la info:','',cp(128197)+' *Fecha:* '+ds,cp(9200)+' *Hora:* '+t.horario+' hs',cp(128118)+' *Modelo:* '+t.nombreBebe,cp(127874)+' *Sesi\u00f3n:* '+t.tipoSesion,cp(128105)+' *Mam\u00e1:* '+t.nombreMama,cp(127912)+' *Tem\u00e1tica:* '+(t.tematica||'-'),cp(128176)+' *Se\u00f1a:* ',cp(128181)+' *Resta:* ',cp(9989)+' *Valor cobrado:* ',cp(128203)+' *Observaciones:* ','','Muchas gracias, nos vemos pronto! '+cp(128248)+cp(128149)];return encodeURIComponent(l.join('\n'));}
-function buildMsgRec(t,ds){var tema=t.tematica?' tem\u00e1tica '+t.tematica:'';var l=[cp(10024)+' Recordatorio de turno '+cp(10024),'Hola! '+cp(128522)+' Te recuerdo que el '+ds+' a las '+t.horario+' hs ten\u00e9s tu sesi\u00f3n '+t.tipoSesion+tema+' de '+t.nombreBebe+'.','',cp(128205)+' Direcci\u00f3n: Lopez May 2946, Gregorio de Laferrere.','',cp(128073)+cp(127998)+' Importante:','* Traer dos cambios de vestuario para el beb\u00e9 '+cp(128118),'* M\u00e1ximo de personas: 2 adultos (los hermanitos pueden participar en las fotos '+cp(128149)+'). Abuelo o t\u00eda: adicional $10.000','* Pedimos puntualidad '+cp(10024),'* '+cp(161)+'Los esperamos! '+cp(128149)+cp(128248)];return encodeURIComponent(l.join('\n'));}
-function parseHorario(v){if(!v)return'--';if(typeof v==='number'){var m=Math.round(v*24*60);return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}var s=String(v).trim();if(s.startsWith('1899-')||s.startsWith('1900-')){var d=new Date(s);return String(d.getUTCHours()).padStart(2,'0')+':'+String(d.getUTCMinutes()).padStart(2,'0');}var h=s.replace('.',':');if(h&&!h.includes(':'))h+=':00';return h||'--';}
-function parseFecha(v){if(!v)return'';var s=String(v).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(s))return s;if(s.includes('T'))return s.split('T')[0];if(s.includes('/')){var p=s.split('/');if(p.length===3)return p[2]+'-'+p[1].padStart(2,'0')+'-'+p[0].padStart(2,'0');}return s;}
-function normalizeReserva(row,idx){var g=function(k){for(var i=0;i<k.length;i++){if(row[k[i]]!==undefined&&row[k[i]]!==null&&row[k[i]]!=='')return row[k[i]];}return'';};var estado=String(g(['estado','Estado'])||'PENDIENTE').toUpperCase().trim();if(!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado))estado='PENDIENTE';var ts=g(['timestamp','Timestamp']);if(ts instanceof Date)ts=ts.toISOString();if(!ts)ts=new Date().toISOString();return{id:String(g(['id','ID'])||'T'+String(idx+1).padStart(3,'0')),timestamp:String(ts),fecha:parseFecha(g(['fecha','Fecha'])),horario:parseHorario(g(['horario','Horario'])),tipoSesion:String(g(['tipoSesion','TipoSesion'])||'--'),tematica:String(g(['tematica','Tematica'])||''),nombreBebe:String(g(['nombreBebe','NombreBebe'])||'--'),cumpleBebe:parseFecha(g(['cumpleBebe','CumpleBebe'])),nombreMama:String(g(['nombreMama','NombreMama'])||'--'),estado,telefono:String(g(['telefono','Telefono'])||''),whatsapp:String(g(['whatsapp','Whatsapp','WhatsApp'])||g(['telefono','Telefono'])||''),notas:String(g(['notas','Notas'])||''),senya:String(g(['senya','Senya'])||''),total:String(g(['total','Total'])||''),resta:String(g(['resta','Resta'])||''),notasInternas:String(g(['notasInternas','NotasInternas'])||'')};}
-function doLogin(){if(document.getElementById('pwd-input').value===ADMIN_CONFIG.PASSWORD){document.getElementById('login-screen').style.display='none';document.getElementById('admin-panel').classList.add('show');loadData();loadConfig();}else{document.getElementById('login-error').style.display='block';document.getElementById('pwd-input').value='';setTimeout(function(){document.getElementById('login-error').style.display='none';},3000);}}
-function doLogout(){document.getElementById('admin-panel').classList.remove('show');document.getElementById('login-screen').style.display='flex';document.getElementById('pwd-input').value='';}
-async function loadData(){startLoading();try{var r=await fetch(ADMIN_CONFIG.SCRIPT_URL+'?action=getAll',{mode:'cors'});var d=await r.json();if(d.error)throw new Error(d.error);allTurnos=(d.reservas||[]).map(function(row,idx){return normalizeReserva(row,idx);}).filter(function(t){return t.id&&t.id!==''&&(t.nombreBebe!=='--'||t.fecha!=='');});showDebug('');}catch(err){showDebug('No se pudo conectar.\nError: '+err.message);if(allTurnos.length===0)allTurnos=[];}stopLoading();updateStats();renderMonthTabs();renderTurnos();detectarConflictos();}
-function showDebug(m){var b=document.getElementById('debug-box');b.style.display=m?'block':'none';b.textContent=m;}
-function detectarConflictos(){var map={};allTurnos.forEach(function(t){if(t.estado==='CANCELADO')return;var k=t.fecha+'_'+t.horario;if(!map[k])map[k]=[];map[k].push(t.id);});allTurnos.forEach(function(t){var k=t.fecha+'_'+t.horario;t.tieneConflicto=!!(map[k]&&map[k].length>1);});var n=Object.values(map).filter(function(ids){return ids.length>1;}).length;if(n>0)showDebug('\u26a0\ufe0f CONFLICTO: '+n+' horario(s) con m\u00e1s de una reserva activa (borde rojo).');}
-function updateStats(){document.getElementById('stat-total').textContent=allTurnos.length;document.getElementById('stat-pending').textContent=allTurnos.filter(function(t){return t.estado==='PENDIENTE';}).length;document.getElementById('stat-confirmed').textContent=allTurnos.filter(function(t){return t.estado==='CONFIRMADO';}).length;document.getElementById('stat-cancelled').textContent=allTurnos.filter(function(t){return t.estado==='CANCELADO';}).length;}
-function setFilter(f,btn){currentFilter=f;currentMonth='todos';document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');renderMonthTabs();renderTurnos();}
-function setMonthFilter(ym,btn){currentMonth=ym;document.querySelectorAll('.month-tab').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');renderTurnos();}
-function renderMonthTabs(){var c=document.getElementById('month-tabs');var list=allTurnos;if(currentFilter!=='todos')list=list.filter(function(t){return t.estado.toLowerCase()===currentFilter;});var mm={};list.forEach(function(t){if(!t.fecha||t.fecha.length<7)return;var ym=t.fecha.slice(0,7);if(!mm[ym]){var d=new Date(ym+'-01T12:00:00');var l=d.toLocaleDateString('es-AR',{month:'long',year:'numeric'});mm[ym]=l.charAt(0).toUpperCase()+l.slice(1);}});var months=Object.keys(mm).sort();if(months.length<=1){c.innerHTML='';return;}var html='<button class="month-tab '+(currentMonth==='todos'?'active':'')+'" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';months.forEach(function(ym){html+='<button class="month-tab '+(currentMonth===ym?'active':'')+'" onclick="setMonthFilter(\''+ym+'\',this)">'+mm[ym]+'</button>';});c.innerHTML=html;}
-function renderTurnos(){var search=document.getElementById('search-input').value.toLowerCase();var list=allTurnos;if(currentFilter!=='todos')list=list.filter(function(t){return t.estado.toLowerCase()===currentFilter;});if(search)list=list.filter(function(t){return t.nombreBebe.toLowerCase().includes(search)||t.nombreMama.toLowerCase().includes(search)||t.fecha.includes(search)||t.whatsapp.includes(search);});if(currentMonth!=='todos')list=list.filter(function(t){return t.fecha&&t.fecha.startsWith(currentMonth);});if(currentFilter==='confirmado'){list.sort(function(a,b){return(a.fecha||'').localeCompare(b.fecha||'')||(a.horario||'').localeCompare(b.horario||'');});}else{list.sort(function(a,b){return new Date(b.timestamp)-new Date(a.timestamp);});}renderMonthTabs();var container=document.getElementById('turnos-list');if(list.length===0){container.innerHTML='<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas</p></div>';return;}var groups={};list.forEach(function(t){var ym=(t.fecha||'').slice(0,7)||'sin-fecha';if(!groups[ym])groups[ym]=[];groups[ym].push(t);});var sk=Object.keys(groups).sort();var html='';sk.forEach(function(ym){var items=groups[ym];var label=ym;try{var d=new Date(ym+'-01T12:00:00');var l=d.toLocaleDateString('es-AR',{month:'long',year:'numeric'});label=l.charAt(0).toUpperCase()+l.slice(1);}catch(e){}if(sk.length>1)html+='<div class="month-group-header"><span class="month-group-title">'+label+'</span><span class="month-group-count">'+items.length+' '+(items.length===1?'sesi\u00f3n':'sesiones')+'</span><div class="month-group-line"></div></div>';html+=items.map(function(t){return buildTurnoCard(t);}).join('');});container.innerHTML=html;}
-function waI(){return'<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>';}
-function buildTurnoCard(t){var ds=t.fecha||'--';try{if(t.fecha&&t.fecha.length===10){var d=new Date(t.fecha+'T12:00:00');if(!isNaN(d))ds=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}}catch(e){}var cs='';try{if(t.cumpleBebe&&t.cumpleBebe.length===10){var dc=new Date(t.cumpleBebe+'T12:00:00');if(!isNaN(dc))cs=dc.toLocaleDateString('es-AR',{day:'numeric',month:'long',year:'numeric'});}}catch(e){}var rs='--';try{rs=new Date(t.timestamp).toLocaleDateString('es-AR');}catch(e){}var el=t.estado.toLowerCase();var wn=t.whatsapp.replace(/\D/g,''),wf=wn?(wn.startsWith('54')?wn:'54'+wn):'';var mC=buildMsgConfirm(t,ds),mR=buildMsgRec(t,ds);var waC=wf?'<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+wf+'?text='+mC+'" target="_blank">'+waI()+' Confirmar+WA</a>':'';var waR=wf?'<a class="btn-action btn-whatsapp-action" href="https://wa.me/'+wf+'?text='+mR+'" target="_blank">'+waI()+' WA record.</a>':'';var ab=t.estado==='PENDIENTE'?'<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>'+waC:t.estado==='CONFIRMADO'?waR+'<button class="btn-action btn-cancel-action" onclick="askCancel(\''+t.id+'\')">Cancelar</button>':'<button class="btn-action btn-confirm-action" onclick="updateStatus(\''+t.id+'\',\'PENDIENTE\')">Reactivar</button>';var sN=parseFloat(t.senya)||0,tN=parseFloat(t.total)||0,rN=tN-sN;var pb=tN>0?(rN<=0?'<span class="pago-badge saldado">&#10003; Saldado</span>':'<span class="pago-badge pendiente-pago">Resta $'+rN.toLocaleString('es-AR')+'</span>'):'';var rD=tN>0?(rN<=0?'Saldado!':'$'+rN.toLocaleString('es-AR')):'$0';var rC=rN<=0&&tN>0?'resta-val saldado':'resta-val';var pp='<div class="pago-panel" id="pago-'+t.id+'"><div class="pago-titulo">&#128176; Gesti\u00f3n de pago</div><div class="pago-grid"><div class="pago-field"><label>Se\u00f1a ($)</label><input type="number" id="senya-'+t.id+'" value="'+(t.senya||'')+'" placeholder="15000" oninput="calcResta(\''+t.id+'\')"></div><div class="pago-field"><label>Total ($)</label><input type="number" id="total-'+t.id+'" value="'+(t.total||'')+'" placeholder="55000" oninput="calcResta(\''+t.id+'\')"></div></div><div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="'+rC+'" id="resta-'+t.id+'">'+rD+'</span></div><span class="pago-notas-label">Notas internas</span><textarea class="pago-notas" id="notas-int-'+t.id+'">'+(t.notasInternas||'')+'</textarea><button class="pago-save-btn" id="save-btn-'+t.id+'" onclick="guardarPago(\''+t.id+'\')">Guardar cambios</button></div>';var ch=t.tieneConflicto?'<div class="conflicto-badge">&#9888;&#65039; CONFLICTO DE HORARIO</div>':'';return'<div class="turno-card '+el+(t.tieneConflicto?' conflicto':'')+'" id="card-'+t.id+'">'+ch+'<div class="turno-top"><div><div class="turno-date">'+ds+'</div><div class="turno-time">'+t.horario+' hs '+pb+'</div></div><span class="status-badge badge-'+el+'">'+t.estado+'</span></div><div class="turno-info"><div class="turno-info-item"><span class="info-key">Beb\u00e9</span><span class="info-val">'+t.nombreBebe+'</span></div><div class="turno-info-item"><span class="info-key">Tipo sesi\u00f3n</span><span class="info-val">'+t.tipoSesion+'</span></div><div class="turno-info-item"><span class="info-key">Mam\u00e1</span><span class="info-val">'+t.nombreMama+'</span></div><div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">'+(t.whatsapp||'--')+'</span></div>'+(t.tematica?'<div class="turno-info-item"><span class="info-key">Tem\u00e1tica</span><span class="info-val">'+t.tematica+'</span></div>':'')+(cs?'<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">'+cs+'</span></div>':'')+(t.senya?'<div class="turno-info-item"><span class="info-key">Se\u00f1a</span><span class="info-val">$'+parseFloat(t.senya).toLocaleString('es-AR')+'</span></div>':'')+(t.total?'<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$'+parseFloat(t.total).toLocaleString('es-AR')+'</span></div>':'')+'</div>'+(t.notas?'<div class="turno-notas">"'+t.notas+'"</div>':'')+(t.notasInternas?'<div class="turno-notas-int">&#128203; '+t.notasInternas+'</div>':'')+'<div class="turno-actions">'+ab+'<button class="btn-action btn-pago-action" onclick="togglePago(\''+t.id+'\')">&#128176; Pago</button></div>'+pp+'<div class="turno-id">ID: '+t.id+' &middot; Reservado: '+rs+'</div></div>';}
-function togglePago(id){var p=document.getElementById('pago-'+id);if(!p)return;p.style.display=p.style.display==='block'?'none':'block';}
-function calcResta(id){var s=parseFloat(document.getElementById('senya-'+id).value)||0;var t=parseFloat(document.getElementById('total-'+id).value)||0;var el=document.getElementById('resta-'+id);if(!el)return;if(t>0){var r=t-s;el.textContent=r<=0?'Saldado!':'$'+r.toLocaleString('es-AR');el.className=r<=0?'resta-val saldado':'resta-val';}else{el.textContent='$0';el.className='resta-val';}}
-async function guardarPago(id){var sv=(document.getElementById('senya-'+id).value||'').trim(),tv=(document.getElementById('total-'+id).value||'').trim(),nv=(document.getElementById('notas-int-'+id).value||'').trim();var sN=parseFloat(sv)||0,tN=parseFloat(tv)||0,rv=tN>0?String(tN-sN):'';var turno=allTurnos.find(function(t){return t.id===id;});if(turno){turno.senya=sv;turno.total=tv;turno.resta=rv;turno.notasInternas=nv;}var btn=document.getElementById('save-btn-'+id);if(btn){btn.textContent='Guardando...';btn.disabled=true;}try{await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updatePago',id:id,senya:sv,total:tv,resta:rv,notasInternas:nv})});if(btn){btn.textContent='\u2713 Guardado!';btn.classList.add('saved');setTimeout(function(){btn.textContent='Guardar cambios';btn.classList.remove('saved');btn.disabled=false;},2500);}}catch(e){if(btn){btn.textContent='Error';btn.disabled=false;}}}
-async function updateStatus(id,ns){startLoading();var t=allTurnos.find(function(t){return t.id===id;});if(t)t.estado=ns;updateStats();renderMonthTabs();renderTurnos();try{await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updateStatus',id:id,status:ns})});}catch(e){}stopLoading();}
-function askCancel(id){cancelTarget=id;document.getElementById('cancel-modal').classList.add('show');}
-function closeModal(){document.getElementById('cancel-modal').classList.remove('show');cancelTarget=null;}
-function confirmCancel(){if(cancelTarget)updateStatus(cancelTarget,'CANCELADO');closeModal();}
-function startLoading(){document.getElementById('loading-bar').classList.add('loading');}
-function stopLoading(){document.getElementById('loading-bar').classList.remove('loading');}
-document.getElementById('cancel-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
-function showConfig(){document.getElementById('turnos-view').style.display='none';document.getElementById('ai-screen').classList.remove('show');document.getElementById('config-screen').classList.add('show');renderCfgCalendar();renderBloqueosList();}
-function hideConfig(){document.getElementById('config-screen').classList.remove('show');document.getElementById('turnos-view').style.display='block';}
-async function loadConfig(){try{var r=await fetch(ADMIN_CONFIG.SCRIPT_URL+'?action=getConfig',{mode:'cors'});var d=await r.json();bloqueos=(d.bloqueos||[]).map(function(b){return{tipo:b.tipo||'dia',fecha:b.fecha||'',horario:b.horario||''};});}catch(e){bloqueos=[];}}
-var CFG_MONTHS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-var CFG_DAYS=['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
-function cfgPrevMonth(){if(cfgCal.month===0){cfgCal.month=11;cfgCal.year--;}else cfgCal.month--;cfgCal.selectedDate=null;document.getElementById('cfg-day-panel').classList.remove('show');renderCfgCalendar();}
-function cfgNextMonth(){if(cfgCal.month===11){cfgCal.month=0;cfgCal.year++;}else cfgCal.month++;cfgCal.selectedDate=null;document.getElementById('cfg-day-panel').classList.remove('show');renderCfgCalendar();}
-function renderCfgCalendar(){document.getElementById('cfg-cal-month').textContent=CFG_MONTHS[cfgCal.month]+' '+cfgCal.year;var grid=document.getElementById('cfg-cal-grid');grid.innerHTML='';CFG_DAYS.forEach(function(d){var el=document.createElement('div');el.className='cfg-day-name';el.textContent=d;grid.appendChild(el);});var today=new Date();today.setHours(0,0,0,0);var fd=new Date(cfgCal.year,cfgCal.month,1).getDay(),dm=new Date(cfgCal.year,cfgCal.month+1,0).getDate();for(var i=0;i<fd;i++){var e=document.createElement('div');e.className='cfg-day empty';grid.appendChild(e);}for(var d=1;d<=dm;d++){var date=new Date(cfgCal.year,cfgCal.month,d),ds=fmtDateCfg(date),el=document.createElement('div');el.innerHTML='<span>'+d+'</span>';var ip=date<today,tbd=bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===ds;}),tbs=bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===ds;}),te=bloqueos.some(function(b){return b.tipo==='slot_extra'&&b.fecha===ds;});var cls='cfg-day';if(ip)cls+=' past';else{if(tbd){cls+=' selected-day';var dot=document.createElement('div');dot.className='cfg-dot bloq';el.appendChild(dot);}else if(tbs){cls+=' partial';var dot=document.createElement('div');dot.className='cfg-dot part';el.appendChild(dot);}if(te&&!tbd){cls+=' has-extra';var dot2=document.createElement('div');dot2.className='cfg-dot extra';el.appendChild(dot2);}if(cfgCal.selectedDate===ds)cls+=' selected-day';(function(s,dt){el.onclick=function(){cfgSelectDay(s,dt);};})(ds,date);}el.className=cls;grid.appendChild(el);}}
-function fmtDateCfg(d){return d.toISOString().split('T')[0];}
-function cfgSelectDay(ds,dateObj){cfgCal.selectedDate=ds;renderCfgCalendar();var panel=document.getElementById('cfg-day-panel');panel.classList.add('show');var d=new Date(ds+'T12:00:00');document.getElementById('cfg-day-panel-title').textContent=d.toLocaleDateString('es-AR',{weekday:'long',day:'numeric',month:'long',year:'numeric'}).replace(/^\w/,function(c){return c.toUpperCase();});var tbd=bloqueos.some(function(b){return b.tipo==='dia'&&b.fecha===ds;});var btnDia=document.getElementById('btn-blq-dia');btnDia.textContent=tbd?'\u2705 D\u00eda bloqueado (tap para desbloquear)':'\uD83D\uDEAB Bloquear d\u00eda completo';btnDia.className=tbd?'cfg-opt-btn active-block':'cfg-opt-btn';var dow=dateObj.getDay(),slots=dow===6?ADMIN_CONFIG.SLOTS_SATURDAY:(dow>=1&&dow<=5?ADMIN_CONFIG.SLOTS_WEEKDAY:[]);var sw=document.getElementById('cfg-slots-wrap'),sg=document.getElementById('cfg-slot-grid');if(slots.length>0&&!tbd){sw.style.display='block';sg.innerHTML='';slots.forEach(function(time){var ib=bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===ds&&b.horario===time;});var btn=document.createElement('button');btn.className='cfg-slot'+(ib?' bloqueado':'');btn.textContent=time+' hs'+(ib?' \uD83D\uDD12':'');btn.onclick=function(){toggleBloquearSlot(ds,time);};sg.appendChild(btn);});}else sw.style.display='none';var es=document.getElementById('cfg-extra-section');if(!tbd){es.style.display='block';document.getElementById('cfg-extra-input').value='';document.getElementById('cfg-extra-error').style.display='none';renderExtraList(ds);}else es.style.display='none';}
-function toggleBloquearDia(){var ds=cfgCal.selectedDate;if(!ds)return;var idx=bloqueos.findIndex(function(b){return b.tipo==='dia'&&b.fecha===ds;});if(idx>=0)bloqueos.splice(idx,1);else{bloqueos=bloqueos.filter(function(b){return!(b.fecha===ds);});bloqueos.push({tipo:'dia',fecha:ds,horario:''});}renderCfgCalendar();cfgSelectDay(ds,new Date(ds+'T12:00:00'));renderBloqueosList();}
-function toggleBloquearSlot(ds,h){var idx=bloqueos.findIndex(function(b){return b.tipo==='slot'&&b.fecha===ds&&b.horario===h;});if(idx>=0)bloqueos.splice(idx,1);else bloqueos.push({tipo:'slot',fecha:ds,horario:h});renderCfgCalendar();cfgSelectDay(ds,new Date(ds+'T12:00:00'));renderBloqueosList();}
-function formatExtraInput(input){var v=input.value.replace(/[^0-9:]/g,'');if(v.length===2&&!v.includes(':'))v=v+':';input.value=v;}
-function validarHorario(h){return/^([01]?\d|2[0-3]):([0-5]\d)$/.test(h);}
-function agregarSlotExtra(){var ds=cfgCal.selectedDate;if(!ds)return;var input=document.getElementById('cfg-extra-input'),errEl=document.getElementById('cfg-extra-error'),h=input.value.trim();if(!validarHorario(h)){errEl.style.display='block';input.focus();return;}errEl.style.display='none';var p=h.split(':');h=p[0].padStart(2,'0')+':'+p[1];if(bloqueos.some(function(b){return b.tipo==='slot_extra'&&b.fecha===ds&&b.horario===h;})){input.value='';return;}bloqueos.push({tipo:'slot_extra',fecha:ds,horario:h});input.value='';renderCfgCalendar();cfgSelectDay(ds,new Date(ds+'T12:00:00'));renderBloqueosList();}
-function eliminarSlotExtra(ds,h){var idx=bloqueos.findIndex(function(b){return b.tipo==='slot_extra'&&b.fecha===ds&&b.horario===h;});if(idx>=0)bloqueos.splice(idx,1);renderCfgCalendar();cfgSelectDay(ds,new Date(ds+'T12:00:00'));renderBloqueosList();}
-function renderExtraList(ds){var c=document.getElementById('cfg-extra-list');var ex=bloqueos.filter(function(b){return b.tipo==='slot_extra'&&b.fecha===ds;}).sort(function(a,b){return a.horario.localeCompare(b.horario);});if(ex.length===0){c.innerHTML='<span style="font-size:12px;color:var(--text-light);">Ning\u00fan horario extra</span>';return;}c.innerHTML=ex.map(function(b){return'<span class="cfg-extra-tag">'+b.horario+' hs <button class="cfg-extra-tag-del" onclick="eliminarSlotExtra(\''+b.fecha+'\',\''+b.horario+'\')">&#10005;</button></span>';}).join('');}
-function renderBloqueosList(){var c=document.getElementById('bloqueos-lista');if(bloqueos.length===0){c.innerHTML='<div class="empty-bloqueos">No hay cambios configurados</div>';return;}var sorted=bloqueos.slice().sort(function(a,b){return(a.fecha+a.horario).localeCompare(b.fecha+b.horario);});var html='';sorted.forEach(function(b){var d=new Date(b.fecha+'T12:00:00'),label=d.toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'short',year:'numeric'});var tl,tc;if(b.tipo==='dia'){tl='D\u00eda completo';tc='btipo-dia';}else if(b.tipo==='slot'){tl=b.horario+' hs (bloqueado)';tc='btipo-slot';}else{tl=b.horario+' hs \u2728 Extra';tc='btipo-extra';}var ri=bloqueos.indexOf(b);html+='<div class="bloqueo-item"><div class="bloqueo-info">'+label+' <span class="bloqueo-tipo '+tc+'">'+tl+'</span></div><button class="bloqueo-del" onclick="eliminarBloqueo('+ri+')">&#10005;</button></div>';});c.innerHTML=html;}
-function eliminarBloqueo(idx){bloqueos.splice(idx,1);renderCfgCalendar();if(cfgCal.selectedDate)cfgSelectDay(cfgCal.selectedDate,new Date(cfgCal.selectedDate+'T12:00:00'));renderBloqueosList();}
-function checkConfirmWord(){document.getElementById('cfg-save-btn').disabled=document.getElementById('cfg-confirm-input').value.trim().toUpperCase()!=='CONFIRMAR';}
-async function guardarConfig(){var btn=document.getElementById('cfg-save-btn'),fb=document.getElementById('cfg-feedback');btn.disabled=true;btn.textContent='Guardando...';fb.textContent='';fb.className='cfg-feedback';try{await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'saveConfig',bloqueos:bloqueos})});btn.textContent='Guardado!';fb.textContent='Cambios guardados en Google Sheets.';fb.className='cfg-feedback ok';document.getElementById('cfg-confirm-input').value='';setTimeout(function(){btn.textContent='Guardar cambios';btn.disabled=true;fb.textContent='';},3000);}catch(e){btn.textContent='Guardar cambios';btn.disabled=false;fb.textContent='Error al guardar.';fb.className='cfg-feedback err';}}
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+const ADMIN_CONFIG = {
+  PASSWORD: 'estudio2025',
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyEKM_4aseVa8oZs0whSSrWXZjGew1Qqwo0oA9lQ6AvUP-eMoAcSsXkbg1E7nK0VOUVuQ/exec',
+  SLOTS_WEEKDAY: ['18:00','19:00'],
+  SLOTS_SATURDAY: ['10:00','11:00','13:00','14:00']
+};
 
-// ═══════ ASISTENTE IA ═══════
-function showAI(){document.getElementById('turnos-view').style.display='none';document.getElementById('config-screen').classList.remove('show');document.getElementById('ai-screen').classList.add('show');if(document.getElementById('ai-messages').children.length===0){addMsg('ai','Hola! Soy tu asistente del estudio '+String.fromCodePoint(128247)+'\n\nPuedo:\n- Resumir las sesiones de hoy o esta semana\n- Alertar cumplea\u00f1os pr\u00f3ximos\n- Buscar turnos por nombre\n- Reportar pagos pendientes\n- Confirmar, cancelar o reprogramar turnos\n\n\u00bfEn qu\u00e9 te ayudo?');}cargarResumen();}
-function hideAI(){document.getElementById('ai-screen').classList.remove('show');document.getElementById('turnos-view').style.display='block';}
+var allTurnos = [], currentFilter = 'todos', currentMonth = 'todos';
+var cancelTarget = null, bloqueos = [], pendingAction = null, aiHistory = [];
+var cfgCal = { month: new Date().getMonth(), year: new Date().getFullYear(), selectedDate: null };
 
-async function cargarResumen(){
-  var el=document.getElementById('ai-resumen-content');
-  el.textContent='Cargando...';el.className='ai-resumen-content loading';
-  var hoy=new Date(),hoyStr=hoy.toISOString().split('T')[0];
-  var sesHoy=allTurnos.filter(function(t){return t.fecha===hoyStr&&t.estado!=='CANCELADO';}).sort(function(a,b){return a.horario.localeCompare(b.horario);});
-  var cumples=[];
-  allTurnos.forEach(function(t){
-    if(!t.cumpleBebe||t.estado==='CANCELADO')return;
-    var cb=new Date(t.cumpleBebe+'T12:00:00');
-    var esteAnio=new Date(hoy.getFullYear(),cb.getMonth(),cb.getDate());
-    var diff=Math.ceil((esteAnio-hoy)/(1000*60*60*24));
-    if(diff>=0&&diff<=30)cumples.push({nombre:t.nombreBebe,dias:diff,fecha:esteAnio.toLocaleDateString('es-AR',{day:'numeric',month:'long'})});
-    else{var sig=new Date(hoy.getFullYear()+1,cb.getMonth(),cb.getDate());var d2=Math.ceil((sig-hoy)/(1000*60*60*24));if(d2<=30)cumples.push({nombre:t.nombreBebe,dias:d2,fecha:sig.toLocaleDateString('es-AR',{day:'numeric',month:'long'})});}
-  });
-  cumples.sort(function(a,b){return a.dias-b.dias;});
-  var ctx='Sesiones hoy ('+hoyStr+'): ';
-  if(sesHoy.length===0)ctx+='Ninguna.';
-  else ctx+=sesHoy.map(function(t){return t.horario+' - '+t.nombreBebe+' ('+t.tipoSesion+(t.tematica?' / '+t.tematica:'')+') Mam\u00e1: '+t.nombreMama;}).join(' | ');
-  ctx+='. Cumplea\u00f1os pr\u00f3ximos 30 dias: ';
-  if(cumples.length===0)ctx+='Ninguno.';
-  else ctx+=cumples.map(function(c){return c.nombre+' el '+c.fecha+(c.dias===0?' (HOY!)':(c.dias===1?' (ma\u00f1ana)':' (en '+c.dias+' d\u00edas)'));}).join(', ');
-  try{
-    var rParams='?action=geminiResumen&ctx='+encodeURIComponent(ctx);
-    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL+rParams,{mode:'cors'});
-    var data=await resp.json();
-    if(data.ok&&data.reply){el.textContent=data.reply;el.className='ai-resumen-content';}
-    else throw new Error(data.error||'sin respuesta');
-  }catch(e){
-    var txt='';
-    if(sesHoy.length===0)txt='Hoy no hay sesiones programadas.';
-    else if(sesHoy.length===1)txt='Hoy ten\u00e9s 1 sesi\u00f3n: '+sesHoy[0].horario+' hs con '+sesHoy[0].nombreBebe+'  '+sesHoy[0].tipoSesion+'.';
-    else txt='Hoy ten\u00e9s '+sesHoy.length+' sesiones: '+sesHoy.map(function(t){return t.horario+' hs - '+t.nombreBebe;}).join(', ')+'.';
-    if(cumples.length>0&&cumples[0].dias<=7)txt+=' '+String.fromCodePoint(127874)+' '+cumples[0].nombre+' cumple el '+cumples[0].fecha+'!';
-    el.textContent=txt;el.className='ai-resumen-content';
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function cp(n) { return String.fromCodePoint(n); }
+
+function parseHorario(v) {
+  if (!v) return '--';
+  if (typeof v === 'number') {
+    var m = Math.round(v * 24 * 60);
+    return String(Math.floor(m / 60)).padStart(2,'0') + ':' + String(m % 60).padStart(2,'0');
+  }
+  var s = String(v).trim();
+  if (s.startsWith('1899-') || s.startsWith('1900-')) {
+    var d = new Date(s);
+    return String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0');
+  }
+  var h = s.replace('.',':');
+  if (h && !h.includes(':')) h += ':00';
+  return h || '--';
+}
+
+function parseFecha(v) {
+  if (!v) return '';
+  var s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (s.includes('T')) return s.split('T')[0];
+  if (s.includes('/')) {
+    var p = s.split('/');
+    if (p.length === 3) return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
+  }
+  return s;
+}
+
+function normalizeReserva(row, idx) {
+  var g = function(k) {
+    for (var i = 0; i < k.length; i++) {
+      if (row[k[i]] !== undefined && row[k[i]] !== null && row[k[i]] !== '') return row[k[i]];
+    }
+    return '';
+  };
+  var estado = String(g(['estado','Estado']) || 'PENDIENTE').toUpperCase().trim();
+  if (!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado)) estado = 'PENDIENTE';
+  var ts = g(['timestamp','Timestamp']);
+  if (ts instanceof Date) ts = ts.toISOString();
+  if (!ts) ts = new Date().toISOString();
+  return {
+    id: String(g(['id','ID']) || 'T' + String(idx + 1).padStart(3,'0')),
+    timestamp: String(ts),
+    fecha: parseFecha(g(['fecha','Fecha'])),
+    horario: parseHorario(g(['horario','Horario'])),
+    tipoSesion: String(g(['tipoSesion','TipoSesion']) || '--'),
+    tematica: String(g(['tematica','Tematica']) || ''),
+    nombreBebe: String(g(['nombreBebe','NombreBebe']) || '--'),
+    cumpleBebe: parseFecha(g(['cumpleBebe','CumpleBebe'])),
+    nombreMama: String(g(['nombreMama','NombreMama']) || '--'),
+    estado,
+    telefono: String(g(['telefono','Telefono']) || ''),
+    whatsapp: String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
+    notas: String(g(['notas','Notas']) || ''),
+    senya: String(g(['senya','Senya']) || ''),
+    total: String(g(['total','Total']) || ''),
+    resta: String(g(['resta','Resta']) || ''),
+    notasInternas: String(g(['notasInternas','NotasInternas']) || '')
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+// WHATSAPP MENSAJES
+// ═══════════════════════════════════════════════════════════
+function buildMsgConfirm(t, ds) {
+  var l = [
+    'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Turno confirmado! Muchas gracias.',
+    'Te dejo la info:', '',
+    cp(128197) + ' *Fecha:* ' + ds,
+    cp(9200) + ' *Hora:* ' + t.horario + ' hs',
+    cp(128118) + ' *Modelo:* ' + t.nombreBebe,
+    cp(127874) + ' *Sesión:* ' + t.tipoSesion,
+    cp(128105) + ' *Mamá:* ' + t.nombreMama,
+    cp(127912) + ' *Temática:* ' + (t.tematica || '-'),
+    cp(128176) + ' *Seña:* ',
+    cp(128181) + ' *Resta:* ',
+    cp(9989) + ' *Valor cobrado:* ',
+    cp(128203) + ' *Observaciones:* ', '',
+    'Muchas gracias, nos vemos pronto! ' + cp(128248) + cp(128149)
+  ];
+  return encodeURIComponent(l.join('\n'));
+}
+
+function buildMsgRec(t, ds) {
+  var tema = t.tematica ? ' temática ' + t.tematica : '';
+  var l = [
+    cp(10024) + ' Recordatorio de turno ' + cp(10024),
+    'Hola! ' + cp(128522) + ' Te recuerdo que el ' + ds + ' a las ' + t.horario + ' hs tenés tu sesión ' + t.tipoSesion + tema + ' de ' + t.nombreBebe + '.',
+    '',
+    cp(128205) + ' Dirección: Lopez May 2946, Gregorio de Laferrere.',
+    '',
+    cp(128073) + cp(127998) + ' Importante:',
+    '* Traer dos cambios de vestuario para el bebé ' + cp(128118),
+    '* Máximo de personas: 2 adultos (los hermanitos pueden participar en las fotos ' + cp(128149) + '). Abuelo o tía: adicional $10.000',
+    '* Pedimos puntualidad ' + cp(10024),
+    '* ' + cp(161) + 'Los esperamos! ' + cp(128149) + cp(128248)
+  ];
+  return encodeURIComponent(l.join('\n'));
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN / LOGOUT
+// ═══════════════════════════════════════════════════════════
+function doLogin() {
+  if (document.getElementById('pwd-input').value === ADMIN_CONFIG.PASSWORD) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-panel').classList.add('show');
+    loadData();
+    loadConfig();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+    document.getElementById('pwd-input').value = '';
+    setTimeout(function() { document.getElementById('login-error').style.display = 'none'; }, 3000);
   }
 }
 
-function addMsg(role,text){
-  var c=document.getElementById('ai-messages');
-  var div=document.createElement('div');div.className='ai-msg '+role;
-  var av=document.createElement('div');av.className='ai-msg-avatar';av.textContent=role==='ai'?'🤖':'👤';
-  var bub=document.createElement('div');bub.className='ai-msg-bubble';
-  bub.innerHTML=text.replace(/\n/g,'<br>');
-  div.appendChild(av);div.appendChild(bub);
-  c.appendChild(div);c.scrollTop=c.scrollHeight;
+function doLogout() {
+  document.getElementById('admin-panel').classList.remove('show');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pwd-input').value = '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// CARGA DE DATOS
+// ═══════════════════════════════════════════════════════════
+async function loadData() {
+  startLoading();
+  try {
+    var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getAll', { mode: 'cors' });
+    var d = await r.json();
+    if (d.error) throw new Error(d.error);
+    allTurnos = (d.reservas || []).map(function(row, idx) {
+      return normalizeReserva(row, idx);
+    }).filter(function(t) {
+      return t.id && t.id !== '' && (t.nombreBebe !== '--' || t.fecha !== '');
+    });
+    showDebug('');
+  } catch(err) {
+    showDebug('No se pudo conectar.\nError: ' + err.message);
+    if (allTurnos.length === 0) allTurnos = [];
+  }
+  stopLoading();
+  updateStats();
+  renderMonthTabs();
+  renderTurnos();
+  renderDailyPanel();
+  detectarConflictos();
+}
+
+function showDebug(m) {
+  var b = document.getElementById('debug-box');
+  b.style.display = m ? 'block' : 'none';
+  b.textContent = m;
+}
+
+function detectarConflictos() {
+  var map = {};
+  allTurnos.forEach(function(t) {
+    if (t.estado === 'CANCELADO') return;
+    var k = t.fecha + '_' + t.horario;
+    if (!map[k]) map[k] = [];
+    map[k].push(t.id);
+  });
+  allTurnos.forEach(function(t) {
+    var k = t.fecha + '_' + t.horario;
+    t.tieneConflicto = !!(map[k] && map[k].length > 1);
+  });
+  var n = Object.values(map).filter(function(ids) { return ids.length > 1; }).length;
+  if (n > 0) showDebug('\u26a0\ufe0f CONFLICTO: ' + n + ' horario(s) con más de una reserva activa (borde rojo).');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PANEL SESIONES DEL DÍA (sin IA — pura lógica local)
+// ═══════════════════════════════════════════════════════════
+var DP_MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function dpFechaOffset(n) {
+  var d = new Date();
+  d.setDate(d.getDate() + n);
+  return d.toISOString().split('T')[0];
+}
+
+function renderDailyPanel() {
+  var hoyStr   = dpFechaOffset(0);
+  var manaStr  = dpFechaOffset(1);
+  var now      = new Date();
+  var mesLabel = DP_MESES[now.getMonth()];
+  mesLabel = mesLabel.charAt(0).toUpperCase() + mesLabel.slice(1);
+
+  document.getElementById('dp-fecha-num').textContent = now.getDate();
+  document.getElementById('dp-fecha-mes').textContent = mesLabel + ' ' + now.getFullYear();
+
+  var hoy  = allTurnos.filter(function(t) { return t.fecha === hoyStr  && t.estado !== 'CANCELADO'; })
+                       .sort(function(a,b) { return (a.horario||'').localeCompare(b.horario||''); });
+  var mana = allTurnos.filter(function(t) { return t.fecha === manaStr && t.estado !== 'CANCELADO'; })
+                       .sort(function(a,b) { return (a.horario||'').localeCompare(b.horario||''); });
+
+  document.getElementById('dp-count-hoy').textContent =
+    hoy.length === 0 ? 'Sin sesiones' : hoy.length + (hoy.length === 1 ? ' sesión' : ' sesiones');
+  document.getElementById('dp-count-maniana').textContent =
+    mana.length === 0 ? 'Sin sesiones' : mana.length + (mana.length === 1 ? ' sesión' : ' sesiones');
+
+  dpRenderList('dp-list-hoy',   hoy,  'today-card');
+  dpRenderList('dp-list-maniana', mana, 'tomorrow-card');
+
+  var nota = dpNotaCalida(hoy, mana);
+  document.getElementById('dp-warm-text').innerHTML = nota;
+  document.getElementById('dp-warm-note').style.display = 'flex';
+}
+
+function dpRenderList(containerId, list, cardClass) {
+  var c = document.getElementById(containerId);
+  c.innerHTML = '';
+  if (list.length === 0) {
+    var icon  = cardClass === 'today-card' ? '🌿' : '🌙';
+    var msg   = cardClass === 'today-card' ? 'Sin sesiones hoy' : 'Sin sesiones mañana';
+    var nota  = cardClass === 'today-card' ? 'Perfecto para organizar el estudio.' : '¡Disfrutá el descanso!';
+    c.innerHTML = '<div class="empty-day"><div class="empty-icon">' + icon + '</div><p>' + msg + '</p><p class="empty-note">' + nota + '</p></div>';
+    return;
+  }
+  list.forEach(function(t, i) {
+    var div = document.createElement('div');
+    div.className = 'sesion-card ' + cardClass;
+    var eb = t.estado === 'CONFIRMADO'
+      ? '<span class="hora-estado estado-confirmado-badge">Confirmado</span>'
+      : '<span class="hora-estado estado-pendiente-badge">Pendiente</span>';
+    var tema = t.tematica
+      ? '<span class="hora-sep">·</span><span class="meta-tematica">' + t.tematica + '</span>'
+      : '';
+    div.innerHTML =
+      '<div class="sesion-hora">' +
+        '<span class="hora-badge">' + (t.horario || '--') + ' hs</span>' +
+        '<span class="hora-sep">·</span>' + eb +
+      '</div>' +
+      '<div class="sesion-bebe">' + (t.nombreBebe || '--') + '</div>' +
+      '<div class="sesion-meta"><span class="meta-tipo">' + (t.tipoSesion || '--') + '</span>' + tema + '</div>' +
+      '<div class="sesion-mama">👶 ' + (t.nombreMama || '--') + '</div>';
+    c.appendChild(div);
+    // animación escalonada
+    (function(el, delay) {
+      setTimeout(function() { el.classList.add('visible'); }, delay);
+    })(div, 80 + i * 110);
+  });
+}
+
+function dpNotaCalida(hoy, mana) {
+  var total = hoy.length + mana.length;
+  if (total === 0)
+    return '¡Jornada tranquila! Sin sesiones por ahora, perfecto para ordenar el estudio. 🌸';
+  if (hoy.length === 0)
+    return 'Hoy podés preparar todo con calma 🌿 Mañana te esperan <strong>' +
+      mana.length + (mana.length === 1 ? ' sesión' : ' sesiones') + '</strong> llenas de magia!';
+  if (hoy.length === 1)
+    return '¡Hoy un día especial para <strong>' + hoy[0].nombreBebe + '</strong>! Que sea una sesión llena de magia ✨';
+  if (hoy.length === 2)
+    return 'Hoy compartís el estudio con <strong>' + hoy[0].nombreBebe + '</strong> y <strong>' + hoy[1].nombreBebe + '</strong>. ¡Dos momentos únicos para atesorar! 🌸';
+  return '¡Qué lindo día! Hoy compartís el estudio con <strong>' + hoy.length + ' familias</strong> increíbles. Cada momento será un recuerdo para siempre 🌸';
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATS / FILTROS / TABS
+// ═══════════════════════════════════════════════════════════
+function updateStats() {
+  document.getElementById('stat-total').textContent     = allTurnos.length;
+  document.getElementById('stat-pending').textContent   = allTurnos.filter(function(t) { return t.estado === 'PENDIENTE'; }).length;
+  document.getElementById('stat-confirmed').textContent = allTurnos.filter(function(t) { return t.estado === 'CONFIRMADO'; }).length;
+  document.getElementById('stat-cancelled').textContent = allTurnos.filter(function(t) { return t.estado === 'CANCELADO'; }).length;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  currentMonth  = 'todos';
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderMonthTabs();
+  renderTurnos();
+}
+
+function setMonthFilter(ym, btn) {
+  currentMonth = ym;
+  document.querySelectorAll('.month-tab').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderTurnos();
+}
+
+function renderMonthTabs() {
+  var c    = document.getElementById('month-tabs');
+  var list = allTurnos;
+  if (currentFilter !== 'todos') list = list.filter(function(t) { return t.estado.toLowerCase() === currentFilter; });
+  var mm = {};
+  list.forEach(function(t) {
+    if (!t.fecha || t.fecha.length < 7) return;
+    var ym = t.fecha.slice(0, 7);
+    if (!mm[ym]) {
+      var d = new Date(ym + '-01T12:00:00');
+      var l = d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+      mm[ym] = l.charAt(0).toUpperCase() + l.slice(1);
+    }
+  });
+  var months = Object.keys(mm).sort();
+  if (months.length <= 1) { c.innerHTML = ''; return; }
+  var html = '<button class="month-tab ' + (currentMonth === 'todos' ? 'active' : '') + '" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';
+  months.forEach(function(ym) {
+    html += '<button class="month-tab ' + (currentMonth === ym ? 'active' : '') + '" onclick="setMonthFilter(\'' + ym + '\',this)">' + mm[ym] + '</button>';
+  });
+  c.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER TURNOS
+// ═══════════════════════════════════════════════════════════
+function renderTurnos() {
+  var search = document.getElementById('search-input').value.toLowerCase();
+  var list   = allTurnos;
+  if (currentFilter !== 'todos') list = list.filter(function(t) { return t.estado.toLowerCase() === currentFilter; });
+  if (search) list = list.filter(function(t) {
+    return t.nombreBebe.toLowerCase().includes(search) ||
+           t.nombreMama.toLowerCase().includes(search) ||
+           t.fecha.includes(search) ||
+           t.whatsapp.includes(search);
+  });
+  if (currentMonth !== 'todos') list = list.filter(function(t) { return t.fecha && t.fecha.startsWith(currentMonth); });
+  if (currentFilter === 'confirmado') {
+    list.sort(function(a,b) { return (a.fecha||'').localeCompare(b.fecha||'') || (a.horario||'').localeCompare(b.horario||''); });
+  } else {
+    list.sort(function(a,b) { return new Date(b.timestamp) - new Date(a.timestamp); });
+  }
+  renderMonthTabs();
+  var container = document.getElementById('turnos-list');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas</p></div>';
+    return;
+  }
+  var groups = {};
+  list.forEach(function(t) {
+    var ym = (t.fecha || '').slice(0,7) || 'sin-fecha';
+    if (!groups[ym]) groups[ym] = [];
+    groups[ym].push(t);
+  });
+  var sk   = Object.keys(groups).sort();
+  var html = '';
+  sk.forEach(function(ym) {
+    var items = groups[ym];
+    var label = ym;
+    try {
+      var d = new Date(ym + '-01T12:00:00');
+      var l = d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+      label = l.charAt(0).toUpperCase() + l.slice(1);
+    } catch(e) {}
+    if (sk.length > 1) html += '<div class="month-group-header"><span class="month-group-title">' + label + '</span><span class="month-group-count">' + items.length + ' ' + (items.length === 1 ? 'sesión' : 'sesiones') + '</span><div class="month-group-line"></div></div>';
+    html += items.map(function(t) { return buildTurnoCard(t); }).join('');
+  });
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// BUILD TURNO CARD
+// ═══════════════════════════════════════════════════════════
+function waI() {
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>';
+}
+
+function buildTurnoCard(t) {
+  var ds = t.fecha || '--';
+  try {
+    if (t.fecha && t.fecha.length === 10) {
+      var d = new Date(t.fecha + 'T12:00:00');
+      if (!isNaN(d)) ds = d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    }
+  } catch(e) {}
+  var cs = '';
+  try {
+    if (t.cumpleBebe && t.cumpleBebe.length === 10) {
+      var dc = new Date(t.cumpleBebe + 'T12:00:00');
+      if (!isNaN(dc)) cs = dc.toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+    }
+  } catch(e) {}
+  var rs = '--';
+  try { rs = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e) {}
+  var el  = t.estado.toLowerCase();
+  var wn  = t.whatsapp.replace(/\D/g,'');
+  var wf  = wn ? (wn.startsWith('54') ? wn : '54' + wn) : '';
+  var mC  = buildMsgConfirm(t, ds);
+  var mR  = buildMsgRec(t, ds);
+  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank">' + waI() + ' Confirmar+WA</a>' : '';
+  var waR = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mR + '" target="_blank">' + waI() + ' WA record.</a>' : '';
+  var ab  = t.estado === 'PENDIENTE'
+    ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\'' + t.id + '\',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(\'' + t.id + '\')">Cancelar</button>' + waC
+    : t.estado === 'CONFIRMADO'
+      ? waR + '<button class="btn-action btn-cancel-action" onclick="askCancel(\'' + t.id + '\')">Cancelar</button>'
+      : '<button class="btn-action btn-confirm-action" onclick="updateStatus(\'' + t.id + '\',\'PENDIENTE\')">Reactivar</button>';
+  var sN  = parseFloat(t.senya) || 0;
+  var tN  = parseFloat(t.total) || 0;
+  var rN  = tN - sN;
+  var pb  = tN > 0 ? (rN <= 0 ? '<span class="pago-badge saldado">&#10003; Saldado</span>' : '<span class="pago-badge pendiente-pago">Resta $' + rN.toLocaleString('es-AR') + '</span>') : '';
+  var rD  = tN > 0 ? (rN <= 0 ? 'Saldado!' : '$' + rN.toLocaleString('es-AR')) : '$0';
+  var rC  = rN <= 0 && tN > 0 ? 'resta-val saldado' : 'resta-val';
+  var pp  = '<div class="pago-panel" id="pago-' + t.id + '"><div class="pago-titulo">&#128176; Gestión de pago</div><div class="pago-grid"><div class="pago-field"><label>Seña ($)</label><input type="number" id="senya-' + t.id + '" value="' + (t.senya || '') + '" placeholder="15000" oninput="calcResta(\'' + t.id + '\')"></div><div class="pago-field"><label>Total ($)</label><input type="number" id="total-' + t.id + '" value="' + (t.total || '') + '" placeholder="55000" oninput="calcResta(\'' + t.id + '\')"></div></div><div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="' + rC + '" id="resta-' + t.id + '">' + rD + '</span></div><span class="pago-notas-label">Notas internas</span><textarea class="pago-notas" id="notas-int-' + t.id + '">' + (t.notasInternas || '') + '</textarea><button class="pago-save-btn" id="save-btn-' + t.id + '" onclick="guardarPago(\'' + t.id + '\')">Guardar cambios</button></div>';
+  var ch  = t.tieneConflicto ? '<div class="conflicto-badge">&#9888;&#65039; CONFLICTO DE HORARIO</div>' : '';
+  return '<div class="turno-card ' + el + (t.tieneConflicto ? ' conflicto' : '') + '" id="card-' + t.id + '">' + ch +
+    '<div class="turno-top"><div><div class="turno-date">' + ds + '</div><div class="turno-time">' + t.horario + ' hs ' + pb + '</div></div><span class="status-badge badge-' + el + '">' + t.estado + '</span></div>' +
+    '<div class="turno-info">' +
+      '<div class="turno-info-item"><span class="info-key">Bebé</span><span class="info-val">' + t.nombreBebe + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Tipo sesión</span><span class="info-val">' + t.tipoSesion + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Mamá</span><span class="info-val">' + t.nombreMama + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + (t.whatsapp || '--') + '</span></div>' +
+      (t.tematica ? '<div class="turno-info-item"><span class="info-key">Temática</span><span class="info-val">' + t.tematica + '</span></div>' : '') +
+      (cs ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + cs + '</span></div>' : '') +
+      (t.senya ? '<div class="turno-info-item"><span class="info-key">Seña</span><span class="info-val">$' + parseFloat(t.senya).toLocaleString('es-AR') + '</span></div>' : '') +
+      (t.total ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + parseFloat(t.total).toLocaleString('es-AR') + '</span></div>' : '') +
+    '</div>' +
+    (t.notas ? '<div class="turno-notas">"' + t.notas + '"</div>' : '') +
+    (t.notasInternas ? '<div class="turno-notas-int">&#128203; ' + t.notasInternas + '</div>' : '') +
+    '<div class="turno-actions">' + ab + '<button class="btn-action btn-pago-action" onclick="togglePago(\'' + t.id + '\')">&#128176; Pago</button></div>' +
+    pp +
+    '<div class="turno-id">ID: ' + t.id + ' &middot; Reservado: ' + rs + '</div></div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAGO
+// ═══════════════════════════════════════════════════════════
+function togglePago(id) {
+  var p = document.getElementById('pago-' + id);
+  if (!p) return;
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+
+function calcResta(id) {
+  var s  = parseFloat(document.getElementById('senya-' + id).value) || 0;
+  var t  = parseFloat(document.getElementById('total-' + id).value) || 0;
+  var el = document.getElementById('resta-' + id);
+  if (!el) return;
+  if (t > 0) {
+    var r = t - s;
+    el.textContent = r <= 0 ? 'Saldado!' : '$' + r.toLocaleString('es-AR');
+    el.className   = r <= 0 ? 'resta-val saldado' : 'resta-val';
+  } else {
+    el.textContent = '$0';
+    el.className   = 'resta-val';
+  }
+}
+
+async function guardarPago(id) {
+  var sv = (document.getElementById('senya-' + id).value || '').trim();
+  var tv = (document.getElementById('total-' + id).value || '').trim();
+  var nv = (document.getElementById('notas-int-' + id).value || '').trim();
+  var sN = parseFloat(sv) || 0;
+  var tN = parseFloat(tv) || 0;
+  var rv = tN > 0 ? String(tN - sN) : '';
+  var turno = allTurnos.find(function(t) { return t.id === id; });
+  if (turno) { turno.senya = sv; turno.total = tv; turno.resta = rv; turno.notasInternas = nv; }
+  var btn = document.getElementById('save-btn-' + id);
+  if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
+  try {
+    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action:'updatePago', id, senya:sv, total:tv, resta:rv, notasInternas:nv })
+    });
+    if (btn) {
+      btn.textContent = '\u2713 Guardado!';
+      btn.classList.add('saved');
+      setTimeout(function() { btn.textContent = 'Guardar cambios'; btn.classList.remove('saved'); btn.disabled = false; }, 2500);
+    }
+  } catch(e) {
+    if (btn) { btn.textContent = 'Error'; btn.disabled = false; }
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// UPDATE STATUS
+// ═══════════════════════════════════════════════════════════
+async function updateStatus(id, ns) {
+  startLoading();
+  var t = allTurnos.find(function(t) { return t.id === id; });
+  if (t) t.estado = ns;
+  updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
+  try {
+    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action:'updateStatus', id, status:ns })
+    });
+  } catch(e) {}
+  stopLoading();
+}
+
+function askCancel(id)      { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
+function closeModal()       { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
+function confirmCancel()    { if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
+function startLoading()     { document.getElementById('loading-bar').classList.add('loading'); }
+function stopLoading()      { document.getElementById('loading-bar').classList.remove('loading'); }
+
+document.getElementById('cancel-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+function showConfig() {
+  document.getElementById('turnos-view').style.display = 'none';
+  document.getElementById('ai-screen').classList.remove('show');
+  document.getElementById('config-screen').classList.add('show');
+  renderCfgCalendar();
+  renderBloqueosList();
+}
+function hideConfig() {
+  document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('turnos-view').style.display = 'block';
+}
+
+async function loadConfig() {
+  try {
+    var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getConfig', { mode: 'cors' });
+    var d = await r.json();
+    bloqueos = (d.bloqueos || []).map(function(b) { return { tipo: b.tipo||'dia', fecha: b.fecha||'', horario: b.horario||'' }; });
+  } catch(e) { bloqueos = []; }
+}
+
+var CFG_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var CFG_DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+
+function cfgPrevMonth() {
+  if (cfgCal.month === 0) { cfgCal.month = 11; cfgCal.year--; } else cfgCal.month--;
+  cfgCal.selectedDate = null;
+  document.getElementById('cfg-day-panel').classList.remove('show');
+  renderCfgCalendar();
+}
+function cfgNextMonth() {
+  if (cfgCal.month === 11) { cfgCal.month = 0; cfgCal.year++; } else cfgCal.month++;
+  cfgCal.selectedDate = null;
+  document.getElementById('cfg-day-panel').classList.remove('show');
+  renderCfgCalendar();
+}
+
+function renderCfgCalendar() {
+  document.getElementById('cfg-cal-month').textContent = CFG_MONTHS[cfgCal.month] + ' ' + cfgCal.year;
+  var grid  = document.getElementById('cfg-cal-grid');
+  grid.innerHTML = '';
+  CFG_DAYS.forEach(function(d) {
+    var el = document.createElement('div'); el.className = 'cfg-day-name'; el.textContent = d; grid.appendChild(el);
+  });
+  var today = new Date(); today.setHours(0,0,0,0);
+  var fd    = new Date(cfgCal.year, cfgCal.month, 1).getDay();
+  var dm    = new Date(cfgCal.year, cfgCal.month + 1, 0).getDate();
+  for (var i = 0; i < fd; i++) { var e = document.createElement('div'); e.className = 'cfg-day empty'; grid.appendChild(e); }
+  for (var day = 1; day <= dm; day++) {
+    var date = new Date(cfgCal.year, cfgCal.month, day);
+    var ds   = fmtDateCfg(date);
+    var el   = document.createElement('div');
+    el.innerHTML = '<span>' + day + '</span>';
+    var ip  = date < today;
+    var tbd = bloqueos.some(function(b) { return b.tipo === 'dia'  && b.fecha === ds; });
+    var tbs = bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === ds; });
+    var te  = bloqueos.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds; });
+    var cls = 'cfg-day';
+    if (ip) { cls += ' past'; }
+    else {
+      if (tbd) {
+        cls += ' selected-day';
+        var dot = document.createElement('div'); dot.className = 'cfg-dot bloq'; el.appendChild(dot);
+      } else if (tbs) {
+        cls += ' partial';
+        var dot = document.createElement('div'); dot.className = 'cfg-dot part'; el.appendChild(dot);
+      }
+      if (te && !tbd) {
+        cls += ' has-extra';
+        var dot2 = document.createElement('div'); dot2.className = 'cfg-dot extra'; el.appendChild(dot2);
+      }
+      if (cfgCal.selectedDate === ds) cls += ' selected-day';
+      (function(s, dt) { el.onclick = function() { cfgSelectDay(s, dt); }; })(ds, date);
+    }
+    el.className = cls;
+    grid.appendChild(el);
+  }
+}
+
+function fmtDateCfg(d) { return d.toISOString().split('T')[0]; }
+
+function cfgSelectDay(ds, dateObj) {
+  cfgCal.selectedDate = ds;
+  renderCfgCalendar();
+  var panel = document.getElementById('cfg-day-panel');
+  panel.classList.add('show');
+  var d = new Date(ds + 'T12:00:00');
+  document.getElementById('cfg-day-panel-title').textContent =
+    d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+     .replace(/^\w/, function(c) { return c.toUpperCase(); });
+  var tbd    = bloqueos.some(function(b) { return b.tipo === 'dia' && b.fecha === ds; });
+  var btnDia = document.getElementById('btn-blq-dia');
+  btnDia.textContent = tbd ? '\u2705 Día bloqueado (tap para desbloquear)' : '\uD83D\uDEAB Bloquear día completo';
+  btnDia.className   = tbd ? 'cfg-opt-btn active-block' : 'cfg-opt-btn';
+  var dow   = dateObj.getDay();
+  var slots = dow === 6 ? ADMIN_CONFIG.SLOTS_SATURDAY : (dow >= 1 && dow <= 5 ? ADMIN_CONFIG.SLOTS_WEEKDAY : []);
+  var sw    = document.getElementById('cfg-slots-wrap');
+  var sg    = document.getElementById('cfg-slot-grid');
+  if (slots.length > 0 && !tbd) {
+    sw.style.display = 'block';
+    sg.innerHTML = '';
+    slots.forEach(function(time) {
+      var ib  = bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === ds && b.horario === time; });
+      var btn = document.createElement('button');
+      btn.className = 'cfg-slot' + (ib ? ' bloqueado' : '');
+      btn.textContent = time + ' hs' + (ib ? ' \uD83D\uDD12' : '');
+      btn.onclick = function() { toggleBloquearSlot(ds, time); };
+      sg.appendChild(btn);
+    });
+  } else { sw.style.display = 'none'; }
+  var es = document.getElementById('cfg-extra-section');
+  if (!tbd) {
+    es.style.display = 'block';
+    document.getElementById('cfg-extra-input').value = '';
+    document.getElementById('cfg-extra-error').style.display = 'none';
+    renderExtraList(ds);
+  } else { es.style.display = 'none'; }
+}
+
+function toggleBloquearDia() {
+  var ds  = cfgCal.selectedDate;
+  if (!ds) return;
+  var idx = bloqueos.findIndex(function(b) { return b.tipo === 'dia' && b.fecha === ds; });
+  if (idx >= 0) bloqueos.splice(idx, 1);
+  else { bloqueos = bloqueos.filter(function(b) { return !(b.fecha === ds); }); bloqueos.push({ tipo:'dia', fecha:ds, horario:'' }); }
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function toggleBloquearSlot(ds, h) {
+  var idx = bloqueos.findIndex(function(b) { return b.tipo === 'slot' && b.fecha === ds && b.horario === h; });
+  if (idx >= 0) bloqueos.splice(idx, 1);
+  else bloqueos.push({ tipo:'slot', fecha:ds, horario:h });
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function formatExtraInput(input) {
+  var v = input.value.replace(/[^0-9:]/g,'');
+  if (v.length === 2 && !v.includes(':')) v = v + ':';
+  input.value = v;
+}
+function validarHorario(h) { return /^([01]?\d|2[0-3]):([0-5]\d)$/.test(h); }
+
+function agregarSlotExtra() {
+  var ds     = cfgCal.selectedDate;
+  if (!ds) return;
+  var input  = document.getElementById('cfg-extra-input');
+  var errEl  = document.getElementById('cfg-extra-error');
+  var h      = input.value.trim();
+  if (!validarHorario(h)) { errEl.style.display = 'block'; input.focus(); return; }
+  errEl.style.display = 'none';
+  var p = h.split(':');
+  h = p[0].padStart(2,'0') + ':' + p[1];
+  if (bloqueos.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds && b.horario === h; })) { input.value = ''; return; }
+  bloqueos.push({ tipo:'slot_extra', fecha:ds, horario:h });
+  input.value = '';
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function eliminarSlotExtra(ds, h) {
+  var idx = bloqueos.findIndex(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds && b.horario === h; });
+  if (idx >= 0) bloqueos.splice(idx, 1);
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function renderExtraList(ds) {
+  var c  = document.getElementById('cfg-extra-list');
+  var ex = bloqueos.filter(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds; })
+                   .sort(function(a,b) { return a.horario.localeCompare(b.horario); });
+  if (ex.length === 0) { c.innerHTML = '<span style="font-size:12px;color:var(--text-light);">Ningún horario extra</span>'; return; }
+  c.innerHTML = ex.map(function(b) {
+    return '<span class="cfg-extra-tag">' + b.horario + ' hs <button class="cfg-extra-tag-del" onclick="eliminarSlotExtra(\'' + b.fecha + '\',\'' + b.horario + '\')">&#10005;</button></span>';
+  }).join('');
+}
+
+function renderBloqueosList() {
+  var c = document.getElementById('bloqueos-lista');
+  if (bloqueos.length === 0) { c.innerHTML = '<div class="empty-bloqueos">No hay cambios configurados</div>'; return; }
+  var sorted = bloqueos.slice().sort(function(a,b) { return (a.fecha + a.horario).localeCompare(b.fecha + b.horario); });
+  var html = '';
+  sorted.forEach(function(b) {
+    var d     = new Date(b.fecha + 'T12:00:00');
+    var label = d.toLocaleDateString('es-AR', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    var tl, tc;
+    if (b.tipo === 'dia')        { tl = 'Día completo'; tc = 'btipo-dia'; }
+    else if (b.tipo === 'slot')  { tl = b.horario + ' hs (bloqueado)'; tc = 'btipo-slot'; }
+    else                         { tl = b.horario + ' hs ✨ Extra'; tc = 'btipo-extra'; }
+    var ri = bloqueos.indexOf(b);
+    html += '<div class="bloqueo-item"><div class="bloqueo-info">' + label + ' <span class="bloqueo-tipo ' + tc + '">' + tl + '</span></div><button class="bloqueo-del" onclick="eliminarBloqueo(' + ri + ')">&#10005;</button></div>';
+  });
+  c.innerHTML = html;
+}
+
+function eliminarBloqueo(idx) {
+  bloqueos.splice(idx, 1);
+  renderCfgCalendar();
+  if (cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate + 'T12:00:00'));
+  renderBloqueosList();
+}
+
+function checkConfirmWord() {
+  document.getElementById('cfg-save-btn').disabled =
+    document.getElementById('cfg-confirm-input').value.trim().toUpperCase() !== 'CONFIRMAR';
+}
+
+async function guardarConfig() {
+  var btn = document.getElementById('cfg-save-btn');
+  var fb  = document.getElementById('cfg-feedback');
+  btn.disabled = true; btn.textContent = 'Guardando...'; fb.textContent = ''; fb.className = 'cfg-feedback';
+  try {
+    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action:'saveConfig', bloqueos })
+    });
+    btn.textContent = 'Guardado!';
+    fb.textContent  = 'Cambios guardados en Google Sheets.';
+    fb.className    = 'cfg-feedback ok';
+    document.getElementById('cfg-confirm-input').value = '';
+    setTimeout(function() { btn.textContent = 'Guardar cambios'; btn.disabled = true; fb.textContent = ''; }, 3000);
+  } catch(e) {
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+    fb.textContent  = 'Error al guardar.'; fb.className = 'cfg-feedback err';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ASISTENTE IA
+// ═══════════════════════════════════════════════════════════
+function showAI() {
+  document.getElementById('turnos-view').style.display = 'none';
+  document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('ai-screen').classList.add('show');
+  if (document.getElementById('ai-messages').children.length === 0) {
+    addMsg('ai', 'Hola! Soy tu asistente del estudio 📷\n\nPuedo:\n- Resumir las sesiones de hoy o esta semana\n- Alertar cumpleaños próximos\n- Buscar turnos por nombre\n- Reportar pagos pendientes\n- Confirmar, cancelar o reprogramar turnos\n\n¿En qué te ayudo?');
+  }
+  cargarResumen();
+}
+function hideAI() {
+  document.getElementById('ai-screen').classList.remove('show');
+  document.getElementById('turnos-view').style.display = 'block';
+}
+
+async function cargarResumen() {
+  var el = document.getElementById('ai-resumen-content');
+  el.textContent = 'Cargando...'; el.className = 'ai-resumen-content loading';
+  var hoy     = new Date();
+  var hoyStr  = hoy.toISOString().split('T')[0];
+  var sesHoy  = allTurnos.filter(function(t) { return t.fecha === hoyStr && t.estado !== 'CANCELADO'; })
+                          .sort(function(a,b) { return a.horario.localeCompare(b.horario); });
+  var cumples = [];
+  allTurnos.forEach(function(t) {
+    if (!t.cumpleBebe || t.estado === 'CANCELADO') return;
+    var cb       = new Date(t.cumpleBebe + 'T12:00:00');
+    var esteAnio = new Date(hoy.getFullYear(), cb.getMonth(), cb.getDate());
+    var diff     = Math.ceil((esteAnio - hoy) / (1000 * 60 * 60 * 24));
+    if (diff >= 0 && diff <= 30)
+      cumples.push({ nombre:t.nombreBebe, dias:diff, fecha:esteAnio.toLocaleDateString('es-AR', { day:'numeric', month:'long' }) });
+    else {
+      var sig  = new Date(hoy.getFullYear() + 1, cb.getMonth(), cb.getDate());
+      var d2   = Math.ceil((sig - hoy) / (1000 * 60 * 60 * 24));
+      if (d2 <= 30) cumples.push({ nombre:t.nombreBebe, dias:d2, fecha:sig.toLocaleDateString('es-AR', { day:'numeric', month:'long' }) });
+    }
+  });
+  cumples.sort(function(a,b) { return a.dias - b.dias; });
+  var ctx = 'Sesiones hoy (' + hoyStr + '): ';
+  if (sesHoy.length === 0) ctx += 'Ninguna.';
+  else ctx += sesHoy.map(function(t) { return t.horario + ' - ' + t.nombreBebe + ' (' + t.tipoSesion + (t.tematica ? ' / ' + t.tematica : '') + ') Mamá: ' + t.nombreMama; }).join(' | ');
+  ctx += '. Cumpleaños próximos 30 dias: ';
+  if (cumples.length === 0) ctx += 'Ninguno.';
+  else ctx += cumples.map(function(c) { return c.nombre + ' el ' + c.fecha + (c.dias === 0 ? ' (HOY!)' : (c.dias === 1 ? ' (mañana)' : ' (en ' + c.dias + ' días)')); }).join(', ');
+  try {
+    var rParams = '?action=geminiResumen&ctx=' + encodeURIComponent(ctx);
+    var resp    = await fetch(ADMIN_CONFIG.SCRIPT_URL + rParams, { mode: 'cors' });
+    var data    = await resp.json();
+    if (data.ok && data.reply) { el.textContent = data.reply; el.className = 'ai-resumen-content'; }
+    else throw new Error(data.error || 'sin respuesta');
+  } catch(e) {
+    var txt = '';
+    if (sesHoy.length === 0)      txt = 'Hoy no hay sesiones programadas.';
+    else if (sesHoy.length === 1) txt = 'Hoy tenés 1 sesión: ' + sesHoy[0].horario + ' hs con ' + sesHoy[0].nombreBebe + ' — ' + sesHoy[0].tipoSesion + '.';
+    else                          txt = 'Hoy tenés ' + sesHoy.length + ' sesiones: ' + sesHoy.map(function(t) { return t.horario + ' hs - ' + t.nombreBebe; }).join(', ') + '.';
+    if (cumples.length > 0 && cumples[0].dias <= 7) txt += ' 🎂 ' + cumples[0].nombre + ' cumple el ' + cumples[0].fecha + '!';
+    el.textContent = txt; el.className = 'ai-resumen-content';
+  }
+}
+
+function addMsg(role, text) {
+  var c   = document.getElementById('ai-messages');
+  var div = document.createElement('div'); div.className = 'ai-msg ' + role;
+  var av  = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = role === 'ai' ? '🤖' : '👤';
+  var bub = document.createElement('div'); bub.className = 'ai-msg-bubble';
+  bub.innerHTML = text.replace(/\n/g,'<br>');
+  div.appendChild(av); div.appendChild(bub);
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
   return bub;
 }
-function addLoadingMsg(){
-  var c=document.getElementById('ai-messages');
-  var div=document.createElement('div');div.className='ai-msg ai';
-  var av=document.createElement('div');av.className='ai-msg-avatar';av.textContent='🤖';
-  var bub=document.createElement('div');bub.className='ai-msg-bubble ai-typing';bub.textContent='...';
-  div.appendChild(av);div.appendChild(bub);
-  c.appendChild(div);c.scrollTop=c.scrollHeight;
-  return {div:div,bub:bub};
+function addLoadingMsg() {
+  var c   = document.getElementById('ai-messages');
+  var div = document.createElement('div'); div.className = 'ai-msg ai';
+  var av  = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = '🤖';
+  var bub = document.createElement('div'); bub.className = 'ai-msg-bubble ai-typing'; bub.textContent = '...';
+  div.appendChild(av); div.appendChild(bub);
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
+  return { div, bub };
 }
-function addActionCard(action){
-  var c=document.getElementById('ai-messages');
-  var div=document.createElement('div');div.className='ai-msg ai';
-  var av=document.createElement('div');av.className='ai-msg-avatar';av.textContent='🤖';
-  var bub=document.createElement('div');bub.className='ai-msg-bubble';
-  var card=document.createElement('div');card.className='ai-accion-card';
-  card.innerHTML='<div class="ai-accion-title">&#128203; Acci\u00f3n pendiente de confirmaci\u00f3n</div><div class="ai-accion-detail">'+action.descripcion+'</div><div class="ai-accion-btns"><button class="ai-accion-ok" onclick="ejecutarAccion()">&#10003; Confirmar</button><button class="ai-accion-cancel" onclick="cancelarAccion()">Cancelar</button></div>';
-  bub.appendChild(card);div.appendChild(av);div.appendChild(bub);
-  c.appendChild(div);c.scrollTop=c.scrollHeight;
+function addActionCard(action) {
+  var c    = document.getElementById('ai-messages');
+  var div  = document.createElement('div'); div.className = 'ai-msg ai';
+  var av   = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = '🤖';
+  var bub  = document.createElement('div'); bub.className = 'ai-msg-bubble';
+  var card = document.createElement('div'); card.className = 'ai-accion-card';
+  card.innerHTML = '<div class="ai-accion-title">&#128203; Acción pendiente de confirmación</div><div class="ai-accion-detail">' + action.descripcion + '</div><div class="ai-accion-btns"><button class="ai-accion-ok" onclick="ejecutarAccion()">&#10003; Confirmar</button><button class="ai-accion-cancel" onclick="cancelarAccion()">Cancelar</button></div>';
+  bub.appendChild(card); div.appendChild(av); div.appendChild(bub);
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
 }
-function sendSug(btn){var t=btn.textContent.trim();document.getElementById('ai-input').value=t;sendMessage();}
-function aiKeydown(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,90)+'px';}
+function sendSug(btn) { var t = btn.textContent.trim(); document.getElementById('ai-input').value = t; sendMessage(); }
+function aiKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 90) + 'px'; }
 
-async function sendMessage(){
-  var inputEl=document.getElementById('ai-input'),text=inputEl.value.trim();
-  if(!text)return;
-  inputEl.value='';inputEl.style.height='auto';
-  document.getElementById('ai-send-btn').disabled=true;
-  addMsg('user',text);
-  aiHistory.push({role:'user',content:text});
-  var loading=addLoadingMsg();
-  var hoyStr=new Date().toISOString().split('T')[0];
-  var ctx=JSON.stringify(allTurnos.filter(function(t){return t.estado!=='CANCELADO';}).map(function(t){return{id:t.id,fecha:t.fecha,horario:t.horario,nombreBebe:t.nombreBebe,nombreMama:t.nombreMama,tipoSesion:t.tipoSesion,tematica:t.tematica,estado:t.estado,cumpleBebe:t.cumpleBebe,whatsapp:t.whatsapp,senya:t.senya,total:t.total,resta:t.resta};}));
-  try{
-    // POST con text/plain evita el preflight CORS — el Script lo parsea igual
-    var payload=JSON.stringify({action:'geminiChat',hoy:hoyStr,turnosCtx:ctx,messages:aiHistory.slice(0,-1)});
-    var resp=await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain'},body:payload});
-    var data=await resp.json();
-    if(!data.ok)throw new Error(data.error||'Error del servidor');
-    var rt=data.reply;
-    aiHistory.push({role:'assistant',content:rt});
-    var am=rt.match(/```action\n([\s\S]*?)\n```/);
-    var dt=rt.replace(/```action[\s\S]*?```/g,'').trim();
+async function sendMessage() {
+  var inputEl = document.getElementById('ai-input');
+  var text    = inputEl.value.trim();
+  if (!text) return;
+  inputEl.value = ''; inputEl.style.height = 'auto';
+  document.getElementById('ai-send-btn').disabled = true;
+  addMsg('user', text);
+  aiHistory.push({ role:'user', content:text });
+  var loading = addLoadingMsg();
+  var hoyStr  = new Date().toISOString().split('T')[0];
+  var ctx     = JSON.stringify(allTurnos.filter(function(t) { return t.estado !== 'CANCELADO'; }).map(function(t) {
+    return { id:t.id, fecha:t.fecha, horario:t.horario, nombreBebe:t.nombreBebe, nombreMama:t.nombreMama,
+             tipoSesion:t.tipoSesion, tematica:t.tematica, estado:t.estado, cumpleBebe:t.cumpleBebe,
+             whatsapp:t.whatsapp, senya:t.senya, total:t.total, resta:t.resta };
+  }));
+  try {
+    var payload = JSON.stringify({ action:'geminiChat', hoy:hoyStr, turnosCtx:ctx, messages:aiHistory.slice(0,-1) });
+    var resp    = await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:payload });
+    var data    = await resp.json();
+    if (!data.ok) throw new Error(data.error || 'Error del servidor');
+    var rt  = data.reply;
+    aiHistory.push({ role:'assistant', content:rt });
+    var am  = rt.match(/```action\n([\s\S]*?)\n```/);
+    var dt  = rt.replace(/```action[\s\S]*?```/g,'').trim();
     loading.div.remove();
-    addMsg('ai',dt);
-    if(am){try{var action=JSON.parse(am[1]);pendingAction=action;addActionCard(action);}catch(e){}}
-  }catch(e){
+    addMsg('ai', dt);
+    if (am) { try { var action = JSON.parse(am[1]); pendingAction = action; addActionCard(action); } catch(e) {} }
+  } catch(e) {
     loading.bub.classList.remove('ai-typing');
-    loading.bub.innerHTML='\u274C Error: '+e.message;
+    loading.bub.innerHTML = '\u274C Error: ' + e.message;
   }
-  document.getElementById('ai-send-btn').disabled=false;
-  document.getElementById('ai-messages').scrollTop=document.getElementById('ai-messages').scrollHeight;
+  document.getElementById('ai-send-btn').disabled = false;
+  document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
 }
 
-async function ejecutarAccion(){
-  if(!pendingAction)return;
-  var action=pendingAction;pendingAction=null;
-  document.querySelectorAll('.ai-accion-card').forEach(function(c){c.closest('.ai-msg').remove();});
-  var loading=addLoadingMsg();
-  try{
-    if(action.tipo==='updateStatus'){
-      await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'updateStatus',id:action.id,status:action.newStatus})});
-      var t=allTurnos.find(function(x){return x.id===action.id;});if(t)t.estado=action.newStatus;
-      updateStats();renderMonthTabs();renderTurnos();
-      loading.div.remove();addMsg('ai','\u2705 Listo! El turno fue actualizado correctamente.');
-    }else if(action.tipo==='reprogramar'){
-      await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'reprogramar',id:action.id,newFecha:action.newFecha,newHorario:action.newHorario})});
-      var t=allTurnos.find(function(x){return x.id===action.id;});
-      if(t){if(action.newFecha)t.fecha=action.newFecha;if(action.newHorario)t.horario=action.newHorario;}
-      updateStats();renderMonthTabs();renderTurnos();
-      loading.div.remove();addMsg('ai','\u2705 Turno reprogramado! Los cambios se guardaron en Sheets.');
-    }else if(['bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'].indexOf(action.tipo)>=0){
-      var fecha=action.fecha;
-      if(action.tipo==='bloquearDia'){
-        bloqueos=bloqueos.filter(function(b){return b.fecha!==fecha;});
-        bloqueos.push({tipo:'dia',fecha:fecha,horario:'',nota:action.descripcion||''});
-      }else if(action.tipo==='desbloquearDia'){
-        bloqueos=bloqueos.filter(function(b){return!(b.tipo==='dia'&&b.fecha===fecha);});
-      }else if(action.tipo==='bloquearSlot'){
-        if(!bloqueos.some(function(b){return b.tipo==='slot'&&b.fecha===fecha&&b.horario===action.horario;}))
-          bloqueos.push({tipo:'slot',fecha:fecha,horario:action.horario,nota:''});
-      }else if(action.tipo==='desbloquearSlot'){
-        bloqueos=bloqueos.filter(function(b){return!(b.tipo==='slot'&&b.fecha===fecha&&b.horario===action.horario);});
-      }else if(action.tipo==='agregarSlotExtra'){
-        if(!bloqueos.some(function(b){return b.tipo==='slot_extra'&&b.fecha===fecha&&b.horario===action.horario;}))
-          bloqueos.push({tipo:'slot_extra',fecha:fecha,horario:action.horario,nota:''});
+async function ejecutarAccion() {
+  if (!pendingAction) return;
+  var action = pendingAction; pendingAction = null;
+  document.querySelectorAll('.ai-accion-card').forEach(function(c) { c.closest('.ai-msg').remove(); });
+  var loading = addLoadingMsg();
+  try {
+    if (action.tipo === 'updateStatus') {
+      await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'updateStatus', id:action.id, status:action.newStatus }) });
+      var t = allTurnos.find(function(x) { return x.id === action.id; }); if (t) t.estado = action.newStatus;
+      updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
+      loading.div.remove(); addMsg('ai','\u2705 Listo! El turno fue actualizado correctamente.');
+    } else if (action.tipo === 'reprogramar') {
+      await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'reprogramar', id:action.id, newFecha:action.newFecha, newHorario:action.newHorario }) });
+      var t = allTurnos.find(function(x) { return x.id === action.id; });
+      if (t) { if (action.newFecha) t.fecha = action.newFecha; if (action.newHorario) t.horario = action.newHorario; }
+      updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
+      loading.div.remove(); addMsg('ai','\u2705 Turno reprogramado! Los cambios se guardaron en Sheets.');
+    } else if (['bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'].indexOf(action.tipo) >= 0) {
+      var fecha = action.fecha;
+      if (action.tipo === 'bloquearDia') {
+        bloqueos = bloqueos.filter(function(b) { return b.fecha !== fecha; });
+        bloqueos.push({ tipo:'dia', fecha, horario:'', nota:action.descripcion||'' });
+      } else if (action.tipo === 'desbloquearDia') {
+        bloqueos = bloqueos.filter(function(b) { return !(b.tipo === 'dia' && b.fecha === fecha); });
+      } else if (action.tipo === 'bloquearSlot') {
+        if (!bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario; }))
+          bloqueos.push({ tipo:'slot', fecha, horario:action.horario, nota:'' });
+      } else if (action.tipo === 'desbloquearSlot') {
+        bloqueos = bloqueos.filter(function(b) { return !(b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario); });
+      } else if (action.tipo === 'agregarSlotExtra') {
+        if (!bloqueos.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === fecha && b.horario === action.horario; }))
+          bloqueos.push({ tipo:'slot_extra', fecha, horario:action.horario, nota:'' });
       }
-      await fetch(ADMIN_CONFIG.SCRIPT_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'saveConfig',bloqueos:bloqueos})});
-      loading.div.remove();addMsg('ai','\u2705 Listo! Configuraci\u00f3n actualizada y guardada en Sheets.');
+      await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'saveConfig', bloqueos }) });
+      loading.div.remove(); addMsg('ai','\u2705 Listo! Configuración actualizada y guardada en Sheets.');
     }
-    aiHistory.push({role:'assistant',content:'Acci\u00f3n ejecutada: '+action.descripcion});
-  }catch(e){loading.bub.classList.remove('ai-typing');loading.bub.innerHTML='\u274C Error al ejecutar. Intent\u00e1 de nuevo.';}
+    aiHistory.push({ role:'assistant', content:'Acción ejecutada: ' + action.descripcion });
+  } catch(e) {
+    loading.bub.classList.remove('ai-typing');
+    loading.bub.innerHTML = '\u274C Error al ejecutar. Intentá de nuevo.';
+  }
 }
-function cancelarAccion(){
-  pendingAction=null;
-  document.querySelectorAll('.ai-accion-card').forEach(function(c){c.closest('.ai-msg').remove();});
-  addMsg('ai','Entendido, no hice ning\u00fan cambio. \u00bFQuer\u00e9s hacer algo m\u00e1s?');
+
+function cancelarAccion() {
+  pendingAction = null;
+  document.querySelectorAll('.ai-accion-card').forEach(function(c) { c.closest('.ai-msg').remove(); });
+  addMsg('ai', 'Entendido, no hice ningún cambio. ¿Querés hacer algo más?');
 }
 </script>
 </body>
