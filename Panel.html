@@ -122,6 +122,10 @@
   .turno-card.pendiente{border-left-color:var(--warning);}
   .turno-card.confirmado{border-left-color:var(--success);}
   .turno-card.cancelado{border-left-color:var(--danger);opacity:.65;}
+  .turno-card.realizada{background:#f4f4f2;border-left-color:#b0a89a;opacity:.82;}
+  .turno-card.realizada .turno-date{color:#9a9088;}
+  .turno-card.realizada .info-val{color:#9a9088;}
+  .badge-realizada{background:#ece9e4;color:#9a9088;}
   .turno-card.conflicto{border:2px solid var(--danger)!important;}
   .conflicto-badge{background:var(--danger);color:white;font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;margin-bottom:8px;display:inline-block;}
   .turno-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px;}
@@ -375,7 +379,7 @@
     <!-- FIN PANEL SESIONES DEL DÍA -->
 
     <div class="stats-row">
-      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Reservas totales</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Próximas este mes</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendientes</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-confirmed">0</div><div class="stat-label">Confirmadas</div></div>
       <div class="stat-card"><div class="stat-num" id="stat-cancelled">0</div><div class="stat-label">Canceladas</div></div>
@@ -773,7 +777,14 @@ function dpNotaCalida(hoy, mana) {
 // STATS / FILTROS / TABS
 // ═══════════════════════════════════════════════════════════
 function updateStats() {
-  document.getElementById('stat-total').textContent     = allTurnos.length;
+  var hoy    = new Date(); hoy.setHours(0,0,0,0);
+  var hoyStr = hoy.toISOString().split('T')[0];
+  var mesActual = hoyStr.slice(0,7); // "YYYY-MM"
+  // Próximas este mes: no canceladas, fecha >= hoy, en el mes corriente
+  var proximas = allTurnos.filter(function(t) {
+    return t.estado !== 'CANCELADO' && t.fecha && t.fecha >= hoyStr && t.fecha.startsWith(mesActual);
+  }).length;
+  document.getElementById('stat-total').textContent     = proximas;
   document.getElementById('stat-pending').textContent   = allTurnos.filter(function(t) { return t.estado === 'PENDIENTE'; }).length;
   document.getElementById('stat-confirmed').textContent = allTurnos.filter(function(t) { return t.estado === 'CONFIRMADO'; }).length;
   document.getElementById('stat-cancelled').textContent = allTurnos.filter(function(t) { return t.estado === 'CANCELADO'; }).length;
@@ -896,6 +907,11 @@ function buildTurnoCard(t) {
   } catch(e) {}
   var rs = '--';
   try { rs = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e) {}
+
+  // Detectar si la sesión ya pasó (fecha anterior a hoy, no cancelada)
+  var hoyStr2 = new Date().toISOString().split('T')[0];
+  var esPasada = t.estado !== 'CANCELADO' && t.fecha && t.fecha < hoyStr2;
+
   var el  = t.estado.toLowerCase();
   var wn  = t.whatsapp.replace(/\D/g,'');
   var wf  = wn ? (wn.startsWith('54') ? wn : '54' + wn) : '';
@@ -916,8 +932,14 @@ function buildTurnoCard(t) {
   var rC  = rN <= 0 && tN > 0 ? 'resta-val saldado' : 'resta-val';
   var pp  = '<div class="pago-panel" id="pago-' + t.id + '"><div class="pago-titulo">&#128176; Gestión de pago</div><div class="pago-grid"><div class="pago-field"><label>Seña ($)</label><input type="number" id="senya-' + t.id + '" value="' + (t.senya || '') + '" placeholder="15000" oninput="calcResta(\'' + t.id + '\')"></div><div class="pago-field"><label>Total ($)</label><input type="number" id="total-' + t.id + '" value="' + (t.total || '') + '" placeholder="55000" oninput="calcResta(\'' + t.id + '\')"></div></div><div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="' + rC + '" id="resta-' + t.id + '">' + rD + '</span></div><span class="pago-notas-label">Notas internas</span><textarea class="pago-notas" id="notas-int-' + t.id + '">' + (t.notasInternas || '') + '</textarea><button class="pago-save-btn" id="save-btn-' + t.id + '" onclick="guardarPago(\'' + t.id + '\')">Guardar cambios</button></div>';
   var ch  = t.tieneConflicto ? '<div class="conflicto-badge">&#9888;&#65039; CONFLICTO DE HORARIO</div>' : '';
-  return '<div class="turno-card ' + el + (t.tieneConflicto ? ' conflicto' : '') + '" id="card-' + t.id + '">' + ch +
-    '<div class="turno-top"><div><div class="turno-date">' + ds + '</div><div class="turno-time">' + t.horario + ' hs ' + pb + '</div></div><span class="status-badge badge-' + el + '">' + t.estado + '</span></div>' +
+
+  // Badge de estado: si pasó, mostrar "REALIZADA" encima del estado normal
+  var badgePasada = esPasada ? '<span class="status-badge badge-realizada">&#10003; Realizada</span>' : '';
+  var cardExtra   = esPasada ? ' realizada' : '';
+  var badgeEstado = esPasada ? badgePasada : '<span class="status-badge badge-' + el + '">' + t.estado + '</span>';
+
+  return '<div class="turno-card ' + el + cardExtra + (t.tieneConflicto ? ' conflicto' : '') + '" id="card-' + t.id + '">' + ch +
+    '<div class="turno-top"><div><div class="turno-date">' + ds + '</div><div class="turno-time">' + t.horario + ' hs ' + pb + '</div></div>' + badgeEstado + '</div>' +
     '<div class="turno-info">' +
       '<div class="turno-info-item"><span class="info-key">Bebé</span><span class="info-val">' + t.nombreBebe + '</span></div>' +
       '<div class="turno-info-item"><span class="info-key">Tipo sesión</span><span class="info-val">' + t.tipoSesion + '</span></div>' +
