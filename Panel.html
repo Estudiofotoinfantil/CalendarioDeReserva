@@ -1371,7 +1371,7 @@ async function sendMessage() {
              whatsapp:t.whatsapp, senya:t.senya, total:t.total, resta:t.resta };
   }));
   try {
-    var payload = JSON.stringify({ action:'geminiChat', hoy:hoyStr, turnosCtx:ctx, messages:aiHistory.slice(0,-1) });
+    var payload = JSON.stringify({ action:'geminiChat', hoy:hoyStr, turnosCtx:ctx, messages:aiHistory });
     var resp    = await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:payload });
     var data    = await resp.json();
     if (!data.ok) throw new Error(data.error || 'Error del servidor');
