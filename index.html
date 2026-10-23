@@ -99,6 +99,15 @@
   .spinner{width:38px;height:38px;border:3px solid var(--gold-light);border-top-color:var(--gold-1);border-radius:50%;animation:spin .8s linear infinite;}
   @keyframes spin{to{transform:rotate(360deg);}}
   .loading-text{font-family:'Playfair Display',serif;font-style:italic;color:var(--text-light);font-size:14px;}
+  .reserva-num{font-size:13px;color:var(--text-light);margin:-10px 0 18px;}
+  .reserva-num strong{color:var(--text);letter-spacing:.5px;}
+  .sena-box{background:var(--white);border:1px solid var(--gold-light);border-radius:16px;padding:18px 16px;margin:0 auto 20px;max-width:340px;text-align:left;}
+  .sena-paso{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--text);line-height:1.5;margin-bottom:12px;}
+  .sena-n{flex-shrink:0;width:22px;height:22px;border-radius:50%;background:var(--gold-1);color:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .alias-row{display:flex;align-items:center;gap:8px;margin-top:6px;background:var(--cream-dark);border-radius:10px;padding:8px 8px 8px 12px;}
+  .alias{flex:1;font-weight:500;font-size:15px;letter-spacing:.3px;overflow-wrap:anywhere;}
+  .alias-copy{flex-shrink:0;border:1.5px solid var(--gold-2);background:var(--white);color:var(--gold-1);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+  .sena-plazo{font-size:12.5px;color:var(--text-light);line-height:1.55;border-top:1px dashed var(--gold-light);padding-top:10px;}
 </style>
 </head>
 <body>
@@ -128,6 +137,7 @@
   <div class="section active" id="sec-1">
     <h2 class="section-title">Eleg&#237; una fecha</h2>
     <p class="section-sub">Los d&#237;as disponibles tienen un punto verde</p>
+    <div class="error-note" id="date-note" style="display:none"></div>
     <div class="error-note" id="load-error" style="display:none">
       <p><strong>No pudimos cargar los horarios disponibles.</strong> Revis&#225; tu conexi&#243;n y volv&#233; a intentar. Si sigue sin funcionar, escribinos por WhatsApp.</p>
       <button type="button" class="btn-secondary" onclick="initApp()">Reintentar</button>
@@ -147,6 +157,7 @@
     <h2 class="section-title">Eleg&#237; un horario</h2>
     <p class="section-sub" id="selected-date-label">&#8211;</p>
     <div class="info-note">Cada sesi&#243;n dura aproximadamente <strong>1 hora</strong>. Lleg&#225; 10 min antes para preparar al beb&#233;.</div>
+    <div class="error-note" id="slot-note" style="display:none"></div>
     <div class="slots-section" id="slots-section"></div>
     <button class="btn-primary" id="btn-to-3" onclick="goToStep(3)" disabled style="margin-top:18px">Completar datos &#8594;</button>
     <button class="btn-secondary" onclick="goToStep(1)">&#8592; Cambiar fecha</button>
@@ -163,7 +174,7 @@
     </div>
     <div class="form-group">
       <label>Tipo de sesi&#243;n *</label>
-      <div class="session-types">
+      <div class="session-types" id="session-types">
         <button type="button" class="session-type-btn" data-val="Mes a mes" onclick="selectSession(this)">
           <span class="st-icon">&#128197;</span>
           <span class="st-label">Mes a mes</span>
@@ -221,9 +232,9 @@
       <div class="summary-row"><span class="key">WhatsApp</span><span class="val" id="sum-wa">&#8211;</span></div>
       <div class="summary-row" id="sum-tematica-row" style="display:none"><span class="key">Tem&#225;tica</span><span class="val" id="sum-tematica">&#8211;</span></div>
     </div>
-    <div class="info-note">Tu reserva quedar&#225; <strong>pendiente de confirmaci&#243;n</strong>. Te avisamos por WhatsApp en los pr&#243;ximos minutos.</div>
+    <div class="info-note" id="sena-nota">Tu reserva quedar&#225; <strong>pendiente de confirmaci&#243;n</strong>. Te avisamos por WhatsApp.</div>
     <div class="error-note" id="submit-error" style="display:none">
-      <p><strong>No pudimos enviar tu reserva.</strong> Revis&#225; tu conexi&#243;n y toc&#225; &#171;Confirmar reserva&#187; de nuevo, o mandanos los datos por WhatsApp.</p>
+      <p><strong>No pudimos enviar tu reserva.</strong> <span id="submit-error-text">Revis&#225; tu conexi&#243;n y toc&#225; &#171;Confirmar reserva&#187; de nuevo, o mandanos los datos por WhatsApp.</span></p>
       <a class="whatsapp-btn" id="submit-error-wa" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
     </div>
     <button class="btn-primary" id="btn-confirm" onclick="submitBooking()">Confirmar reserva</button>
@@ -234,11 +245,20 @@
   <div class="section" id="sec-success">
     <div class="success-screen">
       <img class="success-logo" src="https://i.ibb.co/ks527STY/LOGO-ACTUALIZADO.jpg" alt="Estudio Fotoinfantil">
-      <h2>&#161;Reserva enviada!</h2>
-      <p>Recibimos tu solicitud. Te vamos a confirmar el turno por WhatsApp en los pr&#243;ximos <strong>minutos</strong>.</p>
-      <a class="whatsapp-btn" id="wa-link" href="#" target="_blank">
+      <h2>&#161;Reserva recibida!</h2>
+      <p id="success-text">Recibimos tu solicitud.</p>
+      <div class="reserva-num">N.&#186; de reserva: <strong id="success-id">&#8212;</strong></div>
+      <div class="sena-box" id="sena-box" style="display:none">
+        <div class="sena-paso"><span class="sena-n">1</span><div>Transfer&#237; la se&#241;a de <strong id="sena-monto"></strong>
+          <div id="sena-con-alias">al alias:<div class="alias-row"><span class="alias" id="sena-alias"></span><button type="button" class="alias-copy" id="btn-copiar-alias" onclick="copiarAlias()">Copiar</button></div></div>
+          <div id="sena-sin-alias" style="display:none">(te pasamos los datos por WhatsApp)</div>
+        </div></div>
+        <div class="sena-paso"><span class="sena-n">2</span><div>Mandanos el <strong>comprobante</strong> por WhatsApp.</div></div>
+        <div class="sena-plazo">Ten&#233;s tiempo hasta el <strong id="sena-vence"></strong>. Si no recibimos la se&#241;a, el horario se libera para otra familia.</div>
+      </div>
+      <a class="whatsapp-btn" id="wa-link" href="#" target="_blank" rel="noopener">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>
-        Escribir al estudio
+        <span id="wa-link-text">Escribir al estudio</span>
       </a>
       <div style="font-size:13px;color:var(--text-light);margin-top:8px;">Si ten&#233;s alguna duda, escribinos</div>
     </div>
@@ -251,11 +271,16 @@
   <div class="loading-text" id="loading-text">Cargando horarios disponibles...</div>
 </div>
 
+<script src="config.js?v=2"></script>
 <script>
+// La dirección del servidor y el WhatsApp del estudio están en config.js (un solo lugar para los dos archivos)
+var EXT = window.ESTUDIO_CONFIG || {};
 const CONFIG = {
-  SCRIPT_URL:       'https://script.google.com/macros/s/AKfycbxO0yFbPJ1lqukT28w5eLLp9Tu9_O9he_gViFk6xISGGbRnOisXWCuHqLUq1kDLxE9z/exec',
-  WHATSAPP:         '541133408139',
+  SCRIPT_URL:       String(EXT.SCRIPT_URL || ''),
+  WHATSAPP:         String(EXT.WHATSAPP || '541133408139'),
+  // Valores de reserva: los manda el servidor (pestaña "Ajustes"); estos son solo de respaldo
   MIN_ADVANCE_DAYS: 2,
+  MAX_DIAS:         400,
   SLOTS_WEEKDAY:    ['18:00', '19:00'],
   SLOTS_SATURDAY:   ['10:00', '11:00', '13:00', '14:00']
 };
@@ -267,20 +292,50 @@ var state = {
   selectedDateObj: null,
   selectedTime:    null,
   selectedSession: null,
-  bookedSlots:  {},  // { 'YYYY-MM-DD': ['18:00','19:00'] }  — turnos reservados
-  blockedDays:  [],  // ['YYYY-MM-DD', ...]                  — días completos bloqueados por admin
-  blockedSlots: {},  // { 'YYYY-MM-DD': ['18:00'] }          — slots bloqueados por admin
-  extraSlots:   {},  // { 'YYYY-MM-DD': ['15:00'] }          — horarios extra habilitados por admin
-  loadError:    false // true si no se pudo leer la disponibilidad: no se deja reservar "a ciegas"
+  bookedSlots:  {},  // { 'YYYY-MM-DD': ['18:00','19:00'] }  — horarios ocupados (sin datos personales)
+  blockedDays:  [],  // ['YYYY-MM-DD', ...]                  — días completos bloqueados por el estudio
+  blockedSlots: {},  // { 'YYYY-MM-DD': ['18:00'] }          — horarios bloqueados por el estudio
+  extraSlots:   {},  // { 'YYYY-MM-DD': ['15:00'] }          — horarios extra habilitados por el estudio
+  loadError:    false, // true si no se pudo leer la disponibilidad: no se deja reservar "a ciegas"
+  hoy:          null,  // fecha de hoy según el estudio (Argentina), la manda el servidor
+  sena:         { monto: 0, horas: 24 },
+  sesionId:     idAlAzar()
 };
 
-// Pide JSON al Apps Script y falla si la respuesta no es valida (solo lectura)
+function idAlAzar() {
+  try {
+    var a = new Uint32Array(4); window.crypto.getRandomValues(a);
+    return Array.prototype.map.call(a, function(n) { return n.toString(36); }).join('');
+  } catch (e) { return String(Math.random()).slice(2) + String(Date.now()); }
+}
+function escHtml(v) {
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function pesos(n) { return '$' + Number(n || 0).toLocaleString('es-AR'); }
+
+// Pide JSON al servidor (solo lectura) y falla si la respuesta no es válida
 async function fetchJSON(url) {
   var resp = await fetch(url, { mode:'cors' });
   if (resp && resp.ok === false) throw new Error('HTTP ' + resp.status);
   var data = await resp.json();
-  if (!data || data.error) throw new Error((data && data.error) || 'respuesta vacia');
+  if (!data || data.ok === false || data.error) throw new Error((data && data.error) || 'respuesta vacia');
   return data;
+}
+// Envía un pedido al servidor y devuelve su respuesta (ok o error). Falla solo si no hay conexión.
+async function postJSON(url, body, ms) {
+  var ctrl  = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, ms || 25000) : null;
+  try {
+    var opts = { method:'POST', body: JSON.stringify(body) };   // texto plano: el servidor responde y se puede leer
+    if (ctrl) opts.signal = ctrl.signal;
+    var resp = await fetch(url, opts);
+    var data = await resp.json();
+    if (!data || typeof data !== 'object') throw new Error('respuesta vacia');
+    return data;
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 function setLoadingText(txt) {
@@ -288,44 +343,32 @@ function setLoadingText(txt) {
   if (el) el.textContent = txt;
 }
 
-// ── Cargar datos al iniciar: turnos + bloqueos del admin ──
+// ── Cargar disponibilidad al iniciar ──
 async function initApp() {
   setLoadingText('Cargando horarios disponibles...');
   document.getElementById('loading').classList.add('show');
   document.getElementById('load-error').style.display = 'none';
-  var ok = true;
-  try {
-    // 1. Reservas existentes (solo se leen fecha, horario y estado)
-    var data1 = await fetchJSON(CONFIG.SCRIPT_URL + '?action=getAll');
-    if (!Array.isArray(data1.reservas)) throw new Error('formato inesperado');
-    var reservas = data1.reservas;
-    var booked = {};
-    reservas.forEach(function(r) {
-      var estado = String(r.estado || '').toUpperCase();
-      if (estado === 'CANCELADO') return;
-      var fecha   = String(r.fecha   || '').split('T')[0];
-      var horario = String(r.horario || '').trim();
-      if (!fecha || !horario) return;
-      if (!booked[fecha]) booked[fecha] = [];
-      if (!booked[fecha].includes(horario)) booked[fecha].push(horario);
-    });
-    state.bookedSlots = booked;
-  } catch(e) {
-    ok = false;
-    console.log('Error cargando reservas:', e);
-  }
+  var ok = await cargarDisponibilidad();
+  document.getElementById('loading').classList.remove('show');
+  if (!ok) mostrarErrorCarga();
+  else irAlPrimerMesDisponible();
+  renderCalendar();
+}
 
-  if (ok) try {
-    // 2. Bloqueos del admin
-    var data2 = await fetchJSON(CONFIG.SCRIPT_URL + '?action=getConfig');
-    var bloqueos = Array.isArray(data2.bloqueos) ? data2.bloqueos : [];
-    var blockedDays  = [];
-    var blockedSlots = {};
-    var extraSlots   = {};
-    bloqueos.forEach(function(b) {
-      if (!b.fecha) return;
+// Lee del servidor solo lo necesario para mostrar qué horarios están libres (sin nombres ni teléfonos)
+async function cargarDisponibilidad() {
+  try {
+    if (CONFIG.SCRIPT_URL.indexOf('https://') !== 0) throw new Error('falta la direccion del servidor en config.js');
+    var d = await fetchJSON(CONFIG.SCRIPT_URL + '?action=horarios');
+    if (!d.ocupados || typeof d.ocupados !== 'object' || !Array.isArray(d.bloqueos)) throw new Error('formato inesperado');
+    var booked = {}, blockedDays = [], blockedSlots = {}, extraSlots = {};
+    Object.keys(d.ocupados).forEach(function(f) {
+      if (Array.isArray(d.ocupados[f])) booked[f] = d.ocupados[f].map(String);
+    });
+    d.bloqueos.forEach(function(b) {
+      if (!b || !b.fecha) return;
       if (b.tipo === 'dia') {
-        blockedDays.push(b.fecha);
+        if (!blockedDays.includes(b.fecha)) blockedDays.push(b.fecha);
       } else if (b.tipo === 'slot' && b.horario) {
         if (!blockedSlots[b.fecha]) blockedSlots[b.fecha] = [];
         if (!blockedSlots[b.fecha].includes(b.horario)) blockedSlots[b.fecha].push(b.horario);
@@ -334,42 +377,88 @@ async function initApp() {
         if (!extraSlots[b.fecha].includes(b.horario)) extraSlots[b.fecha].push(b.horario);
       }
     });
+    state.bookedSlots  = booked;
     state.blockedDays  = blockedDays;
     state.blockedSlots = blockedSlots;
     state.extraSlots   = extraSlots;
+    if (d.grilla && Array.isArray(d.grilla.semana)) CONFIG.SLOTS_WEEKDAY  = d.grilla.semana.slice();
+    if (d.grilla && Array.isArray(d.grilla.sabado)) CONFIG.SLOTS_SATURDAY = d.grilla.sabado.slice();
+    if (typeof d.minDias === 'number') CONFIG.MIN_ADVANCE_DAYS = d.minDias;
+    if (typeof d.maxDias === 'number') CONFIG.MAX_DIAS = d.maxDias;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(String(d.hoy || ''))) state.hoy = d.hoy;
+    if (d.sena) state.sena = { monto: Number(d.sena.monto) || 0, horas: Number(d.sena.horas) || 24 };
+    if (Array.isArray(d.tiposSesion) && d.tiposSesion.length) renderTiposSesion(d.tiposSesion);
+    state.loadError = false;
+    return true;
   } catch(e) {
-    ok = false;
-    console.log('Error cargando bloqueos:', e);
+    console.log('Error cargando horarios:', e);
+    state.loadError = true;
+    return false;
   }
+}
 
-  // Si no se pudo leer la agenda, NO se muestran dias libres: se avisa y se ofrece WhatsApp
-  state.loadError = !ok;
-  if (!ok) {
-    state.selectedDate = null; state.selectedDateObj = null; state.selectedTime = null;
-    document.getElementById('btn-to-2').disabled = true;
-    document.getElementById('load-error-wa').href = 'https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(
-      'Hola! Quiero reservar una sesión de fotos y el formulario no me carga los horarios. ¿Me ayudan?');
-    document.getElementById('load-error').style.display = 'block';
+// Si no se pudo leer la agenda, NO se muestran días libres: se avisa y se ofrece WhatsApp
+function mostrarErrorCarga() {
+  state.selectedDate = null; state.selectedDateObj = null; state.selectedTime = null;
+  document.getElementById('btn-to-2').disabled = true;
+  document.getElementById('load-error-wa').href = 'https://wa.me/' + CONFIG.WHATSAPP + '?text=' + encodeURIComponent(
+    'Hola! Quiero reservar una sesión de fotos y el formulario no me carga los horarios. ¿Me ayudan?');
+  document.getElementById('load-error').style.display = 'block';
+}
+
+// Si en el mes actual ya no quedan días libres, se abre directamente el siguiente
+function irAlPrimerMesDisponible() {
+  for (var k = 0; k < 2; k++) {
+    var dias = new Date(state.currentYear, state.currentMonth + 1, 0).getDate();
+    for (var d = 1; d <= dias; d++) {
+      var f = new Date(state.currentYear, state.currentMonth, d);
+      if (isAvailable(f) && !isDayFull(fmtDate(f), f)) return;
+    }
+    nextMonth(true);
   }
-  document.getElementById('loading').classList.remove('show');
-  renderCalendar();
 }
 
 var MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
 
+// ── Tipos de sesión (los que el estudio tiene habilitados en "Ajustes") ──
+var TIPOS_INFO = {
+  'Mes a mes': { icon: 128197, sub: 'Seguimiento mensual' },
+  'Temático':  { icon: 127912, sub: 'Con decorado especial' },
+  'Pre añito': { icon: 127874, sub: '¡Primer cumple!' }
+};
+function renderTiposSesion(lista) {
+  var cont = document.getElementById('session-types');
+  if (!cont) return;
+  cont.innerHTML = lista.map(function(nombre) {
+    var info = TIPOS_INFO[nombre] || { icon: 128248, sub: '' };
+    return '<button type="button" class="session-type-btn' + (state.selectedSession === nombre ? ' selected' : '') + '" data-val="' + escHtml(nombre) + '" onclick="selectSession(this)">' +
+      '<span class="st-icon">' + String.fromCodePoint(info.icon) + '</span>' +
+      '<span class="st-label">' + escHtml(nombre) + '</span>' +
+      (info.sub ? '<span class="st-sub">' + escHtml(info.sub) + '</span>' : '') + '</button>';
+  }).join('');
+  if (state.selectedSession && lista.indexOf(state.selectedSession) < 0) {
+    state.selectedSession = null;
+    document.getElementById('session-type').value = '';
+  }
+}
+
 // ── Disponibilidad ──
+function sumarDiasStr(f, n) {
+  var p = f.split('-').map(Number);
+  return fmtDate(new Date(p[0], p[1] - 1, p[2] + n, 12));
+}
 function isAvailable(date) {
-  // Sin datos de disponibilidad no se ofrece ningun dia (evita reservas dobles o en dias bloqueados)
+  // Sin datos de disponibilidad no se ofrece ningún día (evita reservas dobles o en días bloqueados)
   if (state.loadError) return false;
   var dateStr = fmtDate(date);
-  var today   = new Date(); today.setHours(0,0,0,0);
-  var minDate = new Date(today); minDate.setDate(minDate.getDate() + CONFIG.MIN_ADVANCE_DAYS);
-  if (date < minDate) return false;
-  // Bloqueado por admin (día completo)
+  var hoy     = state.hoy || fmtDate(new Date());
+  if (dateStr < sumarDiasStr(hoy, CONFIG.MIN_ADVANCE_DAYS)) return false;
+  if (dateStr > sumarDiasStr(hoy, CONFIG.MAX_DIAS)) return false;
+  // Bloqueado por el estudio (día completo)
   if (state.blockedDays.includes(dateStr)) return false;
-  // Domingo siempre bloqueado
-  if (date.getDay() === 0) return false;
+  // Días sin horarios (domingos, salvo que el estudio agregue un horario extra)
+  if (getSlotsForDate(date).length === 0) return false;
   return true;
 }
 
@@ -379,7 +468,7 @@ function getSlotsForDate(dateObj) {
   var base    = [];
   if (day === 6)                    base = CONFIG.SLOTS_SATURDAY.slice();
   else if (day >= 1 && day <= 5)    base = CONFIG.SLOTS_WEEKDAY.slice();
-  // Agregar horarios extra habilitados por el admin
+  // Agregar horarios extra habilitados por el estudio
   var extras = state.extraSlots[dateStr] || [];
   extras.forEach(function(h){
     if (!base.includes(h)) base.push(h);
@@ -390,7 +479,7 @@ function getSlotsForDate(dateObj) {
 }
 
 function getEffectiveTakenSlots(dateStr) {
-  // Une turnos reservados + slots bloqueados por admin
+  // Une turnos reservados + horarios bloqueados por el estudio
   var booked  = state.bookedSlots[dateStr]  || [];
   var blocked = state.blockedSlots[dateStr] || [];
   return booked.concat(blocked.filter(function(s){ return !booked.includes(s); }));
@@ -445,7 +534,7 @@ function renderCalendar() {
   }
 }
 
-// Fecha local YYYY-MM-DD (antes usaba UTC y en algunos husos horarios corria el dia)
+// Fecha local YYYY-MM-DD (antes usaba UTC y en algunos husos horarios corría el día)
 function fmtDate(date) {
   return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
 }
@@ -454,6 +543,8 @@ function selectDate(date, dateStr) {
   state.selectedDate    = dateStr;
   state.selectedDateObj = date;
   state.selectedTime    = null;   // al cambiar de fecha hay que volver a elegir horario
+  document.getElementById('date-note').style.display = 'none';
+  document.getElementById('slot-note').style.display = 'none';
   document.getElementById('btn-to-2').disabled = false;
   document.getElementById('btn-to-3').disabled = true;
   renderCalendar();
@@ -464,10 +555,10 @@ function prevMonth() {
   else state.currentMonth--;
   renderCalendar();
 }
-function nextMonth() {
+function nextMonth(sinDibujar) {
   if (state.currentMonth === 11) { state.currentMonth = 0; state.currentYear++; }
   else state.currentMonth++;
-  renderCalendar();
+  if (sinDibujar !== true) renderCalendar();
 }
 
 // ── Horarios ──
@@ -477,11 +568,15 @@ function renderSlots() {
   var taken = getEffectiveTakenSlots(state.selectedDate);
   var slots = getSlotsForDate(state.selectedDateObj);
 
-  // Si el horario elegido ya no es valido para esta fecha, se descarta
+  // Si el horario elegido ya no es válido para esta fecha, se descarta
   if (state.selectedTime && (slots.indexOf(state.selectedTime) < 0 || taken.indexOf(state.selectedTime) >= 0)) {
     state.selectedTime = null;
   }
   document.getElementById('btn-to-3').disabled = !state.selectedTime;
+
+  var d = new Date(state.selectedDate + 'T12:00:00');
+  document.getElementById('selected-date-label').textContent =
+    d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long'}).replace(/^\w/, function(c){ return c.toUpperCase(); });
 
   if (slots.length === 0) {
     section.innerHTML = '<div style="text-align:center;color:var(--text-light);padding:20px">No hay horarios para este d&#237;a.</div>';
@@ -490,7 +585,8 @@ function renderSlots() {
 
   var label = document.createElement('div');
   label.className = 'slots-group-label';
-  label.textContent = state.selectedDateObj.getDay() === 6 ? 'Horarios — S\u00e1bado' : 'Horarios — Lunes a Viernes';
+  var dow = state.selectedDateObj.getDay();
+  label.textContent = dow === 6 ? 'Horarios — Sábado' : (dow === 0 ? 'Horarios especiales' : 'Horarios — Lunes a Viernes');
   section.appendChild(label);
 
   var grid = document.createElement('div');
@@ -500,11 +596,12 @@ function renderSlots() {
     var isTaken = taken.includes(time);
     var btn = document.createElement('button');
     btn.className = 'slot-btn' + (isTaken ? ' taken' : '') + (state.selectedTime === time ? ' selected' : '');
-    btn.innerHTML = '<span class="slot-time">' + time + ' hs</span>' + (isTaken ? '<span style="font-size:10px;display:block;color:#bbb">No disponible</span>' : '');
+    btn.innerHTML = '<span class="slot-time">' + escHtml(time) + ' hs</span>' + (isTaken ? '<span style="font-size:10px;display:block;color:#bbb">No disponible</span>' : '');
     btn.disabled = isTaken;
     if (!isTaken) {
       (function(t){ btn.onclick = function(){
         state.selectedTime = t;
+        document.getElementById('slot-note').style.display = 'none';
         document.getElementById('btn-to-3').disabled = false;
         renderSlots();
       }; })(time);
@@ -512,10 +609,6 @@ function renderSlots() {
     grid.appendChild(btn);
   });
   section.appendChild(grid);
-
-  var d = new Date(state.selectedDate + 'T12:00:00');
-  document.getElementById('selected-date-label').textContent =
-    d.toLocaleDateString('es-AR', {weekday:'long',day:'numeric',month:'long'}).replace(/^\w/, function(c){ return c.toUpperCase(); });
 }
 
 // ── Tipo de sesión ──
@@ -528,7 +621,7 @@ function selectSession(btn) {
 
 // ── Navegación ──
 function goToStep(step) {
-  // No se puede avanzar sin fecha y horario elegidos (antes se podia enviar "null hs")
+  // No se puede avanzar sin fecha y horario elegidos (antes se podía enviar "null hs")
   if (step >= 2 && !state.selectedDate) step = 1;
   if (step >= 3 && !state.selectedTime) {
     alert('Por favor elegí un horario para continuar');
@@ -550,24 +643,24 @@ function goToStep(step) {
 
 function validateForm() {
   var required = [
-    ['baby-name',    'Nombre del beb\u00e9'],
-    ['baby-birthday','D\u00eda que cumple meses/a\u00f1os'],
-    ['mom-name',     'Nombre de la mam\u00e1'],
-    ['mom-phone',    'Tel\u00e9fono']
+    ['baby-name',    'Nombre del bebé'],
+    ['baby-birthday','Día que cumple meses/años'],
+    ['mom-name',     'Nombre de la mamá'],
+    ['mom-phone',    'Teléfono']
   ];
-  if (!state.selectedDate || !state.selectedTime) { alert('Por favor eleg\u00ed una fecha y un horario'); return false; }
-  if (!state.selectedSession) { alert('Por favor eleg\u00ed el tipo de sesi\u00f3n'); return false; }
+  if (!state.selectedDate || !state.selectedTime) { alert('Por favor elegí una fecha y un horario'); return false; }
+  if (!state.selectedSession) { alert('Por favor elegí el tipo de sesión'); return false; }
   for (var i = 0; i < required.length; i++) {
     if (!document.getElementById(required[i][0]).value.trim()) {
-      alert('Por favor complet\u00e1: ' + required[i][1]);
+      alert('Por favor completá: ' + required[i][1]);
       document.getElementById(required[i][0]).focus();
       return false;
     }
   }
-  // Telefono y WhatsApp: entre 8 y 15 numeros (se guardan tal cual los escribe la clienta)
+  // Teléfono y WhatsApp: entre 8 y 15 números (se guardan tal cual los escribe la clienta)
   var tel = document.getElementById('mom-phone').value.replace(/\D/g, '');
   if (tel.length < 8 || tel.length > 15) {
-    alert('Revis\u00e1 el tel\u00e9fono: escribilo con caracter\u00edstica, por ejemplo 11 2345-6789');
+    alert('Revisá el teléfono: escribilo con característica, por ejemplo 11 2345-6789');
     document.getElementById('mom-phone').focus();
     return false;
   }
@@ -575,7 +668,7 @@ function validateForm() {
   if (waRaw) {
     var waDig = waRaw.replace(/\D/g, '');
     if (waDig.length < 8 || waDig.length > 15) {
-      alert('Revis\u00e1 el WhatsApp: escribilo con caracter\u00edstica, por ejemplo 11 2345-6789 (o dejalo vac\u00edo si es el mismo tel\u00e9fono)');
+      alert('Revisá el WhatsApp: escribilo con característica, por ejemplo 11 2345-6789 (o dejalo vacío si es el mismo teléfono)');
       document.getElementById('mom-whatsapp').focus();
       return false;
     }
@@ -599,28 +692,43 @@ function fillSummary() {
   } else {
     document.getElementById('sum-tematica-row').style.display = 'none';
   }
+  // Cómo sigue: seña por transferencia y cuánto tiempo se guarda el horario
+  var nota = document.getElementById('sena-nota');
+  if (state.sena.monto > 0) {
+    nota.innerHTML = 'Para confirmar el turno pedimos una <strong>se&#241;a de ' + escHtml(pesos(state.sena.monto)) + '</strong> por transferencia. ' +
+      'Al enviar, tu horario queda <strong>guardado por ' + escHtml(state.sena.horas) + ' horas</strong> para que transfieras y nos mandes el comprobante.';
+  } else {
+    nota.innerHTML = 'Tu reserva quedar&#225; <strong>pendiente de confirmaci&#243;n</strong>. Te avisamos por WhatsApp.';
+  }
+  document.getElementById('submit-error').style.display = 'none';
 }
 
 // ── Envío ──
-var enviando = false;   // evita doble envio por doble toque
+var enviando = false;   // evita doble envío por doble toque
+
+// Misma reserva = misma clave: si se reintenta después de un corte, el servidor no la duplica
+function claveReserva(data) {
+  var s = [data.fecha, data.horario, data.tipoSesion, data.tematica, data.nombreBebe, data.cumpleBebe, data.nombreMama, data.telefono, data.whatsapp].join('|');
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return state.sesionId + '-' + h.toString(36);
+}
 
 async function submitBooking() {
   if (enviando) return;
-  // Nunca se envia una reserva sin fecha u horario
+  // Nunca se envía una reserva sin fecha u horario
   if (!state.selectedDate || !state.selectedTime) {
     alert('Por favor elegí una fecha y un horario');
     goToStep(state.selectedDate ? 2 : 1);
     return;
   }
-  // Si el horario figura ocupado o bloqueado, no se envia
+  // Si el horario figura ocupado o bloqueado, no se envía
   if (getEffectiveTakenSlots(state.selectedDate).indexOf(state.selectedTime) >= 0) {
-    alert('Ese horario ya no está disponible. Por favor elegí otro.');
-    state.selectedTime = null;
-    goToStep(2);
+    horarioOcupado();
     return;
   }
-  var wa = document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim();
   var data = {
+    action:     'reservar',
     fecha:      state.selectedDate,
     horario:    state.selectedTime,
     tipoSesion: state.selectedSession,
@@ -629,10 +737,9 @@ async function submitBooking() {
     cumpleBebe: document.getElementById('baby-birthday').value,
     nombreMama: document.getElementById('mom-name').value.trim(),
     telefono:   document.getElementById('mom-phone').value.trim(),
-    whatsapp:   wa,
-    estado:     'PENDIENTE',
-    timestamp:  new Date().toISOString()
+    whatsapp:   document.getElementById('mom-whatsapp').value.trim() || document.getElementById('mom-phone').value.trim()
   };
+  data.clave = claveReserva(data);
 
   enviando = true;
   document.getElementById('submit-error').style.display = 'none';
@@ -640,62 +747,136 @@ async function submitBooking() {
   document.getElementById('loading').classList.add('show');
   document.getElementById('btn-confirm').disabled = true;
 
-  // Mismo envio que antes (mismo formato y mismos datos), pero ahora se detecta si fallo la conexion
-  var enviado = false;
-  var ctrl  = (typeof AbortController !== 'undefined') ? new AbortController() : null;
-  var timer = ctrl ? setTimeout(function(){ ctrl.abort(); }, 25000) : null;
-  try {
-    var opts = {
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    };
-    if (ctrl) opts.signal = ctrl.signal;
-    await fetch(CONFIG.SCRIPT_URL, opts);
-    enviado = true;
-  } catch(e) { console.log('Error:', e); }
-  if (timer) clearTimeout(timer);
+  var res = null;
+  try { res = await postJSON(CONFIG.SCRIPT_URL, data, 30000); }
+  catch(e) { console.log('Error:', e); }
 
   document.getElementById('loading').classList.remove('show');
   enviando = false;
 
-  if (!enviado) {
-    // No se muestra "¡Reserva enviada!" si no salio: se ofrece reintentar o mandar por WhatsApp
-    document.getElementById('btn-confirm').disabled = false;
-    document.getElementById('submit-error-wa').href = 'https://wa.me/' + CONFIG.WHATSAPP + '?text=' +
-      buildWaMsg(data, 'Hola! Quiero reservar una sesión de fotos (el formulario no me dejó enviarla).');
-    document.getElementById('submit-error').style.display = 'block';
+  if (res && res.ok) {
+    // Marcar el horario ocupado en pantalla
+    if (!state.bookedSlots[data.fecha]) state.bookedSlots[data.fecha] = [];
+    state.bookedSlots[data.fecha].push(data.horario);
+    showSuccess(data, res);
     return;
   }
-
-  // Marcar slot ocupado localmente
-  if (!state.bookedSlots[data.fecha]) state.bookedSlots[data.fecha] = [];
-  state.bookedSlots[data.fecha].push(data.horario);
-
-  showSuccess(data);
+  document.getElementById('btn-confirm').disabled = false;
+  if (res && res.codigo === 'ocupado') {
+    // Otra persona tomó ese horario (o el estudio lo bloqueó) mientras completaba los datos
+    horarioOcupado(res.error);
+    return;
+  }
+  // No se muestra "¡Reserva recibida!" si no salió: se explica y se ofrece reintentar o WhatsApp
+  var msg = res && res.error
+    ? 'No pudimos guardar tu reserva: ' + res.error + '.'
+    : 'No pudimos confirmar tu reserva por un problema de conexión. Tocá «Confirmar reserva» de nuevo: si ya se había guardado, no se va a duplicar.';
+  document.getElementById('submit-error-text').textContent = msg;
+  document.getElementById('submit-error-wa').href = 'https://wa.me/' + CONFIG.WHATSAPP + '?text=' +
+    buildWaMsg(data, 'Hola! Quiero reservar una sesión de fotos (el formulario no me dejó enviarla).', 'Espero confirmación. ¡Gracias!');
+  document.getElementById('submit-error').style.display = 'block';
 }
 
-function buildWaMsg(data, intro) {
-  var _d = new Date(data.fecha + 'T12:00:00');
+// El horario elegido ya no está libre: se vuelve a leer la agenda y se pide elegir otro (los datos quedan)
+async function horarioOcupado(texto) {
+  state.selectedTime = null;
+  setLoadingText('Actualizando horarios...');
+  document.getElementById('loading').classList.add('show');
+  await cargarDisponibilidad();
+  document.getElementById('loading').classList.remove('show');
+  var aviso = (texto ? texto + '. ' : 'Ese horario ya no está disponible. ');
+  if (state.loadError) { mostrarErrorCarga(); goToStep(1); return; }
+  var libre = state.selectedDateObj && isAvailable(state.selectedDateObj) && !isDayFull(state.selectedDate, state.selectedDateObj);
+  if (!libre) {
+    // Ese día ya no tiene horarios libres: se elige otro día (los datos quedan guardados)
+    state.selectedDate = null; state.selectedDateObj = null;
+    document.getElementById('btn-to-2').disabled = true;
+    var dn = document.getElementById('date-note');
+    dn.textContent = aviso + 'Ese día ya no tiene horarios libres: elegí otro día, por favor. Tus datos quedan guardados.';
+    dn.style.display = 'block';
+    renderCalendar();
+    goToStep(1);
+    return;
+  }
+  var note = document.getElementById('slot-note');
+  note.textContent = aviso + 'Elegí otro horario, por favor: tus datos quedan guardados.';
+  note.style.display = 'block';
+  renderCalendar();
+  goToStep(2);
+}
+
+function fechaLinda(fecha) {
+  var _d = new Date(fecha + 'T12:00:00');
   var _meses = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  var _fechaLinda = _d.getDate().toString().padStart(2,'0') + ' de ' + _meses[_d.getMonth()] + ' de ' + _d.getFullYear();
+  return _d.getDate().toString().padStart(2,'0') + ' de ' + _meses[_d.getMonth()] + ' de ' + _d.getFullYear();
+}
+function buildWaMsg(data, intro, cierre) {
   var _cp = String.fromCodePoint;
   return encodeURIComponent(
     _cp(128247) + ' ' + intro + '\n\n' +
-    _cp(128197) + ' Fecha: ' + _fechaLinda + '\n' +
+    _cp(128197) + ' Fecha: ' + fechaLinda(data.fecha) + '\n' +
     _cp(8987)   + ' Hora: ' + data.horario + ' hs\n' +
     _cp(128118) + ' Bebé: ' + data.nombreBebe + '\n' +
     _cp(127912) + ' Sesión: ' + data.tipoSesion + (data.tematica ? ' - ' + data.tematica : '') + '\n\n' +
-    'Espero confirmación. ¡Gracias! ' + _cp(128149)
+    (cierre || '¡Gracias!') + ' ' + _cp(128149)
   );
 }
 
-function showSuccess(data) {
+function showSuccess(data, res) {
   document.querySelectorAll('.section').forEach(function(s){ s.classList.remove('active'); });
   document.getElementById('sec-success').classList.add('active');
-  var msg = buildWaMsg(data, 'Hola! Acabo de realizar una reserva de sesión de fotos.');
-  document.getElementById('wa-link').href = 'https://wa.me/' + CONFIG.WHATSAPP + '?text=' + msg;
+  var sena  = (res && res.sena) || {};
+  var wa    = String(sena.whatsapp || CONFIG.WHATSAPP).replace(/\D/g, '') || CONFIG.WHATSAPP;
+  var monto = Number(sena.monto) || 0;
+  var alias = String(sena.alias || '').trim();
+  document.getElementById('success-id').textContent = res && res.id ? res.id : '—';
+  var box = document.getElementById('sena-box');
+  var waBtn = document.getElementById('wa-link-text');
+  var intro, cierre;
+  if (monto > 0) {
+    box.style.display = 'block';
+    document.getElementById('sena-monto').textContent = pesos(monto);
+    document.getElementById('sena-vence').textContent = sena.venceTexto ? sena.venceTexto + ' hs' : 'dentro de ' + (sena.horas || 24) + ' horas';
+    document.getElementById('sena-con-alias').style.display = alias ? 'block' : 'none';
+    document.getElementById('sena-sin-alias').style.display = alias ? 'none' : 'block';
+    document.getElementById('sena-alias').textContent = alias;
+    document.getElementById('success-text').textContent = 'Tu horario quedó guardado. Para confirmarlo falta la seña:';
+    if (alias) {
+      waBtn.textContent = 'Enviar comprobante por WhatsApp';
+      intro = 'Hola! Hice una reserva (N.º ' + (res.id || '') + ') y les mando el comprobante de la seña.';
+      cierre = '¡Gracias!';
+    } else {
+      waBtn.textContent = 'Pedir los datos para la seña';
+      intro = 'Hola! Hice una reserva (N.º ' + (res.id || '') + '). ¿Me pasan los datos para transferir la seña?';
+      cierre = '¡Gracias!';
+    }
+  } else {
+    box.style.display = 'none';
+    document.getElementById('success-text').textContent = 'Recibimos tu solicitud. Te vamos a confirmar el turno por WhatsApp.';
+    waBtn.textContent = 'Escribir al estudio';
+    intro = 'Hola! Acabo de realizar una reserva de sesión de fotos' + (res && res.id ? ' (N.º ' + res.id + ')' : '') + '.';
+    cierre = 'Espero confirmación. ¡Gracias!';
+  }
+  document.getElementById('wa-link').href = 'https://wa.me/' + wa + '?text=' + buildWaMsg(data, intro, cierre);
   window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function copiarAlias() {
+  var alias = document.getElementById('sena-alias').textContent;
+  var btn = document.getElementById('btn-copiar-alias');
+  var listo = function() { btn.textContent = '¡Copiado!'; setTimeout(function(){ btn.textContent = 'Copiar'; }, 2500); };
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(alias).then(listo, function(){ seleccionarAlias(); }); return; }
+  } catch(e) {}
+  seleccionarAlias();
+}
+function seleccionarAlias() {
+  try {
+    var r = document.createRange(); r.selectNodeContents(document.getElementById('sena-alias'));
+    var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+    document.execCommand('copy');
+    document.getElementById('btn-copiar-alias').textContent = '¡Copiado!';
+  } catch(e) {}
 }
 
 // INIT

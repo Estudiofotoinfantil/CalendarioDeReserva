@@ -312,6 +312,46 @@
   .toast.err{background:#8a3424;}
   .toast.warn{background:#7a5a1a;}
   .sesion-card,.turno-card,.ai-msg-bubble,.ai-accion-detail{overflow-wrap:anywhere;}
+  /* ═══════ SERVIDOR V2: acceso, seña, nuevo turno, ajustes ═══════ */
+  .login-card p{margin-bottom:22px;}
+  .login-card input{letter-spacing:1px;}
+  .login-check{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--text-light);margin:2px 0 14px;cursor:pointer;}
+  .login-check input{width:auto;margin:0;}
+  .login-link{background:none;border:none;color:var(--gold-1);font-family:'DM Sans',sans-serif;font-size:13px;margin-top:16px;cursor:pointer;text-decoration:underline;}
+  .login-ok{color:var(--success);font-size:13px;margin-top:10px;line-height:1.5;}
+  .login-error{line-height:1.5;}
+  .sena-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600;margin:0 0 10px;}
+  .sb-esperando{background:var(--warning-bg);color:#9a7420;}
+  .sb-vencida{background:var(--danger-bg);color:var(--danger);}
+  .sb-recibida{background:var(--success-bg);color:#4f8a6f;}
+  .sb-asegurada{background:#e9eef7;color:#4d6390;}
+  .btn-sena-action{background:#e8f5ee;color:#3f7d61;border:1.5px solid var(--success);}
+  .btn-sena-action:hover{background:var(--success);color:white;}
+  .btn-mover-action{background:var(--white);color:var(--text-light);border:1.5px solid var(--gold-light);}
+  .btn-mover-action:hover{border-color:var(--gold-1);color:var(--gold-1);}
+  .turno-nota-sinid{font-size:12px;color:var(--danger);margin-bottom:10px;}
+  .nuevo-btn{background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+  .nuevo-btn:hover{opacity:.9;}
+  .section-heading .refresh-btn{margin-left:0;}
+  .section-heading span:first-child{margin-right:auto;}
+  .nt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .nt-field{margin-bottom:12px;}
+  .nt-field label{display:block;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:4px;}
+  .nt-field input,.nt-field select,.nt-field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
+  .nt-field input:focus,.nt-field select:focus,.nt-field textarea:focus{border-color:var(--gold-1);}
+  .nt-field textarea{resize:vertical;min-height:64px;}
+  .nt-modos{display:flex;flex-direction:column;gap:6px;}
+  .nt-field .nt-modo{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);background:var(--white);border:1.5px solid var(--gold-light);border-radius:8px;padding:9px 12px;margin:0;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400;}
+  .nt-field .nt-modo input{width:auto;margin:0;flex-shrink:0;}
+  .turno-actions .btn-action{overflow-wrap:normal;}
+  .login-card p{line-height:1.5;}
+  .nt-aviso{font-size:12px;color:var(--danger);margin:-4px 0 10px;min-height:0;}
+  .cfg-card{background:var(--white);border:1px solid var(--gold-light);border-radius:14px;padding:16px;margin-top:20px;}
+  .aj-avanzado{margin:4px 0 12px;}
+  .aj-avanzado summary{cursor:pointer;font-size:13px;color:var(--gold-1);margin-bottom:10px;}
+  .modal .nt-field{text-align:left;}
+  .modal-ok-btn{background:linear-gradient(135deg,var(--gold-1),var(--gold-2))!important;color:white;}
+  #mg-texto{white-space:pre-line;}
 </style>
 </head>
 <body>
@@ -323,10 +363,28 @@
   <div class="login-card">
     <div class="login-logo">&#10022; Estudio Fotoinfantil</div>
     <h1>Panel de Control</h1>
-    <p>Ingres&#225; tu contrase&#241;a para acceder</p>
-    <input type="password" id="pwd-input" placeholder="&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;&#8226;" onkeydown="if(event.key==='Enter')doLogin()">
-    <button class="login-btn" onclick="doLogin()">Ingresar</button>
-    <div class="login-error" id="login-error">Contrase&#241;a incorrecta</div>
+    <div id="login-form">
+      <p>Ingres&#225; el c&#243;digo de acceso</p>
+      <input type="password" id="pwd-input" placeholder="C&#243;digo de acceso" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <label class="login-check"><input type="checkbox" id="login-recordar" checked> Recordar este dispositivo (30 d&#237;as)</label>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar</button>
+      <div class="login-ok" id="login-ok"></div>
+      <div class="login-error" id="login-error"></div>
+      <button class="login-link" type="button" onclick="mostrarRecuperar()">Olvid&#233; el c&#243;digo</button>
+    </div>
+    <div id="recuperar-form" style="display:none">
+      <p>Te mandamos un c&#243;digo de 6 n&#250;meros a los correos del estudio para elegir un c&#243;digo de acceso nuevo.</p>
+      <button class="login-btn" id="rec-enviar-btn" onclick="pedirCodigoMail()">Enviar c&#243;digo por mail</button>
+      <div id="rec-paso2" style="display:none;margin-top:16px">
+        <input type="text" id="rec-codigo" inputmode="numeric" maxlength="6" placeholder="C&#243;digo del mail (6 n&#250;meros)" autocomplete="one-time-code">
+        <input type="password" id="rec-nuevo" placeholder="C&#243;digo de acceso nuevo (m&#237;n. 8)" autocomplete="new-password">
+        <input type="password" id="rec-nuevo2" placeholder="Repet&#237; el c&#243;digo nuevo" autocomplete="new-password" onkeydown="if(event.key==='Enter')restablecerCodigo()">
+        <button class="login-btn" id="rec-guardar-btn" onclick="restablecerCodigo()">Guardar y entrar</button>
+      </div>
+      <div class="login-ok" id="rec-ok"></div>
+      <div class="login-error" id="rec-error"></div>
+      <button class="login-link" type="button" onclick="mostrarLogin()">&#8592; Volver</button>
+    </div>
   </div>
 </div>
 
@@ -397,6 +455,7 @@
     <div class="controls">
       <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
       <button class="filter-btn" onclick="setFilter('pendiente',this)">Pendientes</button>
+      <button class="filter-btn" onclick="setFilter('sena',this)">Se&#241;a pendiente</button>
       <button class="filter-btn" onclick="setFilter('confirmado',this)">Confirmados</button>
       <button class="filter-btn" onclick="setFilter('cancelado',this)">Cancelados</button>
       <input class="search-input" type="text" id="search-input" placeholder="Buscar..." oninput="renderTurnos()">
@@ -404,7 +463,7 @@
     <div id="month-tabs" class="month-tabs"></div>
     <div class="debug-box" id="debug-box"></div>
     <div class="turnos-wrap">
-      <div class="section-heading"><span>Reservas</span><button class="refresh-btn" onclick="loadData()">&#8635; Actualizar</button></div>
+      <div class="section-heading"><span>Reservas</span><button class="nuevo-btn" onclick="showNuevo()">&#10133; Nuevo turno</button><button class="refresh-btn" onclick="loadData()">&#8635; Actualizar</button></div>
       <div id="turnos-list"></div>
     </div>
   </div>
@@ -413,7 +472,7 @@
   <div class="config-screen" id="config-screen">
     <div class="config-header">
       <button class="config-back-btn" onclick="hideConfig()">&#8592; Volver</button>
-      <h2>&#9881;&#65039; Configuraci&#243;n de d&#237;as</h2>
+      <h2>&#9881;&#65039; Configuraci&#243;n</h2>
     </div>
     <div class="config-body">
       <div class="config-section-title">Gesti&#243;n de d&#237;as y horarios</div>
@@ -455,6 +514,80 @@
         <button class="cfg-save-btn" id="cfg-save-btn" onclick="guardarConfig()" disabled>Guardar cambios</button>
         <div class="cfg-feedback" id="cfg-feedback"></div>
       </div>
+      <div class="cfg-card" id="ajustes-card">
+        <div class="config-section-title">&#128176; Se&#241;a y reservas web</div>
+        <div class="config-section-sub">Lo que ve la mam&#225; al reservar desde la web. Si no recibimos la se&#241;a en el plazo, el horario se libera solo (solo en reservas hechas desde la web).</div>
+        <div class="nt-grid">
+          <div class="nt-field"><label>Se&#241;a ($)</label><input type="number" id="aj-senaMonto" inputmode="numeric"></div>
+          <div class="nt-field"><label>Plazo (horas)</label><input type="number" id="aj-senaHoras" inputmode="numeric"></div>
+        </div>
+        <div class="nt-field"><label>Alias para transferir</label><input type="text" id="aj-alias" placeholder="ej: estudio.foto.mp"></div>
+        <div class="nt-field"><label>WhatsApp del estudio (con 54, sin +)</label><input type="tel" id="aj-whatsappEstudio"></div>
+        <div class="nt-field"><label>Aviso por mail de cada reserva web</label><select id="aj-avisoReservaMail"><option value="si">S&#237;</option><option value="no">No</option></select></div>
+        <details class="aj-avanzado"><summary>Horarios y tipos de sesi&#243;n de la web</summary>
+          <div class="nt-field"><label>Horarios de lunes a viernes</label><input type="text" id="aj-grillaSemana" placeholder="18:00,19:00"></div>
+          <div class="nt-field"><label>Horarios de los s&#225;bados</label><input type="text" id="aj-grillaSabado" placeholder="10:00,11:00,13:00,14:00"></div>
+          <div class="nt-field"><label>D&#237;as m&#237;nimos de anticipaci&#243;n</label><input type="number" id="aj-minDias" inputmode="numeric"></div>
+          <div class="nt-field"><label>Tipos de sesi&#243;n (separados por coma)</label><input type="text" id="aj-tiposSesion"></div>
+        </details>
+        <button class="cfg-save-btn" id="aj-guardar" onclick="guardarAjustes()">Guardar ajustes</button>
+        <div class="cfg-feedback" id="aj-feedback"></div>
+      </div>
+      <div class="cfg-card">
+        <div class="config-section-title">&#128190; Copia de seguridad</div>
+        <div class="config-section-sub">Todos los d&#237;as a las 3 a. m. se guarda una copia de la planilla en Drive (carpeta &#171;Respaldos Estudio Infantil&#187;; quedan las &#250;ltimas 30).</div>
+        <button class="cfg-opt-btn" id="copia-btn" onclick="copiaAhora()">Hacer una copia ahora</button>
+        <div class="cfg-feedback" id="copia-feedback"></div>
+      </div>
+      <div class="cfg-card">
+        <div class="config-section-title">&#128273; C&#243;digo de acceso</div>
+        <div class="config-section-sub">Es uno solo para los dos. Al cambiarlo se cierran las sesiones de los otros dispositivos y les llega un aviso por mail.</div>
+        <div class="nt-field"><label>C&#243;digo actual</label><input type="password" id="cc-actual" autocomplete="current-password"></div>
+        <div class="nt-field"><label>C&#243;digo nuevo (m&#237;nimo 8 caracteres)</label><input type="password" id="cc-nuevo" autocomplete="new-password"></div>
+        <div class="nt-field"><label>Repet&#237; el c&#243;digo nuevo</label><input type="password" id="cc-nuevo2" autocomplete="new-password"></div>
+        <button class="cfg-save-btn" id="cc-guardar" onclick="cambiarCodigo()">Cambiar c&#243;digo</button>
+        <div class="cfg-feedback" id="cc-feedback"></div>
+        <button class="cfg-opt-btn" style="margin-top:14px" onclick="cerrarTodas()">Cerrar sesi&#243;n en todos los dispositivos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUEVO TURNO -->
+  <div class="config-screen" id="nuevo-screen">
+    <div class="config-header">
+      <button class="config-back-btn" onclick="hideNuevo()">&#8592; Volver</button>
+      <h2>&#10133; Nuevo turno</h2>
+    </div>
+    <div class="config-body">
+      <div class="config-section-sub">Para turnos que arreglan por WhatsApp o en persona. Los que cargan ustedes nunca se liberan solos.</div>
+      <div class="nt-grid">
+        <div class="nt-field"><label>Fecha *</label><input type="date" id="nt-fecha" onchange="ntActualizarHorarios()"></div>
+        <div class="nt-field"><label>Horario *</label><select id="nt-horario-sel" onchange="ntHorarioSel()"></select><input type="time" id="nt-horario-otro" style="display:none;margin-top:6px" onchange="ntRevisarChoque()"></div>
+      </div>
+      <div class="nt-aviso" id="nt-aviso"></div>
+      <div class="nt-field"><label>Tipo de sesi&#243;n *</label><select id="nt-tipo"></select></div>
+      <div class="nt-field"><label>Tem&#225;tica</label><input type="text" id="nt-tematica"></div>
+      <div class="nt-field"><label>Nombre del beb&#233; *</label><input type="text" id="nt-bebe"></div>
+      <div class="nt-field"><label>Cumple meses / a&#241;os</label><input type="date" id="nt-cumple"></div>
+      <div class="nt-field"><label>Nombre de la mam&#225;</label><input type="text" id="nt-mama"></div>
+      <div class="nt-grid">
+        <div class="nt-field"><label>Tel&#233;fono</label><input type="tel" id="nt-tel"></div>
+        <div class="nt-field"><label>WhatsApp</label><input type="tel" id="nt-wa" placeholder="si es distinto"></div>
+      </div>
+      <div class="nt-field"><label>&#191;C&#243;mo queda el turno?</label>
+        <div class="nt-modos">
+          <label class="nt-modo"><input type="radio" name="nt-modo" value="asegurado" checked onchange="ntModo()"> Asegurado sin se&#241;a</label>
+          <label class="nt-modo"><input type="radio" name="nt-modo" value="sena" onchange="ntModo()"> Se&#241;a recibida</label>
+          <label class="nt-modo"><input type="radio" name="nt-modo" value="espera" onchange="ntModo()"> Esperando se&#241;a (queda como recordatorio)</label>
+        </div>
+      </div>
+      <div class="nt-grid">
+        <div class="nt-field" id="nt-sena-wrap" style="display:none"><label>Se&#241;a ($)</label><input type="number" id="nt-sena" inputmode="numeric"></div>
+        <div class="nt-field"><label>Total ($)</label><input type="number" id="nt-total" inputmode="numeric"></div>
+      </div>
+      <div class="nt-field"><label>Notas internas</label><textarea id="nt-notas"></textarea></div>
+      <button class="cfg-save-btn" id="nt-guardar" onclick="guardarNuevoTurno()">Guardar turno</button>
+      <div class="cfg-feedback" id="nt-feedback"></div>
     </div>
   </div>
 
@@ -504,20 +637,102 @@
   </div>
 </div>
 
+<!-- MODAL GENERAL (confirmaciones y datos cortos) -->
+<div class="modal-overlay" id="modal-gen">
+  <div class="modal">
+    <h3 id="mg-titulo"></h3>
+    <p id="mg-texto"></p>
+    <div id="mg-campos"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel-btn" id="mg-cancel" onclick="cerrarModalGen(null)">Volver</button>
+      <button class="modal-confirm-btn" id="mg-ok" onclick="aceptarModalGen()">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js?v=2"></script>
 <script>
 // ═══════════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════════
+// La dirección del servidor está en config.js (la misma para el formulario y el panel).
+// El código de acceso lo controla el servidor: no está escrito en ninguna página.
+var EXT_CONFIG = window.ESTUDIO_CONFIG || {};
 const ADMIN_CONFIG = {
-  PASSWORD: 'estudio2025',
-  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbyEKM_4aseVa8oZs0whSSrWXZjGew1Qqwo0oA9lQ6AvUP-eMoAcSsXkbg1E7nK0VOUVuQ/exec',
+  SCRIPT_URL: String(EXT_CONFIG.SCRIPT_URL || ''),
+  // Horarios base: se reemplazan por los de la pestaña "Ajustes" al entrar
   SLOTS_WEEKDAY: ['18:00','19:00'],
   SLOTS_SATURDAY: ['10:00','11:00','13:00','14:00']
 };
+var ajustes = null;   // seña, alias, horarios… (pestaña "Ajustes" de la planilla)
+var ajustesPromesa = null;   // carga de ajustes en curso (las tarjetas la esperan para armar los mensajes)
 
 var allTurnos = [], currentFilter = 'todos', currentMonth = 'todos';
 var cancelTarget = null, bloqueos = [], pendingAction = null, aiHistory = [];
 var cfgCal = { month: new Date().getMonth(), year: new Date().getFullYear(), selectedDate: null };
+
+// ═══════════════════════════════════════════════════════════
+// SESIÓN Y SERVIDOR
+// ═══════════════════════════════════════════════════════════
+var sesion = { token: '', recordar: false };
+var CLAVE_TOKEN = 'panelEstudioToken';
+function leerTokenGuardado() {
+  try {
+    var t = localStorage.getItem(CLAVE_TOKEN);
+    if (t) return { token: t, recordar: true };
+    t = sessionStorage.getItem(CLAVE_TOKEN);
+    if (t) return { token: t, recordar: false };
+  } catch(e) {}
+  return null;
+}
+function guardarToken(token, recordar) {
+  sesion.token = token || ''; sesion.recordar = !!recordar;
+  try {
+    localStorage.removeItem(CLAVE_TOKEN); sessionStorage.removeItem(CLAVE_TOKEN);
+    if (token) (recordar ? localStorage : sessionStorage).setItem(CLAVE_TOKEN, token);
+  } catch(e) {}
+}
+var ACCIONES_PUBLICAS = ['login', 'recuperar', 'restablecer'];
+
+// Habla con el servidor. Devuelve SIEMPRE su respuesta ({ ok:true, ... } o { ok:false, error }).
+// Solo lanza un error si no hubo conexión (en ese caso no se sabe si llegó).
+async function api(action, datos, ms) {
+  if (ADMIN_CONFIG.SCRIPT_URL.indexOf('https://') !== 0) throw new Error('falta la dirección del servidor en config.js');
+  var body = Object.assign({ action: action, token: sesion.token }, datos || {});
+  var ctrl  = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function() { ctrl.abort(); }, ms || 30000) : null;
+  var data;
+  try {
+    var opts = { method: 'POST', body: JSON.stringify(body) };   // texto plano: la respuesta se puede leer
+    if (ctrl) opts.signal = ctrl.signal;
+    var resp = await fetch(ADMIN_CONFIG.SCRIPT_URL, opts);
+    data = await resp.json();
+  } catch(e) {
+    throw new Error('sin conexión con el servidor');
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+  if (!data || typeof data !== 'object') throw new Error('respuesta vacía del servidor');
+  if (data.ok === false && data.codigo === 'auth' && ACCIONES_PUBLICAS.indexOf(action) < 0 && action !== 'logout') sesionVencida(data.error);
+  return data;
+}
+function sesionVencida(msg) {
+  if (!sesion.token && document.getElementById('login-screen').style.display !== 'none') return;
+  guardarToken('', false);
+  salirDelPanel();
+  mostrarErrorLogin(msg || 'Tu sesión venció. Ingresá el código de nuevo.');
+}
+function idAlAzar() {
+  try {
+    var a = new Uint32Array(4); window.crypto.getRandomValues(a);
+    return Array.prototype.map.call(a, function(n) { return n.toString(36); }).join('');
+  } catch(e) { return String(Math.random()).slice(2) + String(Date.now()); }
+}
+function hashTexto(s) {
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
 
 // ═══════════════════════════════════════════════════════════
 // HELPERS
@@ -620,14 +835,52 @@ function normalizeReserva(row, idx) {
     senya: String(g(['senya','Senya']) || ''),
     total: String(g(['total','Total']) || ''),
     resta: String(g(['resta','Resta']) || ''),
-    notasInternas: String(g(['notasInternas','NotasInternas']) || '')
+    notasInternas: String(g(['notasInternas','NotasInternas']) || ''),
+    sena: row.sena && typeof row.sena === 'object' ? row.sena : null,   // seguimiento de la seña (reservas nuevas)
+    sinId: !g(['id','ID'])
   };
+}
+
+// ¿Esta reserva ocupa su horario? (las de la web con la seña vencida lo liberan solas)
+function ocupa(t) {
+  if (t.estado === 'CANCELADO') return false;
+  return !(t.sena && t.sena.origen === 'clienta' && t.sena.estado === 'vencida');
+}
+function esperandoSena(t) {
+  return t.estado === 'PENDIENTE' && !!t.sena && (t.sena.estado === 'esperando' || t.sena.estado === 'vencida');
+}
+function pesos(n) { var x = parseFloat(n); return '$' + (isNaN(x) ? '0' : x.toLocaleString('es-AR')); }
+function fechaHoraCorta(iso) {
+  var d = new Date(iso);
+  if (isNaN(d)) return '';
+  return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth() + 1).padStart(2,'0') + ' ' +
+         String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function filtrarPorEstado(list) {
+  if (currentFilter === 'sena') return list.filter(esperandoSena);
+  if (currentFilter !== 'todos') return list.filter(function(t) { return t.estado.toLowerCase() === currentFilter; });
+  return list;
+}
+// Etiqueta de la seña en la tarjeta (solo reservas hechas con el servidor nuevo)
+function badgeSena(t) {
+  var s = t.sena;
+  if (!s || !s.estado || t.estado === 'CANCELADO') return '';
+  var monto = parseFloat(t.senya) > 0 ? ' · ' + esc(pesos(t.senya)) : '';
+  if (s.estado === 'recibida' || (s.estado === 'asegurada' && parseFloat(t.senya) > 0)) return '<div class="sena-badge sb-recibida">&#10003; Se&#241;a recibida' + monto + '</div>';
+  if (s.estado === 'asegurada') return '<div class="sena-badge sb-asegurada">&#128274; Asegurado sin se&#241;a</div>';
+  var vence = s.vence ? fechaHoraCorta(s.vence) : '';
+  if (s.estado === 'esperando') return '<div class="sena-badge sb-esperando">&#9203; Esperando se&#241;a' + (vence ? ' · vence ' + esc(vence) : '') + '</div>';
+  if (s.estado === 'vencida') return s.origen === 'clienta'
+    ? '<div class="sena-badge sb-vencida">&#8987; Se&#241;a vencida · el horario se liber&#243;</div>'
+    : '<div class="sena-badge sb-esperando">&#9203; Se&#241;a pendiente (pas&#243; el plazo)</div>';
+  return '';
 }
 
 // ═══════════════════════════════════════════════════════════
 // WHATSAPP MENSAJES
 // ═══════════════════════════════════════════════════════════
 function buildMsgConfirm(t, ds) {
+  var sN = parseFloat(t.senya) || 0, tN = parseFloat(t.total) || 0;
   var l = [
     'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Turno confirmado! Muchas gracias.',
     'Te dejo la info:', '',
@@ -637,13 +890,30 @@ function buildMsgConfirm(t, ds) {
     cp(127874) + ' *Sesión:* ' + t.tipoSesion,
     cp(128105) + ' *Mamá:* ' + t.nombreMama,
     cp(127912) + ' *Temática:* ' + (t.tematica || '-'),
-    cp(128176) + ' *Seña:* ',
-    cp(128181) + ' *Resta:* ',
+    cp(128176) + ' *Seña:* ' + (sN > 0 ? pesos(sN) : ''),
+    cp(128181) + ' *Resta:* ' + (tN > 0 ? pesos(Math.max(0, tN - sN)) : ''),
     cp(9989) + ' *Valor cobrado:* ',
     cp(128203) + ' *Observaciones:* ', '',
     'Muchas gracias, nos vemos pronto! ' + cp(128248) + cp(128149)
   ];
   return encodeURIComponent(l.join('\n'));
+}
+
+// Pedido de seña por WhatsApp (monto y alias de "Ajustes")
+function buildMsgSena(t, ds) {
+  var monto = ajustes ? ajustes.senaMonto : 0;
+  var alias = ajustes ? String(ajustes.alias || '').trim() : '';
+  var vence = t.sena && t.sena.vence && t.sena.estado === 'esperando' ? fechaHoraCorta(t.sena.vence) : '';
+  var l = [
+    'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Recibimos tu reserva para la sesión de ' + t.nombreBebe + ':',
+    cp(128197) + ' ' + ds + ' a las ' + t.horario + ' hs', '',
+    alias
+      ? 'Para confirmarla, transferí la seña de ' + pesos(monto) + ' al alias *' + alias + '* y mandanos el comprobante por acá.'
+      : 'Para confirmarla te pedimos una seña de ' + pesos(monto) + '. Te paso los datos para transferir:',
+    vence ? 'Te guardamos el horario hasta el ' + vence + ' hs.' : '',
+    '', '¡Gracias! ' + cp(128248)
+  ];
+  return encodeURIComponent(l.filter(function(x, i, arr) { return !(x === '' && arr[i - 1] === ''); }).join('\n'));
 }
 
 function buildMsgRec(t, ds) {
@@ -664,25 +934,128 @@ function buildMsgRec(t, ds) {
 }
 
 // ═══════════════════════════════════════════════════════════
-// LOGIN / LOGOUT
+// LOGIN / LOGOUT / RECUPERAR CÓDIGO
 // ═══════════════════════════════════════════════════════════
-function doLogin() {
-  if (document.getElementById('pwd-input').value === ADMIN_CONFIG.PASSWORD) {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('admin-panel').classList.add('show');
-    loadData();
-    loadConfig();
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-    document.getElementById('pwd-input').value = '';
-    setTimeout(function() { document.getElementById('login-error').style.display = 'none'; }, 3000);
-  }
+function mostrarErrorLogin(msg) {
+  var el = document.getElementById('login-error');
+  el.textContent = msg || ''; el.style.display = msg ? 'block' : 'none';
+  document.getElementById('login-ok').textContent = '';
 }
-
-function doLogout() {
+async function doLogin() {
+  var input = document.getElementById('pwd-input'), btn = document.getElementById('login-btn');
+  var codigo = input.value;
+  if (!codigo.trim()) { mostrarErrorLogin('Escribí el código de acceso.'); return; }
+  var recordar = document.getElementById('login-recordar').checked;
+  btn.disabled = true; btn.textContent = 'Verificando...'; mostrarErrorLogin('');
+  try {
+    var r = await api('login', { codigo: codigo, recordar: recordar });
+    if (r.ok && r.token) {
+      input.value = '';
+      guardarToken(r.token, recordar);
+      entrarAlPanel();
+    } else {
+      mostrarErrorLogin(r.error || 'Código incorrecto');
+      input.value = '';
+    }
+  } catch(e) {
+    mostrarErrorLogin('No se pudo conectar con el servidor (' + e.message + '). Probá de nuevo.');
+  }
+  btn.disabled = false; btn.textContent = 'Ingresar';
+}
+function entrarAlPanel() {
+  mostrarErrorLogin('');
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-panel').classList.add('show');
+  ajustesPromesa = cargarAjustes();
+  loadData();
+  loadConfig();
+}
+// Vuelve a la pantalla de ingreso y borra de la pantalla los datos de las clientas
+function salirDelPanel() {
   document.getElementById('admin-panel').classList.remove('show');
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('pwd-input').value = '';
+  mostrarLogin();
+  allTurnos = []; aiHistory = [];
+  document.getElementById('turnos-list').innerHTML = '';
+  document.getElementById('ai-messages').innerHTML = '';
+  ['config-screen', 'nuevo-screen', 'ai-screen'].forEach(function(id) { document.getElementById(id).classList.remove('show'); });
+  document.getElementById('turnos-view').style.display = 'block';
+}
+async function doLogout() {
+  var t = sesion.token;
+  guardarToken('', false);
+  salirDelPanel();
+  if (t) { try { await api('logout', { token: t }); } catch(e) {} }
+}
+function mostrarRecuperar() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('recuperar-form').style.display = 'block';
+  document.getElementById('rec-paso2').style.display = 'none';
+  document.getElementById('rec-enviar-btn').textContent = 'Enviar código por mail';
+  document.getElementById('rec-error').textContent = '';
+  document.getElementById('rec-ok').textContent = '';
+  ['rec-codigo', 'rec-nuevo', 'rec-nuevo2'].forEach(function(id) { document.getElementById(id).value = ''; });
+}
+function mostrarLogin() {
+  document.getElementById('recuperar-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+async function pedirCodigoMail() {
+  var btn = document.getElementById('rec-enviar-btn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  document.getElementById('rec-error').textContent = '';
+  try {
+    await api('recuperar');
+    document.getElementById('rec-ok').textContent = 'Listo. En un minuto les llega un mail con el código (revisen también Spam). Vence en 15 minutos y sirve una sola vez.';
+    document.getElementById('rec-paso2').style.display = 'block';
+    btn.textContent = 'Reenviar código';
+  } catch(e) {
+    document.getElementById('rec-error').textContent = 'No se pudo conectar con el servidor (' + e.message + ').';
+    btn.textContent = 'Enviar código por mail';
+  }
+  btn.disabled = false;
+}
+async function restablecerCodigo() {
+  var cod = document.getElementById('rec-codigo').value.replace(/\D/g, '');
+  var n1 = document.getElementById('rec-nuevo').value, n2 = document.getElementById('rec-nuevo2').value;
+  var err = document.getElementById('rec-error');
+  err.textContent = '';
+  if (cod.length !== 6) { err.textContent = 'Escribí los 6 números que llegaron por mail.'; return; }
+  if (n1.trim().length < 8) { err.textContent = 'El código nuevo tiene que tener al menos 8 caracteres.'; return; }
+  if (n1 !== n2) { err.textContent = 'Los dos códigos nuevos no coinciden.'; return; }
+  var recordar = document.getElementById('login-recordar').checked;
+  var btn = document.getElementById('rec-guardar-btn');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    var r = await api('restablecer', { codigoMail: cod, nuevo: n1, recordar: recordar });
+    if (r.ok && r.token) {
+      guardarToken(r.token, recordar);
+      ['rec-codigo', 'rec-nuevo', 'rec-nuevo2'].forEach(function(id) { document.getElementById(id).value = ''; });
+      mostrarLogin();
+      entrarAlPanel();
+      toast('✓ Código de acceso cambiado. Les llegó un aviso por mail.', 'ok');
+    } else {
+      err.textContent = r.error || 'No se pudo cambiar el código.';
+    }
+  } catch(e) {
+    err.textContent = 'No se pudo conectar con el servidor (' + e.message + ').';
+  }
+  btn.disabled = false; btn.textContent = 'Guardar y entrar';
+}
+// Al abrir el panel: si este dispositivo tiene una sesión guardada, se entra directo
+async function iniciarPanel() {
+  var g = leerTokenGuardado();
+  if (!g) return;
+  sesion.token = g.token; sesion.recordar = g.recordar;
+  document.getElementById('login-ok').textContent = 'Conectando...';
+  try {
+    var r = await api('verificar');
+    document.getElementById('login-ok').textContent = '';
+    if (r.ok) entrarAlPanel();
+  } catch(e) {
+    mostrarErrorLogin('No se pudo conectar con el servidor. Revisá la conexión y recargá la página.');
+  }
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -690,10 +1063,10 @@ function doLogout() {
 // ═══════════════════════════════════════════════════════════
 // Lee las reservas de la planilla (solo lectura)
 async function leerTurnosServidor() {
-  var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getAll', { mode: 'cors' });
-  var d = await r.json();
-  if (d.error) throw new Error(d.error);
-  return (d.reservas || []).map(function(row, idx) {
+  var d = await api('getAll');
+  if (!d.ok) throw new Error(d.error || 'error del servidor');
+  if (!Array.isArray(d.reservas)) throw new Error('formato inesperado');
+  return d.reservas.map(function(row, idx) {
     return normalizeReserva(row, idx);
   }).filter(function(t) {
     return t.id && t.id !== '' && (t.nombreBebe !== '--' || t.fecha !== '');
@@ -709,6 +1082,7 @@ async function loadData() {
     showDebug('No se pudo conectar.\nError: ' + err.message);
     if (allTurnos.length === 0) allTurnos = [];
   }
+  if (ajustesPromesa) await ajustesPromesa;   // así los mensajes de WhatsApp ya tienen la seña y el alias
   stopLoading();
   refrescarVista();
 }
@@ -731,17 +1105,17 @@ function showDebug(m) {
 function detectarConflictos() {
   var map = {};
   allTurnos.forEach(function(t) {
-    if (t.estado === 'CANCELADO') return;
+    if (!ocupa(t)) return;
     var k = t.fecha + '_' + t.horario;
     if (!map[k]) map[k] = [];
     map[k].push(t.id);
   });
   allTurnos.forEach(function(t) {
     var k = t.fecha + '_' + t.horario;
-    t.tieneConflicto = !!(map[k] && map[k].length > 1);
+    t.tieneConflicto = ocupa(t) && !!(map[k] && map[k].length > 1);
   });
   var n = Object.values(map).filter(function(ids) { return ids.length > 1; }).length;
-  if (n > 0) showDebug('\u26a0\ufe0f CONFLICTO: ' + n + ' horario(s) con más de una reserva activa (borde rojo).');
+  if (n > 0) showDebug('⚠️ CONFLICTO: ' + n + ' horario(s) con más de una reserva activa (borde rojo).');
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -765,9 +1139,9 @@ function renderDailyPanel() {
   document.getElementById('dp-fecha-num').textContent = now.getDate();
   document.getElementById('dp-fecha-mes').textContent = mesLabel + ' ' + now.getFullYear();
 
-  var hoy  = allTurnos.filter(function(t) { return t.fecha === hoyStr  && t.estado !== 'CANCELADO'; })
+  var hoy  = allTurnos.filter(function(t) { return t.fecha === hoyStr  && ocupa(t); })
                        .sort(function(a,b) { return (a.horario||'').localeCompare(b.horario||''); });
-  var mana = allTurnos.filter(function(t) { return t.fecha === manaStr && t.estado !== 'CANCELADO'; })
+  var mana = allTurnos.filter(function(t) { return t.fecha === manaStr && ocupa(t); })
                        .sort(function(a,b) { return (a.horario||'').localeCompare(b.horario||''); });
 
   document.getElementById('dp-count-hoy').textContent =
@@ -868,7 +1242,7 @@ function setMonthFilter(ym, btn) {
 function renderMonthTabs() {
   var c    = document.getElementById('month-tabs');
   var list = allTurnos;
-  if (currentFilter !== 'todos') list = list.filter(function(t) { return t.estado.toLowerCase() === currentFilter; });
+  list = filtrarPorEstado(list);
   var mm = {};
   list.forEach(function(t) {
     if (!t.fecha || t.fecha.length < 7) return;
@@ -894,7 +1268,7 @@ function renderMonthTabs() {
 function renderTurnos() {
   var search = document.getElementById('search-input').value.toLowerCase();
   var list   = allTurnos.slice();
-  if (currentFilter !== 'todos') list = list.filter(function(t) { return t.estado.toLowerCase() === currentFilter; });
+  list = filtrarPorEstado(list);
   if (search) list = list.filter(function(t) {
     return t.nombreBebe.toLowerCase().includes(search) ||
            t.nombreMama.toLowerCase().includes(search) ||
@@ -993,13 +1367,20 @@ function buildTurnoCard(t) {
   var wf  = wn ? (wn.startsWith('54') ? wn : '54' + wn) : '';
   var mC  = buildMsgConfirm(t, ds);
   var mR  = buildMsgRec(t, ds);
-  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank" rel="noopener">' + waI() + ' Confirmar+WA</a>' : '';
+  var mS  = buildMsgSena(t, ds);
+  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank" rel="noopener">' + waI() + ' WA confirm.</a>' : '';
   var waR = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mR + '" target="_blank" rel="noopener">' + waI() + ' WA record.</a>' : '';
+  var waS = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mS + '" target="_blank" rel="noopener">' + waI() + ' WA seña</a>' : '';
+  var conSena = (t.sena && t.sena.estado === 'recibida') || parseFloat(t.senya) > 0;
+  var mover = '<button class="btn-action btn-mover-action" onclick="moverTurno(' + idA + ')">&#128197; Mover</button>';
   var ab  = t.estado === 'PENDIENTE'
-    ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(' + idA + ',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>' + waC
+    ? (conSena ? '' : '<button class="btn-action btn-sena-action" onclick="senaRecibida(' + idA + ')">&#128184; Seña recibida</button>') +
+      '<button class="btn-action btn-confirm-action" onclick="updateStatus(' + idA + ',\'CONFIRMADO\')">' + (conSena ? 'Confirmar' : 'Confirmar sin seña') + '</button>' +
+      '<button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>' + (conSena ? waC : waS) + mover
     : t.estado === 'CONFIRMADO'
-      ? waR + '<button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>'
+      ? waC + waR + mover + '<button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>'
       : '<button class="btn-action btn-confirm-action" onclick="updateStatus(' + idA + ',\'PENDIENTE\')">Reactivar</button>';
+  if (t.sinId) ab = '';   // sin ID en la planilla no se puede cambiar desde el panel
   var sN  = parseFloat(t.senya) || 0;
   var tN  = parseFloat(t.total) || 0;
   var rN  = tN - sN;
@@ -1018,7 +1399,8 @@ function buildTurnoCard(t) {
   var conSaltos   = function(s) { return esc(s).replace(/\r?\n/g, '<br>'); };
 
   return '<div class="turno-card ' + esc(el) + cardExtra + (t.tieneConflicto ? ' conflicto' : '') + '" id="card-' + idH + '">' + ch +
-    '<div class="turno-top"><div><div class="turno-date">' + esc(ds) + '</div><div class="turno-time">' + esc(t.horario) + ' hs ' + pb + '</div></div>' + badgeEstado + '</div>' +
+    '<div class="turno-top"><div><div class="turno-date">' + esc(ds) + '</div><div class="turno-time">' + esc(t.horario) + ' hs ' + pb + '</div></div>' + badgeEstado + '</div>' + badgeSena(t) +
+    (t.sinId ? '<div class="turno-nota-sinid">Esta reserva no tiene ID en la planilla: para cambiarla hay que editarla a mano en la planilla.</div>' : '') +
     '<div class="turno-info">' +
       '<div class="turno-info-item"><span class="info-key">Bebé</span><span class="info-val">' + esc(t.nombreBebe) + '</span></div>' +
       '<div class="turno-info-item"><span class="info-key">Tipo sesión</span><span class="info-val">' + esc(t.tipoSesion) + '</span></div>' +
@@ -1031,7 +1413,7 @@ function buildTurnoCard(t) {
     '</div>' +
     (t.notas ? '<div class="turno-notas">"' + conSaltos(t.notas) + '"</div>' : '') +
     (t.notasInternas ? '<div class="turno-notas-int">&#128203; ' + conSaltos(t.notasInternas) + '</div>' : '') +
-    '<div class="turno-actions">' + ab + '<button class="btn-action btn-pago-action" onclick="togglePago(' + idA + ')">&#128176; Pago</button></div>' +
+    '<div class="turno-actions">' + ab + (t.sinId ? '' : '<button class="btn-action btn-pago-action" onclick="togglePago(' + idA + ')">&#128176; Pago</button>') + '</div>' +
     pp +
     '<div class="turno-id">ID: ' + idH + ' &middot; Reservado: ' + esc(rs) + '</div></div>';
 }
@@ -1074,94 +1456,388 @@ function valorCampoPago(el) {
   return el.value === ini ? el.value : (el.value || '').trim();
 }
 
-async function guardarPago(id) {
-  // Los campos que no se tocaron se mandan EXACTAMENTE como estaban en la planilla
-  var sv = valorCampoPago(document.getElementById('senya-' + id));
-  var tv = valorCampoPago(document.getElementById('total-' + id));
-  var nv = valorCampoPago(document.getElementById('notas-int-' + id));
-  var sN = parseFloat(sv) || 0;
-  var tN = parseFloat(tv) || 0;
-  var rv = tN > 0 ? String(tN - sN) : '';
-  var turno = allTurnos.find(function(t) { return t.id === id; });
-  var previo = turno ? { senya: turno.senya, total: turno.total, resta: turno.resta, notasInternas: turno.notasInternas } : null;
-  if (turno) { turno.senya = sv; turno.total = tv; turno.resta = rv; turno.notasInternas = nv; }
-  var btn = document.getElementById('save-btn-' + id);
-  if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
-  try {
-    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action:'updatePago', id, senya:sv, total:tv, resta:rv, notasInternas:nv })
-    });
-  } catch(e) {
-    // No salió: se vuelve a lo que había y se avisa
-    if (turno && previo) { turno.senya = previo.senya; turno.total = previo.total; turno.resta = previo.resta; turno.notasInternas = previo.notasInternas; }
-    if (btn) { btn.textContent = 'Error: no se guardó'; btn.disabled = false; }
-    toast('⚠️ No se pudo guardar el pago (sin conexión). No se cambió nada.', 'err');
-    return;
-  }
-  if (btn) btn.textContent = 'Enviado · verificando...';
-  verificarTurno(id, function(t) {
-    return mismoNumero(t.senya, sv) && mismoNumero(t.total, tv) && mismoTexto(t.notasInternas, nv);
-  }, 'el pago', function() {
-    var b = document.getElementById('save-btn-' + id);
-    if (b) { b.textContent = 'Guardar cambios'; b.disabled = false; }
-  });
-}
-
 // ═══════════════════════════════════════════════════════════
-// UPDATE STATUS
+// GUARDAR CAMBIOS (el servidor responde con la reserva ya guardada)
 // ═══════════════════════════════════════════════════════════
-async function updateStatus(id, ns) {
-  startLoading();
-  var t = allTurnos.find(function(t) { return t.id === id; });
-  var previo = t ? t.estado : null;
-  if (t) t.estado = ns;
-  updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
-  try {
-    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action:'updateStatus', id, status:ns })
-    });
-  } catch(e) {
-    // No salió: se vuelve al estado anterior en pantalla y se avisa
-    if (t) t.estado = previo;
-    updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
-    stopLoading();
-    toast('⚠️ No se pudo cambiar el estado (sin conexión). No se cambió nada.', 'err');
-    return;
-  }
-  stopLoading();
-  verificarTurno(id, function(x) { return x.estado === ns; }, 'el cambio de estado');
+// Pone en pantalla la reserva tal como quedó en la planilla
+function aplicarReserva(row) {
+  if (!row || !row.id) return null;
+  var nueva = normalizeReserva(row, 0);
+  var i = allTurnos.findIndex(function(t) { return t.id === nueva.id; });
+  if (i >= 0) allTurnos[i] = nueva; else allTurnos.push(nueva);
+  refrescarSinPerderCambios(nueva.id);
+  return nueva;
 }
-
-// Después de guardar, vuelve a leer la planilla para confirmar que el cambio quedó (solo lectura)
-async function verificarTurno(id, check, que, onDone) {
-  await esperar(900);
-  var lista;
-  try {
-    lista = await leerTurnosServidor();
-  } catch(e) {
-    toast('Enviado, pero no pude verificarlo (sin conexión). Tocá «Actualizar» en un rato.', 'warn');
-    if (onDone) onDone(null);
-    return;
-  }
-  var t  = lista.find(function(x) { return x.id === id; });
-  var ok = !!(t && check(t));
-  // Si hay otro panel de pago abierto (con cambios sin guardar), no se redibuja para no perderlos
+// Redibuja sin perder lo que se esté escribiendo en otro panel de pago abierto
+function refrescarSinPerderCambios(id) {
   var abiertos = Array.prototype.slice.call(document.querySelectorAll('.pago-panel'))
     .filter(function(p) { return p.style.display === 'block'; })
     .map(function(p) { return p.id; });
   var otros = abiertos.filter(function(pid) { return pid !== 'pago-' + id; });
-  allTurnos = lista;
+  detectarConflictos(); updateStats(); renderDailyPanel();
   if (otros.length === 0) {
-    refrescarVista();
+    renderMonthTabs(); renderTurnos();
     abiertos.forEach(function(pid) { var p = document.getElementById(pid); if (p) p.style.display = 'block'; });
+    return;
   }
-  if (ok) toast('✓ Guardado y verificado en la planilla', 'ok');
-  else toast('⚠️ No pude confirmar ' + que + ' en la planilla. Revisá esa reserva y tocá «Actualizar».', 'err');
-  if (onDone) onDone(ok);
+  var card = document.getElementById('card-' + id);
+  var t = allTurnos.find(function(x) { return x.id === id; });
+  if (card && t) {
+    var tmp = document.createElement('div');
+    tmp.innerHTML = buildTurnoCard(t);
+    var abierto = abiertos.indexOf('pago-' + id) >= 0;
+    card.parentNode.replaceChild(tmp.firstChild, card);
+    if (abierto) { var p = document.getElementById('pago-' + id); if (p) p.style.display = 'block'; }
+  }
+}
+function avisoSinConexion(que) {
+  toast('⚠️ No pude confirmar ' + que + ' (sin conexión). Tocá «Actualizar» para ver cómo quedó.', 'err');
+}
+
+async function guardarPago(id) {
+  var turno = allTurnos.find(function(t) { return t.id === id; });
+  if (!turno) return;
+  // Los campos que no se tocaron se mandan EXACTAMENTE como estaban en la planilla
+  var sv = valorCampoPago(document.getElementById('senya-' + id));
+  var tv = valorCampoPago(document.getElementById('total-' + id));
+  var nv = valorCampoPago(document.getElementById('notas-int-' + id));
+  // "Resta" se recalcula solo si cambió la seña o el total
+  var rv = turno.resta;
+  if (sv !== turno.senya || tv !== turno.total) {
+    var sN = parseFloat(sv) || 0, tN = parseFloat(tv) || 0;
+    rv = tN > 0 ? String(tN - sN) : '';
+  }
+  var btn = document.getElementById('save-btn-' + id);
+  if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
+  try {
+    var r = await api('updatePago', { id: id, senya: sv, total: tv, resta: rv, notasInternas: nv });
+    if (r.ok) {
+      aplicarReserva(r.reserva);
+      toast('✓ Pago guardado en la planilla', 'ok');
+    } else {
+      toast('⚠️ No se guardó: ' + (r.error || 'error del servidor'), 'err');
+    }
+  } catch(e) {
+    avisoSinConexion('el pago');
+  }
+  var b = document.getElementById('save-btn-' + id);
+  if (b) { b.textContent = 'Guardar cambios'; b.disabled = false; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ESTADO, SEÑA Y CAMBIO DE HORARIO
+// ═══════════════════════════════════════════════════════════
+async function updateStatus(id, ns, forzar) {
+  startLoading();
+  var r;
+  try { r = await api('updateStatus', { id: id, status: ns, forzar: !!forzar }); }
+  catch(e) { stopLoading(); avisoSinConexion('el cambio de estado'); return false; }
+  stopLoading();
+  if (r.ok) {
+    var t = aplicarReserva(r.reserva);
+    var msg = ns === 'CANCELADO' ? '✓ Turno cancelado' : (ns === 'PENDIENTE' ? '✓ Turno reactivado (pendiente)' :
+      (t && t.sena && t.sena.estado === 'asegurada' && !(parseFloat(t.senya) > 0) ? '✓ Turno confirmado sin seña: ya no se libera solo' : '✓ Turno confirmado'));
+    toast(msg, 'ok');
+    return true;
+  }
+  if (r.codigo === 'ocupado' && !forzar) {
+    var si = await confirmar({ titulo: 'Horario ocupado', texto: r.error, ok: 'Sí, igual', peligro: true });
+    return si ? updateStatus(id, ns, true) : false;
+  }
+  toast('⚠️ No se hizo el cambio: ' + (r.error || 'error del servidor'), 'err');
+  return false;
+}
+
+async function senaRecibida(id) {
+  var t = allTurnos.find(function(x) { return x.id === id; });
+  if (!t) return;
+  var monto = ajustes && ajustes.senaMonto ? ajustes.senaMonto : 17000;
+  var v = await pedirDatos({
+    titulo: 'Seña recibida',
+    texto: t.nombreBebe + ' · ' + t.fecha + ' ' + t.horario + ' hs\nSe anota la seña y el turno queda CONFIRMADO.',
+    campos: [{ id: 'monto', label: 'Monto de la seña ($)', tipo: 'number', valor: String(monto), inputmode: 'numeric' }],
+    ok: 'Guardar seña'
+  });
+  if (!v) return;
+  var m = String(v.monto || '').trim();
+  if (!/^\d+(\.\d+)?$/.test(m) || parseFloat(m) <= 0) { toast('⚠️ El monto tiene que ser un número mayor a 0. No se guardó nada.', 'err'); return; }
+  startLoading();
+  var r;
+  try { r = await api('senaRecibida', { id: id, monto: m }); }
+  catch(e) { stopLoading(); avisoSinConexion('la seña'); return; }
+  stopLoading();
+  if (r.ok) { aplicarReserva(r.reserva); toast('✓ Seña de ' + pesos(m) + ' registrada · turno confirmado', 'ok'); }
+  else toast('⚠️ No se guardó la seña: ' + (r.error || 'error del servidor'), 'err');
+}
+
+async function moverTurno(id, forzar, previo) {
+  var t = allTurnos.find(function(x) { return x.id === id; });
+  if (!t) return;
+  var v = previo;
+  if (!v) {
+    v = await pedirDatos({
+      titulo: 'Cambiar día u horario',
+      texto: t.nombreBebe + ' · ahora: ' + t.fecha + ' ' + t.horario + ' hs',
+      campos: [{ id: 'fecha', label: 'Nueva fecha', tipo: 'date', valor: t.fecha }, { id: 'horario', label: 'Nuevo horario', tipo: 'time', valor: horaValida(t.horario) ? t.horario : '' }],
+      ok: 'Mover'
+    });
+    if (!v) return;
+  }
+  var nf = String(v.fecha || ''), nh = String(v.horario || '').slice(0, 5);
+  if (!fechaValida(nf) || !horaValida(nh)) { toast('⚠️ Revisá la fecha y el horario. No se cambió nada.', 'err'); return; }
+  if (nf === t.fecha && nh === t.horario) { toast('Es el mismo día y horario: no se cambió nada.', 'warn'); return; }
+  startLoading();
+  var r;
+  try { r = await api('reprogramar', { id: id, newFecha: nf, newHorario: nh, forzar: !!forzar }); }
+  catch(e) { stopLoading(); avisoSinConexion('el cambio de horario'); return; }
+  stopLoading();
+  if (r.ok) { aplicarReserva(r.reserva); toast('✓ Turno movido al ' + nf + ' a las ' + nh + ' hs', 'ok'); return; }
+  if (r.codigo === 'ocupado' && !forzar) {
+    var si = await confirmar({ titulo: 'Horario ocupado', texto: r.error + '\n¿Mover igual? Van a quedar dos turnos en el mismo horario.', ok: 'Mover igual', peligro: true });
+    if (si) moverTurno(id, true, { fecha: nf, horario: nh });
+    return;
+  }
+  toast('⚠️ No se movió: ' + (r.error || 'error del servidor'), 'err');
+}
+
+// ═══════════════════════════════════════════════════════════
+// VENTANA PARA CONFIRMAR O PEDIR UN DATO
+// ═══════════════════════════════════════════════════════════
+var mgResolver = null, mgCampos = [];
+function pedirDatos(op) {
+  return new Promise(function(resolve) {
+    if (mgResolver) mgResolver(null);
+    mgResolver = resolve;
+    mgCampos = op.campos || [];
+    document.getElementById('mg-titulo').textContent = op.titulo || '';
+    document.getElementById('mg-texto').textContent = op.texto || '';
+    var cont = document.getElementById('mg-campos');
+    cont.innerHTML = '';
+    mgCampos.forEach(function(c) {
+      var w = document.createElement('div'); w.className = 'nt-field';
+      var l = document.createElement('label'); l.textContent = c.label; l.setAttribute('for', 'mg-' + c.id);
+      var i = document.createElement('input'); i.type = c.tipo || 'text'; i.id = 'mg-' + c.id; i.value = c.valor || '';
+      if (c.inputmode) i.setAttribute('inputmode', c.inputmode);
+      w.appendChild(l); w.appendChild(i); cont.appendChild(w);
+    });
+    var ok = document.getElementById('mg-ok');
+    ok.textContent = op.ok || 'Aceptar';
+    ok.className = 'modal-confirm-btn' + (op.peligro ? '' : ' modal-ok-btn');
+    document.getElementById('mg-cancel').textContent = op.cancelar || 'Volver';
+    document.getElementById('modal-gen').classList.add('show');
+  });
+}
+function aceptarModalGen() {
+  var v = { ok: true };
+  mgCampos.forEach(function(c) { var el = document.getElementById('mg-' + c.id); v[c.id] = el ? el.value : ''; });
+  cerrarModalGen(v);
+}
+function cerrarModalGen(valor) {
+  document.getElementById('modal-gen').classList.remove('show');
+  var r = mgResolver; mgResolver = null;
+  if (r) r(valor);
+}
+function confirmar(op) { return pedirDatos(op).then(function(v) { return !!v; }); }
+
+// ═══════════════════════════════════════════════════════════
+// NUEVO TURNO (cargado por el estudio)
+// ═══════════════════════════════════════════════════════════
+var ntSesion = '';
+var TIPOS_EXTRA = ['Newborn', 'Embarazadas', '15 años'];
+function showNuevo() {
+  document.getElementById('turnos-view').style.display = 'none';
+  document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('ai-screen').classList.remove('show');
+  document.getElementById('nuevo-screen').classList.add('show');
+  ntSesion = idAlAzar();
+  var tipos = ((ajustes && ajustes.tiposSesion) ? String(ajustes.tiposSesion).split(',') : ['Mes a mes', 'Temático', 'Pre añito'])
+    .map(function(x) { return x.trim(); }).filter(String);
+  TIPOS_EXTRA.forEach(function(x) { if (tipos.indexOf(x) < 0) tipos.push(x); });
+  var sel = document.getElementById('nt-tipo'), previo = sel.value;
+  sel.innerHTML = '<option value="">Elegí…</option>' + tipos.map(function(x) { return '<option value="' + esc(x) + '">' + esc(x) + '</option>'; }).join('');
+  if (previo && tipos.indexOf(previo) >= 0) sel.value = previo;
+  if (!document.getElementById('nt-sena').value && ajustes) document.getElementById('nt-sena').value = ajustes.senaMonto || '';
+  document.getElementById('nt-feedback').textContent = '';
+  ntActualizarHorarios();
+  ntModo();
+  window.scrollTo(0, 0);
+}
+function hideNuevo() {
+  document.getElementById('nuevo-screen').classList.remove('show');
+  document.getElementById('turnos-view').style.display = 'block';
+}
+function ntModo() {
+  var m = document.querySelector('input[name="nt-modo"]:checked');
+  document.getElementById('nt-sena-wrap').style.display = m && m.value === 'sena' ? 'block' : 'none';
+}
+function ntHorariosBase(fecha) {
+  if (!fechaValida(fecha)) return [];
+  var dow = new Date(fecha + 'T12:00:00').getDay();
+  var base = dow === 6 ? ADMIN_CONFIG.SLOTS_SATURDAY.slice() : (dow >= 1 && dow <= 5 ? ADMIN_CONFIG.SLOTS_WEEKDAY.slice() : []);
+  bloqueos.forEach(function(b) { if (b.tipo === 'slot_extra' && b.fecha === fecha && base.indexOf(b.horario) < 0) base.push(b.horario); });
+  return base.sort();
+}
+function ntOcupante(fecha, horario) {
+  return allTurnos.find(function(t) { return ocupa(t) && t.fecha === fecha && t.horario === horario; }) || null;
+}
+function ntActualizarHorarios() {
+  var fecha = document.getElementById('nt-fecha').value;
+  var sel = document.getElementById('nt-horario-sel'), previo = sel.value;
+  var opciones = ntHorariosBase(fecha).map(function(h) {
+    var o = ntOcupante(fecha, h);
+    var bloq = bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === h; });
+    var txt = h + ' hs' + (o ? ' — ocupado (' + o.nombreBebe + ')' : (bloq ? ' — bloqueado' : ''));
+    return '<option value="' + esc(h) + '">' + esc(txt) + '</option>';
+  });
+  sel.innerHTML = '<option value="">' + (fecha ? 'Elegí…' : 'Primero elegí la fecha') + '</option>' + opciones.join('') + '<option value="otro">Otro horario…</option>';
+  if (previo && Array.prototype.some.call(sel.options, function(o) { return o.value === previo; })) sel.value = previo;
+  ntHorarioSel();
+}
+function ntHorarioSel() {
+  document.getElementById('nt-horario-otro').style.display = document.getElementById('nt-horario-sel').value === 'otro' ? 'block' : 'none';
+  ntRevisarChoque();
+}
+function ntHorarioElegido() {
+  var v = document.getElementById('nt-horario-sel').value;
+  return v === 'otro' ? String(document.getElementById('nt-horario-otro').value || '').slice(0, 5) : v;
+}
+function ntRevisarChoque() {
+  var fecha = document.getElementById('nt-fecha').value, h = ntHorarioElegido(), aviso = '';
+  if (fechaValida(fecha) && horaValida(h)) {
+    var o = ntOcupante(fecha, h);
+    if (o) aviso = '⚠️ Ese horario ya lo tiene ' + o.nombreBebe + ' (' + o.id + ').';
+    else if (bloqueos.some(function(b) { return b.tipo === 'dia' && b.fecha === fecha; })) aviso = '⚠️ Ese día está bloqueado en Config.';
+    else if (bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === h; })) aviso = '⚠️ Ese horario está bloqueado en Config.';
+  }
+  document.getElementById('nt-aviso').textContent = aviso;
+}
+async function guardarNuevoTurno(forzar) {
+  var fb = document.getElementById('nt-feedback'), btn = document.getElementById('nt-guardar');
+  var val = function(id) { return document.getElementById(id).value.trim(); };
+  var modoEl = document.querySelector('input[name="nt-modo"]:checked'), modo = modoEl ? modoEl.value : 'asegurado';
+  var turno = {
+    fecha: val('nt-fecha'), horario: ntHorarioElegido(), tipoSesion: val('nt-tipo'), tematica: val('nt-tematica'),
+    nombreBebe: val('nt-bebe'), cumpleBebe: val('nt-cumple'), nombreMama: val('nt-mama'),
+    telefono: val('nt-tel'), whatsapp: val('nt-wa'), total: val('nt-total'),
+    senya: modo === 'sena' ? val('nt-sena') : '', notasInternas: document.getElementById('nt-notas').value
+  };
+  var error = '';
+  if (!fechaValida(turno.fecha)) error = 'Elegí la fecha.';
+  else if (!horaValida(turno.horario)) error = 'Elegí el horario.';
+  else if (!turno.tipoSesion) error = 'Elegí el tipo de sesión.';
+  else if (!turno.nombreBebe) error = 'Escribí el nombre del bebé.';
+  else if (turno.total && !/^\d+(\.\d+)?$/.test(turno.total)) error = 'El total tiene que ser un número (sin puntos ni $).';
+  else if (modo === 'sena' && !/^\d+(\.\d+)?$/.test(turno.senya)) error = 'Escribí el monto de la seña (sin puntos ni $).';
+  if (error) { fb.textContent = error; fb.className = 'cfg-feedback err'; return; }
+  var clave = ntSesion + '-' + hashTexto(JSON.stringify(turno) + '|' + modo);
+  btn.disabled = true; btn.textContent = 'Guardando...'; fb.textContent = ''; fb.className = 'cfg-feedback';
+  var r;
+  try { r = await api('nuevoTurno', { turno: turno, asegurado: modo === 'asegurado', forzar: !!forzar, clave: clave }); }
+  catch(e) {
+    btn.disabled = false; btn.textContent = 'Guardar turno';
+    fb.textContent = 'No pude confirmar si se guardó (sin conexión). Tocá «Guardar turno» de nuevo: si ya estaba guardado, no se duplica.';
+    fb.className = 'cfg-feedback err';
+    return;
+  }
+  btn.disabled = false; btn.textContent = 'Guardar turno';
+  if (r.ok) {
+    var t = normalizeReserva(r.reserva, 0);
+    if (!allTurnos.some(function(x) { return x.id === t.id; })) allTurnos.push(t);
+    refrescarVista();
+    ['nt-fecha', 'nt-tematica', 'nt-bebe', 'nt-cumple', 'nt-mama', 'nt-tel', 'nt-wa', 'nt-total', 'nt-notas', 'nt-horario-otro'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('nt-sena').value = ajustes ? (ajustes.senaMonto || '') : '';
+    document.getElementById('nt-tipo').value = '';
+    document.getElementById('nt-aviso').textContent = '';
+    hideNuevo();
+    toast('✓ Turno cargado: ' + t.nombreBebe + ' · ' + t.fecha + ' ' + t.horario + ' hs (' + t.estado.toLowerCase() + ')', 'ok');
+    return;
+  }
+  if (r.codigo === 'ocupado' && !forzar) {
+    var si = await confirmar({ titulo: 'Horario ocupado', texto: r.error, ok: 'Cargar igual', peligro: true });
+    if (si) guardarNuevoTurno(true);
+    return;
+  }
+  fb.textContent = r.error || 'No se pudo guardar.'; fb.className = 'cfg-feedback err';
+}
+
+// ═══════════════════════════════════════════════════════════
+// AJUSTES, COPIA DE SEGURIDAD Y CÓDIGO DE ACCESO
+// ═══════════════════════════════════════════════════════════
+var CAMPOS_AJUSTES = ['senaMonto', 'senaHoras', 'alias', 'whatsappEstudio', 'avisoReservaMail', 'grillaSemana', 'grillaSabado', 'minDias', 'tiposSesion'];
+function aplicarAjustes(a) {
+  ajustes = a || ajustes;
+  if (!ajustes) return;
+  var lista = function(s) { return String(s || '').split(',').map(function(x) { return x.trim(); }).filter(horaValida); };
+  var sem = lista(ajustes.grillaSemana), sab = lista(ajustes.grillaSabado);
+  if (sem.length) ADMIN_CONFIG.SLOTS_WEEKDAY = sem;
+  if (sab.length) ADMIN_CONFIG.SLOTS_SATURDAY = sab;
+  CAMPOS_AJUSTES.forEach(function(k) {
+    var el = document.getElementById('aj-' + k);
+    if (el) el.value = ajustes[k] === undefined || ajustes[k] === null ? '' : String(ajustes[k]);
+  });
+}
+async function cargarAjustes() {
+  try {
+    var r = await api('getAjustes');
+    if (r.ok) aplicarAjustes(r.ajustes);
+  } catch(e) {}
+}
+async function guardarAjustes() {
+  var fb = document.getElementById('aj-feedback'), btn = document.getElementById('aj-guardar');
+  if (!ajustes) { fb.textContent = 'Todavía no pude leer los ajustes actuales. Salí de Config y volvé a entrar.'; fb.className = 'cfg-feedback err'; return; }
+  var cambios = {}, n = 0;
+  CAMPOS_AJUSTES.forEach(function(k) {
+    var el = document.getElementById('aj-' + k);
+    if (!el) return;
+    var v = el.value.trim();
+    if (v !== String(ajustes[k] === undefined || ajustes[k] === null ? '' : ajustes[k])) { cambios[k] = v; n++; }
+  });
+  if (!n) { fb.textContent = 'No hay cambios para guardar.'; fb.className = 'cfg-feedback'; return; }
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    var r = await api('saveAjustes', { ajustes: cambios });
+    if (r.ok) { aplicarAjustes(r.ajustes); fb.textContent = '✓ Ajustes guardados. La web ya usa los valores nuevos.'; fb.className = 'cfg-feedback ok'; }
+    else { fb.textContent = r.error || 'No se pudo guardar.'; fb.className = 'cfg-feedback err'; }
+  } catch(e) { fb.textContent = 'No pude confirmar si se guardó (sin conexión). Volvé a entrar a Config para ver cómo quedó.'; fb.className = 'cfg-feedback err'; }
+  btn.disabled = false; btn.textContent = 'Guardar ajustes';
+}
+async function copiaAhora() {
+  var fb = document.getElementById('copia-feedback'), btn = document.getElementById('copia-btn');
+  btn.disabled = true; btn.textContent = 'Copiando...'; fb.textContent = '';
+  try {
+    var r = await api('copiaAhora', null, 60000);
+    if (r.ok) { fb.textContent = '✓ Copia creada: «' + r.nombre + '» (carpeta Respaldos Estudio Infantil en Drive).'; fb.className = 'cfg-feedback ok'; }
+    else { fb.textContent = r.error || 'No se pudo hacer la copia.'; fb.className = 'cfg-feedback err'; }
+  } catch(e) { fb.textContent = 'No pude confirmar la copia (sin conexión).'; fb.className = 'cfg-feedback err'; }
+  btn.disabled = false; btn.textContent = 'Hacer una copia ahora';
+}
+async function cambiarCodigo() {
+  var fb = document.getElementById('cc-feedback'), btn = document.getElementById('cc-guardar');
+  var actual = document.getElementById('cc-actual').value, n1 = document.getElementById('cc-nuevo').value, n2 = document.getElementById('cc-nuevo2').value;
+  var err = !actual ? 'Escribí el código actual.' : (n1.trim().length < 8 ? 'El código nuevo tiene que tener al menos 8 caracteres.' : (n1 !== n2 ? 'Los dos códigos nuevos no coinciden.' : ''));
+  if (err) { fb.textContent = err; fb.className = 'cfg-feedback err'; return; }
+  btn.disabled = true; btn.textContent = 'Cambiando...';
+  try {
+    var r = await api('cambiarCodigo', { actual: actual, nuevo: n1, recordar: sesion.recordar });
+    if (r.ok && r.token) {
+      guardarToken(r.token, sesion.recordar);
+      ['cc-actual', 'cc-nuevo', 'cc-nuevo2'].forEach(function(id) { document.getElementById(id).value = ''; });
+      fb.textContent = '✓ Código cambiado. Se cerraron las otras sesiones y les llegó un aviso por mail.'; fb.className = 'cfg-feedback ok';
+    } else { fb.textContent = r.error || 'No se pudo cambiar.'; fb.className = 'cfg-feedback err'; }
+  } catch(e) { fb.textContent = 'No pude confirmar el cambio (sin conexión). Probá entrar con el código nuevo; si no funciona, con el anterior.'; fb.className = 'cfg-feedback err'; }
+  btn.disabled = false; btn.textContent = 'Cambiar código';
+}
+async function cerrarTodas() {
+  var si = await confirmar({ titulo: 'Cerrar todas las sesiones', texto: 'Se cierra el panel en todos los celulares y compus (también en este). Van a tener que volver a poner el código.', ok: 'Cerrar todas', peligro: true });
+  if (!si) return;
+  try {
+    var r = await api('cerrarSesiones');
+    if (!r.ok) { toast('⚠️ ' + (r.error || 'No se pudo'), 'err'); return; }
+  } catch(e) { toast('⚠️ Sin conexión: no se cerraron las sesiones.', 'err'); return; }
+  guardarToken('', false);
+  salirDelPanel();
+  mostrarErrorLogin('');
+  document.getElementById('login-ok').textContent = 'Listo: se cerraron todas las sesiones. Ingresá de nuevo.';
 }
 
 function askCancel(id)      { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
@@ -1171,6 +1847,7 @@ function startLoading()     { document.getElementById('loading-bar').classList.a
 function stopLoading()      { document.getElementById('loading-bar').classList.remove('loading'); }
 
 document.getElementById('cancel-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.getElementById('modal-gen').addEventListener('click', function(e) { if (e.target === this) cerrarModalGen(null); });
 
 // ═══════════════════════════════════════════════════════════
 // CONFIG
@@ -1178,9 +1855,11 @@ document.getElementById('cancel-modal').addEventListener('click', function(e) { 
 async function showConfig() {
   document.getElementById('turnos-view').style.display = 'none';
   document.getElementById('ai-screen').classList.remove('show');
+  document.getElementById('nuevo-screen').classList.remove('show');
   document.getElementById('config-screen').classList.add('show');
   renderCfgCalendar();
   renderBloqueosList();
+  aplicarAjustes(); cargarAjustes();
   // Si no hay cambios sin guardar, se vuelve a leer la planilla para trabajar con lo último
   if (!configLoaded || claveBloqueos(bloqueos) === claveBloqueos(configSnapshot)) {
     await loadConfig();
@@ -1199,14 +1878,19 @@ async function showConfig() {
 function hideConfig() {
   document.getElementById('config-screen').classList.remove('show');
   document.getElementById('turnos-view').style.display = 'block';
+  refrescarSinPerderCambios(null);   // por si cambiaron la seña o el alias (mensajes de WhatsApp)
 }
 
 // Estado de la configuración: guardar reemplaza TODA la lista, así que solo se permite
-// si se pudo leer la lista actual y si nadie la cambió desde otro dispositivo mientras tanto.
-var configLoaded = false, configSnapshot = [];
+// si se pudo leer la lista actual; el servidor además rechaza el cambio si otro dispositivo la modificó.
+var configLoaded = false, configSnapshot = [], configVersion = '';
 
 function copiaBloqueos(lista) {
-  return (lista || []).map(function(b) { return { tipo: b.tipo || 'dia', fecha: b.fecha || '', horario: b.horario || '' }; });
+  return (lista || []).map(function(b) {
+    var o = { tipo: b.tipo || 'dia', fecha: b.fecha || '', horario: b.horario || '' };
+    if (b.nota !== undefined) o.nota = b.nota;
+    return o;
+  });
 }
 function claveBloqueos(lista) {
   return (lista || []).map(function(b) {
@@ -1214,55 +1898,38 @@ function claveBloqueos(lista) {
   }).sort().join('\n');
 }
 async function leerConfigServidor() {
-  var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getConfig', { mode: 'cors' });
-  var d = await r.json();
-  if (!d || d.error) throw new Error((d && d.error) || 'respuesta vacía');
-  if (d.bloqueos !== undefined && !Array.isArray(d.bloqueos)) throw new Error('formato inesperado');
-  return copiaBloqueos(d.bloqueos || []);
+  var d = await api('getConfig');
+  if (!d.ok) throw new Error(d.error || 'error del servidor');
+  if (!Array.isArray(d.bloqueos)) throw new Error('formato inesperado');
+  return { lista: copiaBloqueos(d.bloqueos), version: String(d.version || '') };
 }
 
 async function loadConfig() {
   try {
-    var lista = await leerConfigServidor();
-    bloqueos = lista;
-    configSnapshot = copiaBloqueos(lista);
+    var c = await leerConfigServidor();
+    bloqueos = c.lista;
+    configSnapshot = copiaBloqueos(c.lista);
+    configVersion = c.version;
     configLoaded = true;
   } catch(e) {
     // Sin la configuración actual NO se permite guardar (se borrarían los bloqueos existentes)
-    bloqueos = []; configSnapshot = []; configLoaded = false;
+    bloqueos = []; configSnapshot = []; configVersion = ''; configLoaded = false;
   }
 }
 
-// Guarda la lista completa de bloqueos con controles: devuelve { ok, verificado, msg, servidor }
+// Guarda la lista completa de bloqueos: devuelve { ok, verificado, msg, servidor }
 async function guardarBloqueosSeguro(lista) {
   if (!configLoaded) return { ok:false, msg:'No se pudo cargar la configuración actual: no guardo nada para no borrar bloqueos. Salí de Config y volvé a entrar.' };
-  var actual;
-  try { actual = await leerConfigServidor(); }
-  catch(e) { return { ok:false, msg:'No pude leer la configuración actual (sin conexión). No se guardó nada.' }; }
-  if (claveBloqueos(actual) !== claveBloqueos(configSnapshot)) {
-    return { ok:false, msg:'La configuración cambió desde otro dispositivo. No se guardó nada: salí de Config, volvé a entrar y repetí el cambio.' };
+  var r;
+  try { r = await api('saveConfig', { bloqueos: copiaBloqueos(lista), version: configVersion }); }
+  catch(e) { return { ok:false, msg:'No pude confirmar si se guardó (sin conexión). Salí de Config y volvé a entrar para ver cómo quedó.' }; }
+  if (r.ok) {
+    configSnapshot = copiaBloqueos(r.bloqueos);
+    configVersion = String(r.version || '');
+    return { ok:true, verificado:true, servidor: copiaBloqueos(r.bloqueos) };
   }
-  try {
-    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action:'saveConfig', bloqueos: lista })
-    });
-  } catch(e) {
-    return { ok:false, msg:'Error al guardar (sin conexión). No se guardó nada.' };
-  }
-  await esperar(900);
-  var despues = null;
-  try { despues = await leerConfigServidor(); } catch(e) {}
-  if (despues && claveBloqueos(despues) === claveBloqueos(lista)) {
-    configSnapshot = copiaBloqueos(despues);
-    return { ok:true, verificado:true, servidor: copiaBloqueos(despues) };
-  }
-  if (despues) {
-    configSnapshot = copiaBloqueos(despues);
-    return { ok:false, servidor: copiaBloqueos(despues), msg:'Envié los cambios pero la planilla muestra otra cosa. Te muestro lo que hay guardado ahora: revisalo.' };
-  }
-  return { ok:true, verificado:false };
+  if (r.codigo === 'cambio') return { ok:false, msg:'La configuración cambió desde otro dispositivo. No se guardó nada: salí de Config, volvé a entrar y repetí el cambio.' };
+  return { ok:false, msg: 'No se guardó: ' + (r.error || 'error del servidor') };
 }
 
 var CFG_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -1477,6 +2144,7 @@ async function guardarConfig() {
 function showAI() {
   document.getElementById('turnos-view').style.display = 'none';
   document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('nuevo-screen').classList.remove('show');
   document.getElementById('ai-screen').classList.add('show');
   if (document.getElementById('ai-messages').children.length === 0) {
     addMsg('ai', 'Hola! Soy tu asistente del estudio 📷\n\nPuedo:\n- Resumir las sesiones de hoy o esta semana\n- Alertar cumpleaños próximos\n- Buscar turnos por nombre\n- Reportar pagos pendientes\n- Confirmar, cancelar o reprogramar turnos\n\n¿En qué te ayudo?');
@@ -1516,16 +2184,8 @@ async function cargarResumen() {
     cumples.push({ nombre:t.nombreBebe, dias:cuando.dias, fecha:cuando.d.toLocaleDateString('es-AR', { day:'numeric', month:'long' }) });
   });
   cumples.sort(function(a,b) { return a.dias - b.dias; });
-  var ctx = 'Sesiones hoy (' + hoyStr + '): ';
-  if (sesHoy.length === 0) ctx += 'Ninguna.';
-  else ctx += sesHoy.map(function(t) { return t.horario + ' - ' + t.nombreBebe + ' (' + t.tipoSesion + (t.tematica ? ' / ' + t.tematica : '') + ') Mamá: ' + t.nombreMama; }).join(' | ');
-  ctx += '. Cumpleaños próximos 30 dias: ';
-  if (cumples.length === 0) ctx += 'Ninguno.';
-  else ctx += cumples.map(function(c) { return c.nombre + ' el ' + c.fecha + (c.dias === 0 ? ' (HOY!)' : (c.dias === 1 ? ' (mañana)' : ' (en ' + c.dias + ' días)')); }).join(', ');
   try {
-    var rParams = '?action=geminiResumen&ctx=' + encodeURIComponent(ctx);
-    var resp    = await fetch(ADMIN_CONFIG.SCRIPT_URL + rParams, { mode: 'cors' });
-    var data    = await resp.json();
+    var data = await api('geminiResumen', null, 45000);
     if (data.ok && data.reply) { el.textContent = data.reply; el.className = 'ai-resumen-content'; }
     else throw new Error(data.error || 'sin respuesta');
   } catch(e) {
@@ -1629,7 +2289,7 @@ function validarAccion(a) {
     if (a.newFecha && !fechaValida(a.newFecha)) return 'fecha inválida (' + a.newFecha + ')';
     if (a.newHorario && !horaValida(a.newHorario)) return 'horario inválido (' + a.newHorario + ')';
     var nf = a.newFecha || t.fecha, nh = a.newHorario || t.horario;
-    var choque = allTurnos.find(function(x) { return x.id !== t.id && x.estado !== 'CANCELADO' && x.fecha === nf && x.horario === nh; });
+    var choque = allTurnos.find(function(x) { return x.id !== t.id && ocupa(x) && x.fecha === nf && x.horario === nh; });
     if (choque) return 'ese horario ya está ocupado por otra reserva (' + choque.nombreBebe + ')';
     return null;
   }
@@ -1654,16 +2314,9 @@ async function sendMessage() {
   addMsg('user', text);
   aiHistory.push({ role:'user', content:text });
   var loading = addLoadingMsg();
-  var hoyStr  = fechaLocal();
-  var ctx     = JSON.stringify(allTurnos.filter(function(t) { return t.estado !== 'CANCELADO'; }).map(function(t) {
-    return { id:t.id, fecha:t.fecha, horario:t.horario, nombreBebe:t.nombreBebe, nombreMama:t.nombreMama,
-             tipoSesion:t.tipoSesion, tematica:t.tematica, estado:t.estado, cumpleBebe:t.cumpleBebe,
-             whatsapp:t.whatsapp, senya:t.senya, total:t.total, resta:t.resta };
-  }));
   try {
-    var payload = JSON.stringify({ action:'geminiChat', hoy:hoyStr, turnosCtx:ctx, messages:aiHistory });
-    var resp    = await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:payload });
-    var data    = await resp.json();
+    // El servidor arma el contexto con la planilla (sin teléfonos): acá solo va la conversación
+    var data = await api('geminiChat', { messages: aiHistory.slice(-20) }, 60000);
     if (!data.ok) throw new Error(data.error || 'Error del servidor');
     var rt  = String(data.reply || '');
     aiHistory.push({ role:'assistant', content:rt });
@@ -1673,6 +2326,7 @@ async function sendMessage() {
     ex.acciones.forEach(function(a) { addActionCard(a); });
     if (ex.malas > 0) addMsg('ai', '⚠️ La IA propuso un cambio que no pude interpretar. No se hizo ningún cambio.');
   } catch(e) {
+    aiHistory.pop();   // el mensaje no tuvo respuesta: no queda en el historial
     loading.bub.classList.remove('ai-typing');
     loading.bub.textContent = '❌ Error: ' + e.message;
   }
@@ -1687,21 +2341,13 @@ async function ejecutarAccion(action, msgDiv) {
   if (motivo) { addMsg('ai', '⚠️ No ejecuté la acción: ' + motivo + '. No se hizo ningún cambio.'); return; }
   var loading = addLoadingMsg();
   try {
-    if (action.tipo === 'updateStatus') {
-      await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'updateStatus', id:action.id, status:action.newStatus }) });
-      var t = allTurnos.find(function(x) { return x.id === action.id; }); if (t) t.estado = action.newStatus;
-      updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
-      loading.div.remove(); addMsg('ai', 'Enviado. Estoy verificando en la planilla…');
-      verificarTurno(action.id, function(x) { return x.estado === action.newStatus; }, 'el cambio de estado');
-    } else if (action.tipo === 'reprogramar') {
-      await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'reprogramar', id:action.id, newFecha:action.newFecha, newHorario:action.newHorario }) });
-      var t2 = allTurnos.find(function(x) { return x.id === action.id; });
-      if (t2) { if (action.newFecha) t2.fecha = action.newFecha; if (action.newHorario) t2.horario = action.newHorario; }
-      updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
-      loading.div.remove(); addMsg('ai', 'Enviado. Estoy verificando en la planilla…');
-      verificarTurno(action.id, function(x) {
-        return (!action.newFecha || x.fecha === action.newFecha) && (!action.newHorario || x.horario === action.newHorario);
-      }, 'la reprogramación');
+    if (action.tipo === 'updateStatus' || action.tipo === 'reprogramar') {
+      var r = action.tipo === 'updateStatus'
+        ? await api('updateStatus', { id: action.id, status: action.newStatus })
+        : await api('reprogramar', { id: action.id, newFecha: action.newFecha, newHorario: action.newHorario });
+      loading.div.remove();
+      if (r.ok) { aplicarReserva(r.reserva); addMsg('ai', '✅ Listo: guardado en la planilla.'); }
+      else { addMsg('ai', '⚠️ No se hizo el cambio: ' + (r.error || 'error del servidor')); return; }
     } else {
       // Bloqueos: se trabaja sobre una copia; la lista real cambia solo si se guardó bien
       var fecha = action.fecha;
@@ -1724,9 +2370,8 @@ async function ejecutarAccion(action, msgDiv) {
       loading.div.remove();
       if (res.ok) {
         bloqueos = res.servidor || nueva;
-        addMsg('ai', res.verificado ? '✅ Configuración guardada y verificada en la planilla.' : 'Enviado. No pude verificarlo: revisá Config en un rato.');
+        addMsg('ai', '✅ Configuración guardada en la planilla.');
       } else {
-        if (res.servidor) bloqueos = res.servidor;
         addMsg('ai', '⚠️ ' + res.msg);
         return;
       }
@@ -1734,7 +2379,7 @@ async function ejecutarAccion(action, msgDiv) {
     aiHistory.push({ role:'assistant', content:'Acción ejecutada: ' + (action.descripcion || action.tipo) });
   } catch(e) {
     loading.bub.classList.remove('ai-typing');
-    loading.bub.textContent = '❌ No se pudo enviar (sin conexión). No se hizo ningún cambio.';
+    loading.bub.textContent = '❌ No pude confirmar si se hizo el cambio (sin conexión). Tocá «Actualizar» para ver cómo quedó.';
   }
 }
 
@@ -1742,6 +2387,9 @@ function cancelarAccion(msgDiv) {
   if (msgDiv && msgDiv.parentNode) msgDiv.remove();   // solo se quita ESTA tarjeta
   addMsg('ai', 'Entendido, no hice ningún cambio. ¿Querés hacer algo más?');
 }
+
+// INICIO: si este dispositivo ya tiene una sesión abierta, entra directo
+iniciarPanel();
 </script>
 </body>
 </html>
