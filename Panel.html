@@ -303,10 +303,20 @@
   .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;}
   .loading-bar.loading{animation:load-bar 1.5s ease infinite;}
   @keyframes load-bar{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
+  /* ═══════ ARREGLOS FASE 1 ═══════ */
+  .pasadas-divider{display:flex;align-items:center;gap:10px;margin:28px 0 6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);}
+  .pasadas-divider::before,.pasadas-divider::after{content:'';flex:1;height:1px;background:var(--gold-light);}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);width:max-content;max-width:92%;background:#2c1f1a;color:#f5ece0;padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:400;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.ok{background:#2f5b47;}
+  .toast.err{background:#8a3424;}
+  .toast.warn{background:#7a5a1a;}
+  .sesion-card,.turno-card,.ai-msg-bubble,.ai-accion-detail{overflow-wrap:anywhere;}
 </style>
 </head>
 <body>
 <div class="loading-bar" id="loading-bar"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- ═══════ LOGIN ═══════ -->
 <div class="login-screen" id="login-screen">
@@ -514,6 +524,45 @@ var cfgCal = { month: new Date().getMonth(), year: new Date().getFullYear(), sel
 // ═══════════════════════════════════════════════════════════
 function cp(n) { return String.fromCodePoint(n); }
 
+// Escapa texto para mostrarlo como HTML: lo que escribe una clienta nunca se ejecuta como código
+function esc(v) {
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+// Valor seguro para pasar como argumento dentro de onclick="..."
+function jsArg(v) { return esc(JSON.stringify(String(v === undefined || v === null ? '' : v))); }
+// Fecha local YYYY-MM-DD (antes se usaba la hora UTC: después de las 21 h "hoy" pasaba a ser mañana)
+function fechaLocal(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function fechaValida(f) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(f || ''))) return false;
+  var d = new Date(f + 'T12:00:00');
+  return !isNaN(d) && fechaLocal(d) === f;
+}
+function horaValida(h) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(h || '')); }
+function esperar(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+// Aviso flotante (abajo de la pantalla)
+var toastTimer = null;
+function toast(msg, tipo) {
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast show ' + (tipo || '');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.className = 'toast'; }, tipo === 'err' ? 9000 : 4500);
+}
+function mismoNumero(a, b) {
+  var x = parseFloat(a), y = parseFloat(b);
+  if (isNaN(x) && isNaN(y)) return String(a === undefined || a === null ? '' : a).trim() === String(b === undefined || b === null ? '' : b).trim();
+  return x === y;
+}
+function mismoTexto(a, b) {
+  return String(a || '').replace(/\r\n/g, '\n').trim() === String(b || '').replace(/\r\n/g, '\n').trim();
+}
+
 function parseHorario(v) {
   if (!v) return '--';
   if (typeof v === 'number') {
@@ -553,7 +602,7 @@ function normalizeReserva(row, idx) {
   if (!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado)) estado = 'PENDIENTE';
   var ts = g(['timestamp','Timestamp']);
   if (ts instanceof Date) ts = ts.toISOString();
-  if (!ts) ts = new Date().toISOString();
+  if (!ts) ts = '';   // sin fecha de alta en la planilla: no se inventa la de hoy
   return {
     id: String(g(['id','ID']) || 'T' + String(idx + 1).padStart(3,'0')),
     timestamp: String(ts),
@@ -639,28 +688,38 @@ function doLogout() {
 // ═══════════════════════════════════════════════════════════
 // CARGA DE DATOS
 // ═══════════════════════════════════════════════════════════
+// Lee las reservas de la planilla (solo lectura)
+async function leerTurnosServidor() {
+  var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getAll', { mode: 'cors' });
+  var d = await r.json();
+  if (d.error) throw new Error(d.error);
+  return (d.reservas || []).map(function(row, idx) {
+    return normalizeReserva(row, idx);
+  }).filter(function(t) {
+    return t.id && t.id !== '' && (t.nombreBebe !== '--' || t.fecha !== '');
+  });
+}
+
 async function loadData() {
   startLoading();
   try {
-    var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getAll', { mode: 'cors' });
-    var d = await r.json();
-    if (d.error) throw new Error(d.error);
-    allTurnos = (d.reservas || []).map(function(row, idx) {
-      return normalizeReserva(row, idx);
-    }).filter(function(t) {
-      return t.id && t.id !== '' && (t.nombreBebe !== '--' || t.fecha !== '');
-    });
+    allTurnos = await leerTurnosServidor();
     showDebug('');
   } catch(err) {
     showDebug('No se pudo conectar.\nError: ' + err.message);
     if (allTurnos.length === 0) allTurnos = [];
   }
   stopLoading();
+  refrescarVista();
+}
+
+// Los conflictos se calculan ANTES de dibujar (antes el borde rojo aparecía recién en el segundo dibujo)
+function refrescarVista() {
+  detectarConflictos();
   updateStats();
   renderMonthTabs();
   renderTurnos();
   renderDailyPanel();
-  detectarConflictos();
 }
 
 function showDebug(m) {
@@ -693,7 +752,7 @@ var DP_MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto
 function dpFechaOffset(n) {
   var d = new Date();
   d.setDate(d.getDate() + n);
-  return d.toISOString().split('T')[0];
+  return fechaLocal(d);
 }
 
 function renderDailyPanel() {
@@ -741,16 +800,16 @@ function dpRenderList(containerId, list, cardClass) {
       ? '<span class="hora-estado estado-confirmado-badge">Confirmado</span>'
       : '<span class="hora-estado estado-pendiente-badge">Pendiente</span>';
     var tema = t.tematica
-      ? '<span class="hora-sep">·</span><span class="meta-tematica">' + t.tematica + '</span>'
+      ? '<span class="hora-sep">·</span><span class="meta-tematica">' + esc(t.tematica) + '</span>'
       : '';
     div.innerHTML =
       '<div class="sesion-hora">' +
-        '<span class="hora-badge">' + (t.horario || '--') + ' hs</span>' +
+        '<span class="hora-badge">' + esc(t.horario || '--') + ' hs</span>' +
         '<span class="hora-sep">·</span>' + eb +
       '</div>' +
-      '<div class="sesion-bebe">' + (t.nombreBebe || '--') + '</div>' +
-      '<div class="sesion-meta"><span class="meta-tipo">' + (t.tipoSesion || '--') + '</span>' + tema + '</div>' +
-      '<div class="sesion-mama">👶 ' + (t.nombreMama || '--') + '</div>';
+      '<div class="sesion-bebe">' + esc(t.nombreBebe || '--') + '</div>' +
+      '<div class="sesion-meta"><span class="meta-tipo">' + esc(t.tipoSesion || '--') + '</span>' + tema + '</div>' +
+      '<div class="sesion-mama">👶 ' + esc(t.nombreMama || '--') + '</div>';
     c.appendChild(div);
     // animación escalonada
     (function(el, delay) {
@@ -767,9 +826,9 @@ function dpNotaCalida(hoy, mana) {
     return 'Hoy podés preparar todo con calma 🌿 Mañana te esperan <strong>' +
       mana.length + (mana.length === 1 ? ' sesión' : ' sesiones') + '</strong> llenas de magia!';
   if (hoy.length === 1)
-    return '¡Hoy un día especial para <strong>' + hoy[0].nombreBebe + '</strong>! Que sea una sesión llena de magia ✨';
+    return '¡Hoy un día especial para <strong>' + esc(hoy[0].nombreBebe) + '</strong>! Que sea una sesión llena de magia ✨';
   if (hoy.length === 2)
-    return 'Hoy compartís el estudio con <strong>' + hoy[0].nombreBebe + '</strong> y <strong>' + hoy[1].nombreBebe + '</strong>. ¡Dos momentos únicos para atesorar! 🌸';
+    return 'Hoy compartís el estudio con <strong>' + esc(hoy[0].nombreBebe) + '</strong> y <strong>' + esc(hoy[1].nombreBebe) + '</strong>. ¡Dos momentos únicos para atesorar! 🌸';
   return '¡Qué lindo día! Hoy compartís el estudio con <strong>' + hoy.length + ' familias</strong> increíbles. Cada momento será un recuerdo para siempre 🌸';
 }
 
@@ -778,7 +837,7 @@ function dpNotaCalida(hoy, mana) {
 // ═══════════════════════════════════════════════════════════
 function updateStats() {
   var hoy    = new Date(); hoy.setHours(0,0,0,0);
-  var hoyStr = hoy.toISOString().split('T')[0];
+  var hoyStr = fechaLocal(hoy);
   var mesActual = hoyStr.slice(0,7); // "YYYY-MM"
   // Próximas este mes: no canceladas, fecha >= hoy, en el mes corriente
   var proximas = allTurnos.filter(function(t) {
@@ -824,7 +883,7 @@ function renderMonthTabs() {
   if (months.length <= 1) { c.innerHTML = ''; return; }
   var html = '<button class="month-tab ' + (currentMonth === 'todos' ? 'active' : '') + '" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';
   months.forEach(function(ym) {
-    html += '<button class="month-tab ' + (currentMonth === ym ? 'active' : '') + '" onclick="setMonthFilter(\'' + ym + '\',this)">' + mm[ym] + '</button>';
+    html += '<button class="month-tab ' + (currentMonth === ym ? 'active' : '') + '" onclick="setMonthFilter(' + jsArg(ym) + ',this)">' + esc(mm[ym]) + '</button>';
   });
   c.innerHTML = html;
 }
@@ -834,7 +893,7 @@ function renderMonthTabs() {
 // ═══════════════════════════════════════════════════════════
 function renderTurnos() {
   var search = document.getElementById('search-input').value.toLowerCase();
-  var list   = allTurnos;
+  var list   = allTurnos.slice();
   if (currentFilter !== 'todos') list = list.filter(function(t) { return t.estado.toLowerCase() === currentFilter; });
   if (search) list = list.filter(function(t) {
     return t.nombreBebe.toLowerCase().includes(search) ||
@@ -843,15 +902,23 @@ function renderTurnos() {
            t.whatsapp.includes(search);
   });
   if (currentMonth !== 'todos') list = list.filter(function(t) { return t.fecha && t.fecha.startsWith(currentMonth); });
-  // Siempre ordenar por proximidad: fecha ascendente, luego horario ascendente
-  var hoyStr = new Date().toISOString().split('T')[0];
+  // Orden: primero las próximas (de la más cercana a la más lejana) y después las pasadas
+  // (la más reciente primero). Si se eligió un mes puntual, orden cronológico simple.
+  var hoyStr = fechaLocal();
+  var porMes = currentMonth !== 'todos';
   list.sort(function(a, b) {
-    var fa = a.fecha || '9999-99-99';
-    var fb = b.fecha || '9999-99-99';
-    // Turnos sin fecha van al final
-    if (!a.fecha && b.fecha) return 1;
+    if (!a.fecha && b.fecha) return 1;   // Turnos sin fecha van al final
     if (a.fecha && !b.fecha) return -1;
-    var dateCmp = fa.localeCompare(fb);
+    if (!a.fecha && !b.fecha) return 0;
+    if (!porMes) {
+      var aPas = a.fecha < hoyStr, bPas = b.fecha < hoyStr;
+      if (aPas !== bPas) return aPas ? 1 : -1;
+      if (aPas) {
+        var cmpPas = b.fecha.localeCompare(a.fecha);
+        return cmpPas !== 0 ? cmpPas : (b.horario || '').localeCompare(a.horario || '');
+      }
+    }
+    var dateCmp = a.fecha.localeCompare(b.fecha);
     if (dateCmp !== 0) return dateCmp;
     return (a.horario || '').localeCompare(b.horario || '');
   });
@@ -861,24 +928,27 @@ function renderTurnos() {
     container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas</p></div>';
     return;
   }
-  var groups = {};
+  var grupos = [], idxG = {};
   list.forEach(function(t) {
-    var ym = (t.fecha || '').slice(0,7) || 'sin-fecha';
-    if (!groups[ym]) groups[ym] = [];
-    groups[ym].push(t);
+    var ym  = (t.fecha || '').slice(0,7) || 'sin-fecha';
+    var pas = !porMes && !!t.fecha && t.fecha < hoyStr;
+    var key = (pas ? 'P' : 'F') + ym;
+    if (idxG[key] === undefined) { idxG[key] = grupos.length; grupos.push({ ym: ym, pasada: pas, items: [] }); }
+    grupos[idxG[key]].items.push(t);
   });
-  var sk   = Object.keys(groups).sort();
-  var html = '';
-  sk.forEach(function(ym) {
-    var items = groups[ym];
-    var label = ym;
-    try {
-      var d = new Date(ym + '-01T12:00:00');
-      var l = d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
-      label = l.charAt(0).toUpperCase() + l.slice(1);
-    } catch(e) {}
-    if (sk.length > 1) html += '<div class="month-group-header"><span class="month-group-title">' + label + '</span><span class="month-group-count">' + items.length + ' ' + (items.length === 1 ? 'sesión' : 'sesiones') + '</span><div class="month-group-line"></div></div>';
-    html += items.map(function(t) { return buildTurnoCard(t); }).join('');
+  var html = '', yaPasadas = false;
+  grupos.forEach(function(g) {
+    if (g.pasada && !yaPasadas) { yaPasadas = true; html += '<div class="pasadas-divider">Sesiones pasadas</div>'; }
+    var label = g.ym === 'sin-fecha' ? 'Sin fecha' : g.ym;
+    if (g.ym !== 'sin-fecha') {
+      var d = new Date(g.ym + '-01T12:00:00');
+      if (!isNaN(d)) {
+        var l = d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+        label = l.charAt(0).toUpperCase() + l.slice(1);
+      }
+    }
+    if (grupos.length > 1) html += '<div class="month-group-header"><span class="month-group-title">' + esc(label) + '</span><span class="month-group-count">' + g.items.length + ' ' + (g.items.length === 1 ? 'sesión' : 'sesiones') + '</span><div class="month-group-line"></div></div>';
+    html += g.items.map(function(t) { return buildTurnoCard(t); }).join('');
   });
   container.innerHTML = html;
 }
@@ -905,56 +975,65 @@ function buildTurnoCard(t) {
       if (!isNaN(dc)) cs = dc.toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
     }
   } catch(e) {}
-  var rs = '--';
-  try { rs = new Date(t.timestamp).toLocaleDateString('es-AR'); } catch(e) {}
+  // Fecha de alta: si la planilla no la tiene, no se inventa la de hoy
+  var rs = '—';
+  if (t.timestamp) {
+    var dts = new Date(t.timestamp);
+    if (!isNaN(dts)) rs = dts.toLocaleDateString('es-AR');
+  }
 
-  // Detectar si la sesión ya pasó (fecha anterior a hoy, no cancelada)
-  var hoyStr2 = new Date().toISOString().split('T')[0];
+  // Detectar si la sesión ya pasó (fecha anterior a hoy, no cancelada), con la fecha local
+  var hoyStr2 = fechaLocal();
   var esPasada = t.estado !== 'CANCELADO' && t.fecha && t.fecha < hoyStr2;
 
   var el  = t.estado.toLowerCase();
+  var idA = jsArg(t.id);   // para usar dentro de onclick
+  var idH = esc(t.id);     // para atributos id y texto
   var wn  = t.whatsapp.replace(/\D/g,'');
   var wf  = wn ? (wn.startsWith('54') ? wn : '54' + wn) : '';
   var mC  = buildMsgConfirm(t, ds);
   var mR  = buildMsgRec(t, ds);
-  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank">' + waI() + ' Confirmar+WA</a>' : '';
-  var waR = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mR + '" target="_blank">' + waI() + ' WA record.</a>' : '';
+  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank" rel="noopener">' + waI() + ' Confirmar+WA</a>' : '';
+  var waR = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mR + '" target="_blank" rel="noopener">' + waI() + ' WA record.</a>' : '';
   var ab  = t.estado === 'PENDIENTE'
-    ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(\'' + t.id + '\',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(\'' + t.id + '\')">Cancelar</button>' + waC
+    ? '<button class="btn-action btn-confirm-action" onclick="updateStatus(' + idA + ',\'CONFIRMADO\')">Confirmar</button><button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>' + waC
     : t.estado === 'CONFIRMADO'
-      ? waR + '<button class="btn-action btn-cancel-action" onclick="askCancel(\'' + t.id + '\')">Cancelar</button>'
-      : '<button class="btn-action btn-confirm-action" onclick="updateStatus(\'' + t.id + '\',\'PENDIENTE\')">Reactivar</button>';
+      ? waR + '<button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>'
+      : '<button class="btn-action btn-confirm-action" onclick="updateStatus(' + idA + ',\'PENDIENTE\')">Reactivar</button>';
   var sN  = parseFloat(t.senya) || 0;
   var tN  = parseFloat(t.total) || 0;
   var rN  = tN - sN;
   var pb  = tN > 0 ? (rN <= 0 ? '<span class="pago-badge saldado">&#10003; Saldado</span>' : '<span class="pago-badge pendiente-pago">Resta $' + rN.toLocaleString('es-AR') + '</span>') : '';
   var rD  = tN > 0 ? (rN <= 0 ? 'Saldado!' : '$' + rN.toLocaleString('es-AR')) : '$0';
   var rC  = rN <= 0 && tN > 0 ? 'resta-val saldado' : 'resta-val';
-  var pp  = '<div class="pago-panel" id="pago-' + t.id + '"><div class="pago-titulo">&#128176; Gestión de pago</div><div class="pago-grid"><div class="pago-field"><label>Seña ($)</label><input type="number" id="senya-' + t.id + '" value="' + (t.senya || '') + '" placeholder="15000" oninput="calcResta(\'' + t.id + '\')"></div><div class="pago-field"><label>Total ($)</label><input type="number" id="total-' + t.id + '" value="' + (t.total || '') + '" placeholder="55000" oninput="calcResta(\'' + t.id + '\')"></div></div><div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="' + rC + '" id="resta-' + t.id + '">' + rD + '</span></div><span class="pago-notas-label">Notas internas</span><textarea class="pago-notas" id="notas-int-' + t.id + '">' + (t.notasInternas || '') + '</textarea><button class="pago-save-btn" id="save-btn-' + t.id + '" onclick="guardarPago(\'' + t.id + '\')">Guardar cambios</button></div>';
+  // Los valores van escapados: al abrir "Pago" y guardar sin tocar nada, vuelve EXACTAMENTE lo que había.
+  // (El salto de línea después de <textarea> lo descarta el navegador; así no se pierde uno propio de la nota.)
+  var pp  = '<div class="pago-panel" id="pago-' + idH + '"><div class="pago-titulo">&#128176; Gestión de pago</div><div class="pago-grid"><div class="pago-field"><label>Seña ($)</label><input type="number" id="senya-' + idH + '" value="' + esc(t.senya || '') + '" placeholder="15000" oninput="calcResta(' + idA + ')"></div><div class="pago-field"><label>Total ($)</label><input type="number" id="total-' + idH + '" value="' + esc(t.total || '') + '" placeholder="55000" oninput="calcResta(' + idA + ')"></div></div><div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="' + rC + '" id="resta-' + idH + '">' + rD + '</span></div><span class="pago-notas-label">Notas internas</span><textarea class="pago-notas" id="notas-int-' + idH + '">\n' + esc(t.notasInternas || '') + '</textarea><button class="pago-save-btn" id="save-btn-' + idH + '" onclick="guardarPago(' + idA + ')">Guardar cambios</button></div>';
   var ch  = t.tieneConflicto ? '<div class="conflicto-badge">&#9888;&#65039; CONFLICTO DE HORARIO</div>' : '';
 
   // Badge de estado: si pasó, mostrar "REALIZADA" encima del estado normal
   var badgePasada = esPasada ? '<span class="status-badge badge-realizada">&#10003; Realizada</span>' : '';
   var cardExtra   = esPasada ? ' realizada' : '';
-  var badgeEstado = esPasada ? badgePasada : '<span class="status-badge badge-' + el + '">' + t.estado + '</span>';
+  var badgeEstado = esPasada ? badgePasada : '<span class="status-badge badge-' + esc(el) + '">' + esc(t.estado) + '</span>';
+  var conSaltos   = function(s) { return esc(s).replace(/\r?\n/g, '<br>'); };
 
-  return '<div class="turno-card ' + el + cardExtra + (t.tieneConflicto ? ' conflicto' : '') + '" id="card-' + t.id + '">' + ch +
-    '<div class="turno-top"><div><div class="turno-date">' + ds + '</div><div class="turno-time">' + t.horario + ' hs ' + pb + '</div></div>' + badgeEstado + '</div>' +
+  return '<div class="turno-card ' + esc(el) + cardExtra + (t.tieneConflicto ? ' conflicto' : '') + '" id="card-' + idH + '">' + ch +
+    '<div class="turno-top"><div><div class="turno-date">' + esc(ds) + '</div><div class="turno-time">' + esc(t.horario) + ' hs ' + pb + '</div></div>' + badgeEstado + '</div>' +
     '<div class="turno-info">' +
-      '<div class="turno-info-item"><span class="info-key">Bebé</span><span class="info-val">' + t.nombreBebe + '</span></div>' +
-      '<div class="turno-info-item"><span class="info-key">Tipo sesión</span><span class="info-val">' + t.tipoSesion + '</span></div>' +
-      '<div class="turno-info-item"><span class="info-key">Mamá</span><span class="info-val">' + t.nombreMama + '</span></div>' +
-      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + (t.whatsapp || '--') + '</span></div>' +
-      (t.tematica ? '<div class="turno-info-item"><span class="info-key">Temática</span><span class="info-val">' + t.tematica + '</span></div>' : '') +
-      (cs ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + cs + '</span></div>' : '') +
-      (t.senya ? '<div class="turno-info-item"><span class="info-key">Seña</span><span class="info-val">$' + parseFloat(t.senya).toLocaleString('es-AR') + '</span></div>' : '') +
-      (t.total ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + parseFloat(t.total).toLocaleString('es-AR') + '</span></div>' : '') +
+      '<div class="turno-info-item"><span class="info-key">Bebé</span><span class="info-val">' + esc(t.nombreBebe) + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Tipo sesión</span><span class="info-val">' + esc(t.tipoSesion) + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Mamá</span><span class="info-val">' + esc(t.nombreMama) + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + esc(t.whatsapp || '--') + '</span></div>' +
+      (t.tematica ? '<div class="turno-info-item"><span class="info-key">Temática</span><span class="info-val">' + esc(t.tematica) + '</span></div>' : '') +
+      (cs ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + esc(cs) + '</span></div>' : '') +
+      (t.senya ? '<div class="turno-info-item"><span class="info-key">Seña</span><span class="info-val">$' + esc(parseFloat(t.senya).toLocaleString('es-AR')) + '</span></div>' : '') +
+      (t.total ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + esc(parseFloat(t.total).toLocaleString('es-AR')) + '</span></div>' : '') +
     '</div>' +
-    (t.notas ? '<div class="turno-notas">"' + t.notas + '"</div>' : '') +
-    (t.notasInternas ? '<div class="turno-notas-int">&#128203; ' + t.notasInternas + '</div>' : '') +
-    '<div class="turno-actions">' + ab + '<button class="btn-action btn-pago-action" onclick="togglePago(\'' + t.id + '\')">&#128176; Pago</button></div>' +
+    (t.notas ? '<div class="turno-notas">"' + conSaltos(t.notas) + '"</div>' : '') +
+    (t.notasInternas ? '<div class="turno-notas-int">&#128203; ' + conSaltos(t.notasInternas) + '</div>' : '') +
+    '<div class="turno-actions">' + ab + '<button class="btn-action btn-pago-action" onclick="togglePago(' + idA + ')">&#128176; Pago</button></div>' +
     pp +
-    '<div class="turno-id">ID: ' + t.id + ' &middot; Reservado: ' + rs + '</div></div>';
+    '<div class="turno-id">ID: ' + idH + ' &middot; Reservado: ' + esc(rs) + '</div></div>';
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -981,14 +1060,30 @@ function calcResta(id) {
   }
 }
 
+// Valor a guardar de un campo del panel de pago: si no se tocó, el valor ORIGINAL tal cual
+// (así "Guardar" sin cambios no altera nada); si se editó, lo escrito sin espacios sobrantes.
+function valorCampoPago(el) {
+  if (!el) return '';
+  var ini = el.defaultValue;                       // lo que había en la planilla
+  if (el.type === 'number') {
+    var valido   = /^-?(\d+(\.\d+)?|\.\d+)([eE][-+]?\d+)?$/.test(ini);
+    var mostrado = valido ? ini : '';               // lo que el navegador mostró al abrir
+    if (el.value === mostrado) return ini;
+    return (el.value || '').trim();
+  }
+  return el.value === ini ? el.value : (el.value || '').trim();
+}
+
 async function guardarPago(id) {
-  var sv = (document.getElementById('senya-' + id).value || '').trim();
-  var tv = (document.getElementById('total-' + id).value || '').trim();
-  var nv = (document.getElementById('notas-int-' + id).value || '').trim();
+  // Los campos que no se tocaron se mandan EXACTAMENTE como estaban en la planilla
+  var sv = valorCampoPago(document.getElementById('senya-' + id));
+  var tv = valorCampoPago(document.getElementById('total-' + id));
+  var nv = valorCampoPago(document.getElementById('notas-int-' + id));
   var sN = parseFloat(sv) || 0;
   var tN = parseFloat(tv) || 0;
   var rv = tN > 0 ? String(tN - sN) : '';
   var turno = allTurnos.find(function(t) { return t.id === id; });
+  var previo = turno ? { senya: turno.senya, total: turno.total, resta: turno.resta, notasInternas: turno.notasInternas } : null;
   if (turno) { turno.senya = sv; turno.total = tv; turno.resta = rv; turno.notasInternas = nv; }
   var btn = document.getElementById('save-btn-' + id);
   if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
@@ -998,14 +1093,20 @@ async function guardarPago(id) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action:'updatePago', id, senya:sv, total:tv, resta:rv, notasInternas:nv })
     });
-    if (btn) {
-      btn.textContent = '\u2713 Guardado!';
-      btn.classList.add('saved');
-      setTimeout(function() { btn.textContent = 'Guardar cambios'; btn.classList.remove('saved'); btn.disabled = false; }, 2500);
-    }
   } catch(e) {
-    if (btn) { btn.textContent = 'Error'; btn.disabled = false; }
+    // No salió: se vuelve a lo que había y se avisa
+    if (turno && previo) { turno.senya = previo.senya; turno.total = previo.total; turno.resta = previo.resta; turno.notasInternas = previo.notasInternas; }
+    if (btn) { btn.textContent = 'Error: no se guardó'; btn.disabled = false; }
+    toast('⚠️ No se pudo guardar el pago (sin conexión). No se cambió nada.', 'err');
+    return;
   }
+  if (btn) btn.textContent = 'Enviado · verificando...';
+  verificarTurno(id, function(t) {
+    return mismoNumero(t.senya, sv) && mismoNumero(t.total, tv) && mismoTexto(t.notasInternas, nv);
+  }, 'el pago', function() {
+    var b = document.getElementById('save-btn-' + id);
+    if (b) { b.textContent = 'Guardar cambios'; b.disabled = false; }
+  });
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -1014,6 +1115,7 @@ async function guardarPago(id) {
 async function updateStatus(id, ns) {
   startLoading();
   var t = allTurnos.find(function(t) { return t.id === id; });
+  var previo = t ? t.estado : null;
   if (t) t.estado = ns;
   updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
   try {
@@ -1022,8 +1124,44 @@ async function updateStatus(id, ns) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ action:'updateStatus', id, status:ns })
     });
-  } catch(e) {}
+  } catch(e) {
+    // No salió: se vuelve al estado anterior en pantalla y se avisa
+    if (t) t.estado = previo;
+    updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
+    stopLoading();
+    toast('⚠️ No se pudo cambiar el estado (sin conexión). No se cambió nada.', 'err');
+    return;
+  }
   stopLoading();
+  verificarTurno(id, function(x) { return x.estado === ns; }, 'el cambio de estado');
+}
+
+// Después de guardar, vuelve a leer la planilla para confirmar que el cambio quedó (solo lectura)
+async function verificarTurno(id, check, que, onDone) {
+  await esperar(900);
+  var lista;
+  try {
+    lista = await leerTurnosServidor();
+  } catch(e) {
+    toast('Enviado, pero no pude verificarlo (sin conexión). Tocá «Actualizar» en un rato.', 'warn');
+    if (onDone) onDone(null);
+    return;
+  }
+  var t  = lista.find(function(x) { return x.id === id; });
+  var ok = !!(t && check(t));
+  // Si hay otro panel de pago abierto (con cambios sin guardar), no se redibuja para no perderlos
+  var abiertos = Array.prototype.slice.call(document.querySelectorAll('.pago-panel'))
+    .filter(function(p) { return p.style.display === 'block'; })
+    .map(function(p) { return p.id; });
+  var otros = abiertos.filter(function(pid) { return pid !== 'pago-' + id; });
+  allTurnos = lista;
+  if (otros.length === 0) {
+    refrescarVista();
+    abiertos.forEach(function(pid) { var p = document.getElementById(pid); if (p) p.style.display = 'block'; });
+  }
+  if (ok) toast('✓ Guardado y verificado en la planilla', 'ok');
+  else toast('⚠️ No pude confirmar ' + que + ' en la planilla. Revisá esa reserva y tocá «Actualizar».', 'err');
+  if (onDone) onDone(ok);
 }
 
 function askCancel(id)      { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
@@ -1037,24 +1175,94 @@ document.getElementById('cancel-modal').addEventListener('click', function(e) { 
 // ═══════════════════════════════════════════════════════════
 // CONFIG
 // ═══════════════════════════════════════════════════════════
-function showConfig() {
+async function showConfig() {
   document.getElementById('turnos-view').style.display = 'none';
   document.getElementById('ai-screen').classList.remove('show');
   document.getElementById('config-screen').classList.add('show');
   renderCfgCalendar();
   renderBloqueosList();
+  // Si no hay cambios sin guardar, se vuelve a leer la planilla para trabajar con lo último
+  if (!configLoaded || claveBloqueos(bloqueos) === claveBloqueos(configSnapshot)) {
+    await loadConfig();
+    renderCfgCalendar();
+    if (cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate + 'T12:00:00'));
+    renderBloqueosList();
+  }
+  var fb = document.getElementById('cfg-feedback');
+  if (!configLoaded) {
+    fb.textContent = 'No se pudo cargar la configuración actual. Revisá la conexión y volvé a entrar: así no se puede guardar.';
+    fb.className = 'cfg-feedback err';
+  } else if (fb.className.indexOf('err') >= 0) {
+    fb.textContent = ''; fb.className = 'cfg-feedback';
+  }
 }
 function hideConfig() {
   document.getElementById('config-screen').classList.remove('show');
   document.getElementById('turnos-view').style.display = 'block';
 }
 
+// Estado de la configuración: guardar reemplaza TODA la lista, así que solo se permite
+// si se pudo leer la lista actual y si nadie la cambió desde otro dispositivo mientras tanto.
+var configLoaded = false, configSnapshot = [];
+
+function copiaBloqueos(lista) {
+  return (lista || []).map(function(b) { return { tipo: b.tipo || 'dia', fecha: b.fecha || '', horario: b.horario || '' }; });
+}
+function claveBloqueos(lista) {
+  return (lista || []).map(function(b) {
+    return [String(b.tipo || 'dia'), String(b.fecha || ''), String(b.horario || '')].join('|');
+  }).sort().join('\n');
+}
+async function leerConfigServidor() {
+  var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getConfig', { mode: 'cors' });
+  var d = await r.json();
+  if (!d || d.error) throw new Error((d && d.error) || 'respuesta vacía');
+  if (d.bloqueos !== undefined && !Array.isArray(d.bloqueos)) throw new Error('formato inesperado');
+  return copiaBloqueos(d.bloqueos || []);
+}
+
 async function loadConfig() {
   try {
-    var r = await fetch(ADMIN_CONFIG.SCRIPT_URL + '?action=getConfig', { mode: 'cors' });
-    var d = await r.json();
-    bloqueos = (d.bloqueos || []).map(function(b) { return { tipo: b.tipo||'dia', fecha: b.fecha||'', horario: b.horario||'' }; });
-  } catch(e) { bloqueos = []; }
+    var lista = await leerConfigServidor();
+    bloqueos = lista;
+    configSnapshot = copiaBloqueos(lista);
+    configLoaded = true;
+  } catch(e) {
+    // Sin la configuración actual NO se permite guardar (se borrarían los bloqueos existentes)
+    bloqueos = []; configSnapshot = []; configLoaded = false;
+  }
+}
+
+// Guarda la lista completa de bloqueos con controles: devuelve { ok, verificado, msg, servidor }
+async function guardarBloqueosSeguro(lista) {
+  if (!configLoaded) return { ok:false, msg:'No se pudo cargar la configuración actual: no guardo nada para no borrar bloqueos. Salí de Config y volvé a entrar.' };
+  var actual;
+  try { actual = await leerConfigServidor(); }
+  catch(e) { return { ok:false, msg:'No pude leer la configuración actual (sin conexión). No se guardó nada.' }; }
+  if (claveBloqueos(actual) !== claveBloqueos(configSnapshot)) {
+    return { ok:false, msg:'La configuración cambió desde otro dispositivo. No se guardó nada: salí de Config, volvé a entrar y repetí el cambio.' };
+  }
+  try {
+    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action:'saveConfig', bloqueos: lista })
+    });
+  } catch(e) {
+    return { ok:false, msg:'Error al guardar (sin conexión). No se guardó nada.' };
+  }
+  await esperar(900);
+  var despues = null;
+  try { despues = await leerConfigServidor(); } catch(e) {}
+  if (despues && claveBloqueos(despues) === claveBloqueos(lista)) {
+    configSnapshot = copiaBloqueos(despues);
+    return { ok:true, verificado:true, servidor: copiaBloqueos(despues) };
+  }
+  if (despues) {
+    configSnapshot = copiaBloqueos(despues);
+    return { ok:false, servidor: copiaBloqueos(despues), msg:'Envié los cambios pero la planilla muestra otra cosa. Te muestro lo que hay guardado ahora: revisalo.' };
+  }
+  return { ok:true, verificado:false };
 }
 
 var CFG_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -1115,7 +1323,7 @@ function renderCfgCalendar() {
   }
 }
 
-function fmtDateCfg(d) { return d.toISOString().split('T')[0]; }
+function fmtDateCfg(d) { return fechaLocal(d); }
 
 function cfgSelectDay(ds, dateObj) {
   cfgCal.selectedDate = ds;
@@ -1206,7 +1414,7 @@ function renderExtraList(ds) {
                    .sort(function(a,b) { return a.horario.localeCompare(b.horario); });
   if (ex.length === 0) { c.innerHTML = '<span style="font-size:12px;color:var(--text-light);">Ningún horario extra</span>'; return; }
   c.innerHTML = ex.map(function(b) {
-    return '<span class="cfg-extra-tag">' + b.horario + ' hs <button class="cfg-extra-tag-del" onclick="eliminarSlotExtra(\'' + b.fecha + '\',\'' + b.horario + '\')">&#10005;</button></span>';
+    return '<span class="cfg-extra-tag">' + esc(b.horario) + ' hs <button class="cfg-extra-tag-del" onclick="eliminarSlotExtra(' + jsArg(b.fecha) + ',' + jsArg(b.horario) + ')">&#10005;</button></span>';
   }).join('');
 }
 
@@ -1223,7 +1431,7 @@ function renderBloqueosList() {
     else if (b.tipo === 'slot')  { tl = b.horario + ' hs (bloqueado)'; tc = 'btipo-slot'; }
     else                         { tl = b.horario + ' hs ✨ Extra'; tc = 'btipo-extra'; }
     var ri = bloqueos.indexOf(b);
-    html += '<div class="bloqueo-item"><div class="bloqueo-info">' + label + ' <span class="bloqueo-tipo ' + tc + '">' + tl + '</span></div><button class="bloqueo-del" onclick="eliminarBloqueo(' + ri + ')">&#10005;</button></div>';
+    html += '<div class="bloqueo-item"><div class="bloqueo-info">' + esc(label) + ' <span class="bloqueo-tipo ' + tc + '">' + esc(tl) + '</span></div><button class="bloqueo-del" onclick="eliminarBloqueo(' + ri + ')">&#10005;</button></div>';
   });
   c.innerHTML = html;
 }
@@ -1244,20 +1452,22 @@ async function guardarConfig() {
   var btn = document.getElementById('cfg-save-btn');
   var fb  = document.getElementById('cfg-feedback');
   btn.disabled = true; btn.textContent = 'Guardando...'; fb.textContent = ''; fb.className = 'cfg-feedback';
-  try {
-    await fetch(ADMIN_CONFIG.SCRIPT_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action:'saveConfig', bloqueos })
-    });
+  var res = await guardarBloqueosSeguro(bloqueos);
+  if (res.servidor) {
+    bloqueos = res.servidor;
+    renderCfgCalendar();
+    if (cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate + 'T12:00:00'));
+    renderBloqueosList();
+  }
+  if (res.ok) {
     btn.textContent = 'Guardado!';
-    fb.textContent  = 'Cambios guardados en Google Sheets.';
+    fb.textContent  = res.verificado ? 'Cambios guardados y verificados en Google Sheets.' : 'Cambios enviados. No pude verificarlos: revisá en un rato.';
     fb.className    = 'cfg-feedback ok';
     document.getElementById('cfg-confirm-input').value = '';
     setTimeout(function() { btn.textContent = 'Guardar cambios'; btn.disabled = true; fb.textContent = ''; }, 3000);
-  } catch(e) {
+  } else {
     btn.textContent = 'Guardar cambios'; btn.disabled = false;
-    fb.textContent  = 'Error al guardar.'; fb.className = 'cfg-feedback err';
+    fb.textContent  = res.msg; fb.className = 'cfg-feedback err';
   }
 }
 
@@ -1282,22 +1492,28 @@ async function cargarResumen() {
   var el = document.getElementById('ai-resumen-content');
   el.textContent = 'Cargando...'; el.className = 'ai-resumen-content loading';
   var hoy     = new Date();
-  var hoyStr  = hoy.toISOString().split('T')[0];
+  var hoyStr  = fechaLocal(hoy);
   var sesHoy  = allTurnos.filter(function(t) { return t.fecha === hoyStr && t.estado !== 'CANCELADO'; })
                           .sort(function(a,b) { return a.horario.localeCompare(b.horario); });
-  var cumples = [];
+  var cumples = [], vistos = {};
   allTurnos.forEach(function(t) {
     if (!t.cumpleBebe || t.estado === 'CANCELADO') return;
     var cb       = new Date(t.cumpleBebe + 'T12:00:00');
     var esteAnio = new Date(hoy.getFullYear(), cb.getMonth(), cb.getDate());
     var diff     = Math.ceil((esteAnio - hoy) / (1000 * 60 * 60 * 24));
-    if (diff >= 0 && diff <= 30)
-      cumples.push({ nombre:t.nombreBebe, dias:diff, fecha:esteAnio.toLocaleDateString('es-AR', { day:'numeric', month:'long' }) });
+    var cuando   = null;
+    if (diff >= 0 && diff <= 30) cuando = { d: esteAnio, dias: diff };
     else {
       var sig  = new Date(hoy.getFullYear() + 1, cb.getMonth(), cb.getDate());
       var d2   = Math.ceil((sig - hoy) / (1000 * 60 * 60 * 24));
-      if (d2 <= 30) cumples.push({ nombre:t.nombreBebe, dias:d2, fecha:sig.toLocaleDateString('es-AR', { day:'numeric', month:'long' }) });
+      if (d2 <= 30) cuando = { d: sig, dias: d2 };
     }
+    if (!cuando) return;
+    // Un bebé con varias reservas aparece una sola vez (antes salía repetido)
+    var clave = String(t.nombreBebe || '').toLowerCase().trim() + '|' + fechaLocal(cuando.d);
+    if (vistos[clave]) return;
+    vistos[clave] = true;
+    cumples.push({ nombre:t.nombreBebe, dias:cuando.dias, fecha:cuando.d.toLocaleDateString('es-AR', { day:'numeric', month:'long' }) });
   });
   cumples.sort(function(a,b) { return a.dias - b.dias; });
   var ctx = 'Sesiones hoy (' + hoyStr + '): ';
@@ -1318,6 +1534,8 @@ async function cargarResumen() {
     else if (sesHoy.length === 1) txt = 'Hoy tenés 1 sesión: ' + sesHoy[0].horario + ' hs con ' + sesHoy[0].nombreBebe + ' — ' + sesHoy[0].tipoSesion + '.';
     else                          txt = 'Hoy tenés ' + sesHoy.length + ' sesiones: ' + sesHoy.map(function(t) { return t.horario + ' hs - ' + t.nombreBebe; }).join(', ') + '.';
     if (cumples.length > 0 && cumples[0].dias <= 7) txt += ' 🎂 ' + cumples[0].nombre + ' cumple el ' + cumples[0].fecha + '!';
+    // Antes este error quedaba oculto: ahora se ve que la IA no respondió y por qué
+    txt += '  (Resumen hecho sin IA: la IA no respondió' + (e && e.message ? ' — ' + e.message : '') + ')';
     el.textContent = txt; el.className = 'ai-resumen-content';
   }
 }
@@ -1327,7 +1545,7 @@ function addMsg(role, text) {
   var div = document.createElement('div'); div.className = 'ai-msg ' + role;
   var av  = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = role === 'ai' ? '🤖' : '👤';
   var bub = document.createElement('div'); bub.className = 'ai-msg-bubble';
-  bub.innerHTML = text.replace(/\n/g,'<br>');
+  bub.innerHTML = esc(text).replace(/\n/g,'<br>');
   div.appendChild(av); div.appendChild(bub);
   c.appendChild(div); c.scrollTop = c.scrollHeight;
   return bub;
@@ -1341,15 +1559,87 @@ function addLoadingMsg() {
   c.appendChild(div); c.scrollTop = c.scrollHeight;
   return { div, bub };
 }
+// Cada tarjeta guarda y ejecuta SU propia acción (antes, confirmar una tarjeta podía ejecutar otra)
 function addActionCard(action) {
   var c    = document.getElementById('ai-messages');
   var div  = document.createElement('div'); div.className = 'ai-msg ai';
   var av   = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = '🤖';
   var bub  = document.createElement('div'); bub.className = 'ai-msg-bubble';
   var card = document.createElement('div'); card.className = 'ai-accion-card';
-  card.innerHTML = '<div class="ai-accion-title">&#128203; Acción pendiente de confirmación</div><div class="ai-accion-detail">' + action.descripcion + '</div><div class="ai-accion-btns"><button class="ai-accion-ok" onclick="ejecutarAccion()">&#10003; Confirmar</button><button class="ai-accion-cancel" onclick="cancelarAccion()">Cancelar</button></div>';
+  card.innerHTML = '<div class="ai-accion-title">&#128203; Acción pendiente de confirmación</div><div class="ai-accion-detail" style="white-space:pre-line"></div><div class="ai-accion-btns"><button class="ai-accion-ok">&#10003; Confirmar</button><button class="ai-accion-cancel">Cancelar</button></div>';
+  card.querySelector('.ai-accion-detail').textContent = describirAccion(action);
+  card.querySelector('.ai-accion-ok').addEventListener('click', function() { ejecutarAccion(action, div); });
+  card.querySelector('.ai-accion-cancel').addEventListener('click', function() { cancelarAccion(div); });
   bub.appendChild(card); div.appendChild(av); div.appendChild(bub);
   c.appendChild(div); c.scrollTop = c.scrollHeight;
+}
+
+// Texto de la tarjeta: lo que dice la IA + el detalle real de lo que se va a cambiar
+function describirAccion(a) {
+  var base = a && a.descripcion ? String(a.descripcion) : 'Acción propuesta por la IA';
+  var t = a && a.id ? allTurnos.find(function(x) { return x.id === a.id; }) : null;
+  var det = '';
+  if (a && a.tipo === 'updateStatus') {
+    det = 'Cambiar el estado ' + (t ? 'de ' + t.nombreBebe + ' (' + t.fecha + ' ' + t.horario + ')' : 'del turno ' + a.id) + ' a ' + a.newStatus;
+  } else if (a && a.tipo === 'reprogramar') {
+    det = 'Mover ' + (t ? 'a ' + t.nombreBebe + ' del ' + t.fecha + ' ' + t.horario : 'el turno ' + a.id) +
+          ' al ' + (a.newFecha || (t ? t.fecha : '?')) + ' ' + (a.newHorario || (t ? t.horario : '?'));
+  } else if (a && a.tipo) {
+    det = a.tipo + ' ' + (a.fecha || '') + (a.horario ? ' ' + a.horario : '');
+  }
+  return base + (det ? '\n→ ' + det : '');
+}
+
+var TIPOS_ACCION = ['updateStatus','reprogramar','bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'];
+
+// Saca de la respuesta de la IA los bloques de acción (tolera saltos de línea de Windows,
+// espacios, bloques marcados "json" y varias acciones en un mismo mensaje)
+function extraerAcciones(rt) {
+  var acciones = [], malas = 0;
+  var texto = String(rt || '').replace(/```[ \t]*(action|json)?[ \t]*\r?\n?([\s\S]*?)```/g, function(todo, etiqueta, cuerpo) {
+    var obj = null;
+    try { obj = JSON.parse(String(cuerpo).trim()); } catch(e) {}
+    var lista = Array.isArray(obj) ? obj : (obj ? [obj] : []);
+    var validas = lista.filter(function(a) { return a && typeof a === 'object' && TIPOS_ACCION.indexOf(a.tipo) >= 0; });
+    if (etiqueta === 'action') {
+      validas.forEach(function(a) { acciones.push(a); });
+      if (validas.length === 0 || validas.length < lista.length) malas++;
+      return '';
+    }
+    if (validas.length > 0 && validas.length === lista.length) {
+      validas.forEach(function(a) { acciones.push(a); });
+      return '';
+    }
+    return todo;   // otros bloques de código se muestran tal cual
+  });
+  return { acciones: acciones, malas: malas, texto: texto.trim() };
+}
+
+// Controles antes de tocar la planilla: devuelve null si está todo bien, o el motivo
+function validarAccion(a) {
+  if (!a || typeof a !== 'object') return 'acción vacía';
+  if (a.tipo === 'updateStatus' || a.tipo === 'reprogramar') {
+    var t = allTurnos.find(function(x) { return x.id === a.id; });
+    if (!t) return 'no encontré la reserva con ID ' + a.id;
+    if (a.tipo === 'updateStatus') {
+      if (['PENDIENTE','CONFIRMADO','CANCELADO'].indexOf(a.newStatus) < 0) return 'estado inválido (' + a.newStatus + ')';
+      return null;
+    }
+    if (!a.newFecha && !a.newHorario) return 'no indica nueva fecha ni nuevo horario';
+    if (a.newFecha && !fechaValida(a.newFecha)) return 'fecha inválida (' + a.newFecha + ')';
+    if (a.newHorario && !horaValida(a.newHorario)) return 'horario inválido (' + a.newHorario + ')';
+    var nf = a.newFecha || t.fecha, nh = a.newHorario || t.horario;
+    var choque = allTurnos.find(function(x) { return x.id !== t.id && x.estado !== 'CANCELADO' && x.fecha === nf && x.horario === nh; });
+    if (choque) return 'ese horario ya está ocupado por otra reserva (' + choque.nombreBebe + ')';
+    return null;
+  }
+  if (['bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'].indexOf(a.tipo) >= 0) {
+    if (!fechaValida(a.fecha)) return 'fecha inválida (' + a.fecha + ')';
+    if (a.tipo !== 'bloquearDia' && a.tipo !== 'desbloquearDia' && !horaValida(a.horario)) return 'horario inválido (' + a.horario + ')';
+    if (!configLoaded) return 'no pude cargar la configuración actual (entrá a Config y volvé a intentar)';
+    return null;
+  }
+  return 'tipo de acción desconocido (' + a.tipo + ')';
 }
 function sendSug(btn) { var t = btn.textContent.trim(); document.getElementById('ai-input').value = t; sendMessage(); }
 function aiKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
@@ -1364,7 +1654,7 @@ async function sendMessage() {
   addMsg('user', text);
   aiHistory.push({ role:'user', content:text });
   var loading = addLoadingMsg();
-  var hoyStr  = new Date().toISOString().split('T')[0];
+  var hoyStr  = fechaLocal();
   var ctx     = JSON.stringify(allTurnos.filter(function(t) { return t.estado !== 'CANCELADO'; }).map(function(t) {
     return { id:t.id, fecha:t.fecha, horario:t.horario, nombreBebe:t.nombreBebe, nombreMama:t.nombreMama,
              tipoSesion:t.tipoSesion, tematica:t.tematica, estado:t.estado, cumpleBebe:t.cumpleBebe,
@@ -1375,67 +1665,81 @@ async function sendMessage() {
     var resp    = await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:payload });
     var data    = await resp.json();
     if (!data.ok) throw new Error(data.error || 'Error del servidor');
-    var rt  = data.reply;
+    var rt  = String(data.reply || '');
     aiHistory.push({ role:'assistant', content:rt });
-    var am  = rt.match(/```action\n([\s\S]*?)\n```/);
-    var dt  = rt.replace(/```action[\s\S]*?```/g,'').trim();
+    var ex  = extraerAcciones(rt);
     loading.div.remove();
-    addMsg('ai', dt);
-    if (am) { try { var action = JSON.parse(am[1]); pendingAction = action; addActionCard(action); } catch(e) {} }
+    addMsg('ai', ex.texto || (ex.acciones.length ? 'Te propongo este cambio:' : '(sin respuesta)'));
+    ex.acciones.forEach(function(a) { addActionCard(a); });
+    if (ex.malas > 0) addMsg('ai', '⚠️ La IA propuso un cambio que no pude interpretar. No se hizo ningún cambio.');
   } catch(e) {
     loading.bub.classList.remove('ai-typing');
-    loading.bub.innerHTML = '\u274C Error: ' + e.message;
+    loading.bub.textContent = '❌ Error: ' + e.message;
   }
   document.getElementById('ai-send-btn').disabled = false;
   document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
 }
 
-async function ejecutarAccion() {
-  if (!pendingAction) return;
-  var action = pendingAction; pendingAction = null;
-  document.querySelectorAll('.ai-accion-card').forEach(function(c) { c.closest('.ai-msg').remove(); });
+async function ejecutarAccion(action, msgDiv) {
+  if (!action) return;
+  if (msgDiv && msgDiv.parentNode) msgDiv.remove();   // solo se quita ESTA tarjeta
+  var motivo = validarAccion(action);
+  if (motivo) { addMsg('ai', '⚠️ No ejecuté la acción: ' + motivo + '. No se hizo ningún cambio.'); return; }
   var loading = addLoadingMsg();
   try {
     if (action.tipo === 'updateStatus') {
       await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'updateStatus', id:action.id, status:action.newStatus }) });
       var t = allTurnos.find(function(x) { return x.id === action.id; }); if (t) t.estado = action.newStatus;
       updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
-      loading.div.remove(); addMsg('ai','\u2705 Listo! El turno fue actualizado correctamente.');
+      loading.div.remove(); addMsg('ai', 'Enviado. Estoy verificando en la planilla…');
+      verificarTurno(action.id, function(x) { return x.estado === action.newStatus; }, 'el cambio de estado');
     } else if (action.tipo === 'reprogramar') {
       await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'reprogramar', id:action.id, newFecha:action.newFecha, newHorario:action.newHorario }) });
-      var t = allTurnos.find(function(x) { return x.id === action.id; });
-      if (t) { if (action.newFecha) t.fecha = action.newFecha; if (action.newHorario) t.horario = action.newHorario; }
+      var t2 = allTurnos.find(function(x) { return x.id === action.id; });
+      if (t2) { if (action.newFecha) t2.fecha = action.newFecha; if (action.newHorario) t2.horario = action.newHorario; }
       updateStats(); renderMonthTabs(); renderTurnos(); renderDailyPanel();
-      loading.div.remove(); addMsg('ai','\u2705 Turno reprogramado! Los cambios se guardaron en Sheets.');
-    } else if (['bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'].indexOf(action.tipo) >= 0) {
+      loading.div.remove(); addMsg('ai', 'Enviado. Estoy verificando en la planilla…');
+      verificarTurno(action.id, function(x) {
+        return (!action.newFecha || x.fecha === action.newFecha) && (!action.newHorario || x.horario === action.newHorario);
+      }, 'la reprogramación');
+    } else {
+      // Bloqueos: se trabaja sobre una copia; la lista real cambia solo si se guardó bien
       var fecha = action.fecha;
+      var nueva = bloqueos.slice();
       if (action.tipo === 'bloquearDia') {
-        bloqueos = bloqueos.filter(function(b) { return b.fecha !== fecha; });
-        bloqueos.push({ tipo:'dia', fecha, horario:'', nota:action.descripcion||'' });
+        nueva = nueva.filter(function(b) { return b.fecha !== fecha; });
+        nueva.push({ tipo:'dia', fecha, horario:'', nota:action.descripcion||'' });
       } else if (action.tipo === 'desbloquearDia') {
-        bloqueos = bloqueos.filter(function(b) { return !(b.tipo === 'dia' && b.fecha === fecha); });
+        nueva = nueva.filter(function(b) { return !(b.tipo === 'dia' && b.fecha === fecha); });
       } else if (action.tipo === 'bloquearSlot') {
-        if (!bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario; }))
-          bloqueos.push({ tipo:'slot', fecha, horario:action.horario, nota:'' });
+        if (!nueva.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario; }))
+          nueva.push({ tipo:'slot', fecha, horario:action.horario, nota:'' });
       } else if (action.tipo === 'desbloquearSlot') {
-        bloqueos = bloqueos.filter(function(b) { return !(b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario); });
+        nueva = nueva.filter(function(b) { return !(b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario); });
       } else if (action.tipo === 'agregarSlotExtra') {
-        if (!bloqueos.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === fecha && b.horario === action.horario; }))
-          bloqueos.push({ tipo:'slot_extra', fecha, horario:action.horario, nota:'' });
+        if (!nueva.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === fecha && b.horario === action.horario; }))
+          nueva.push({ tipo:'slot_extra', fecha, horario:action.horario, nota:'' });
       }
-      await fetch(ADMIN_CONFIG.SCRIPT_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ action:'saveConfig', bloqueos }) });
-      loading.div.remove(); addMsg('ai','\u2705 Listo! Configuración actualizada y guardada en Sheets.');
+      var res = await guardarBloqueosSeguro(nueva);
+      loading.div.remove();
+      if (res.ok) {
+        bloqueos = res.servidor || nueva;
+        addMsg('ai', res.verificado ? '✅ Configuración guardada y verificada en la planilla.' : 'Enviado. No pude verificarlo: revisá Config en un rato.');
+      } else {
+        if (res.servidor) bloqueos = res.servidor;
+        addMsg('ai', '⚠️ ' + res.msg);
+        return;
+      }
     }
-    aiHistory.push({ role:'assistant', content:'Acción ejecutada: ' + action.descripcion });
+    aiHistory.push({ role:'assistant', content:'Acción ejecutada: ' + (action.descripcion || action.tipo) });
   } catch(e) {
     loading.bub.classList.remove('ai-typing');
-    loading.bub.innerHTML = '\u274C Error al ejecutar. Intentá de nuevo.';
+    loading.bub.textContent = '❌ No se pudo enviar (sin conexión). No se hizo ningún cambio.';
   }
 }
 
-function cancelarAccion() {
-  pendingAction = null;
-  document.querySelectorAll('.ai-accion-card').forEach(function(c) { c.closest('.ai-msg').remove(); });
+function cancelarAccion(msgDiv) {
+  if (msgDiv && msgDiv.parentNode) msgDiv.remove();   // solo se quita ESTA tarjeta
   addMsg('ai', 'Entendido, no hice ningún cambio. ¿Querés hacer algo más?');
 }
 </script>
