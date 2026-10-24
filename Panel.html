@@ -1373,8 +1373,8 @@ function buildTurnoCard(t) {
   var mC  = buildMsgConfirm(t, ds);
   var mR  = buildMsgRec(t, ds);
   var mS  = buildMsgSena(t, ds);
-  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank" rel="noopener">' + waI() + ' WA confirm.</a>' : '';
-  var waR = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mR + '" target="_blank" rel="noopener">' + waI() + ' WA record.</a>' : '';
+  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank" rel="noopener">' + waI() + ' WA Confirmación</a>' : '';
+  var waR = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mR + '" target="_blank" rel="noopener">' + waI() + ' WA Recordatorio</a>' : '';
   var waS = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mS + '" target="_blank" rel="noopener">' + waI() + ' WA seña</a>' : '';
   var conSena = (t.sena && t.sena.estado === 'recibida') || parseFloat(t.senya) > 0;
   var mover = '<button class="btn-action btn-mover-action" onclick="moverTurno(' + idA + ')">&#128197; Mover</button>';
