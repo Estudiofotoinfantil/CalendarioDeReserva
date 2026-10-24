@@ -186,9 +186,10 @@ function asegurarHoja(nombre, encabezados) {
   }
   return sh;
 }
-// Escribe SIEMPRE como texto, igual que el servidor anterior: formato "texto sin formato" (@) y el valor como texto.
-// Así no hay conversiones automáticas (fechas, números, fórmulas) ni apóstrofes agregados.
-function aTexto(v) { return vacio(v) ? '' : String(v); }
+// Escribe SIEMPRE como texto: formato "texto sin formato" (@) y el valor con un apóstrofe adelante.
+// Probado en Google Sheets: el apóstrofe no queda guardado y evita que un texto que empieza con "=" se vuelva
+// fórmula (con el formato @ solo, igual se convierte). Así lo que se guarda es exactamente el texto original.
+function aTexto(v) { return vacio(v) ? '' : "'" + String(v); }
 function escribirTexto(rango, matriz) {
   rango.setNumberFormat('@');
   rango.setValues(matriz.map(function (fila) { return fila.map(aTexto); }));
