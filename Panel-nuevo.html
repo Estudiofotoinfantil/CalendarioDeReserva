@@ -2347,6 +2347,14 @@ function venceTexto(iso) {   // "hoy a las 21:30", "mañana a las 9:00", "el mar
   var dia = n === 0 ? 'hoy' : (n === 1 ? 'mañana' : (n === -1 ? 'ayer' : 'el ' + DIAS_LARGO[d.getDay()] + ' ' + d.getDate()));
   return dia + ' a las ' + hh;
 }
+// Lo que se escribió TODO EN MAYÚSCULAS se muestra con mayúscula inicial (solo en pantalla: la planilla no cambia)
+function lindo(s) {
+  s = String(s === undefined || s === null ? '' : s).trim();
+  if (!/[A-ZÁÉÍÓÚÑÜ]{2}/.test(s) || s !== s.toLocaleUpperCase('es')) return s;
+  return s.toLocaleLowerCase('es')
+    .replace(/(^|[\s\-'’(])([a-záéíóúñü])/g, function(m, sep, c) { return sep + c.toLocaleUpperCase('es'); })
+    .replace(/ (De|Del|La|Las|Los|Y|E)(?= )/g, function(m, w) { return ' ' + w.toLowerCase(); });
+}
 function sinAcentos(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); }
 function porHora(a, b) { return (a.horario || '').localeCompare(b.horario || ''); }
 function porFechaHora(a, b) { return ((a.fecha || '') + (a.horario || '')).localeCompare((b.fecha || '') + (b.horario || '')); }
@@ -2378,9 +2386,9 @@ function estadoDe(t) {
 }
 function subtitulo(t, conMama) {
   var p = [];
-  if (t.tipoSesion && t.tipoSesion !== '--') p.push(t.tipoSesion);
-  if (t.tematica) p.push(t.tematica);
-  if (conMama && t.nombreMama && t.nombreMama !== '--') p.push('con ' + t.nombreMama);
+  if (t.tipoSesion && t.tipoSesion !== '--') p.push(lindo(t.tipoSesion));
+  if (t.tematica) p.push(lindo(t.tematica));
+  if (conMama && t.nombreMama && t.nombreMama !== '--') p.push('con ' + lindo(t.nombreMama));
   return p.join(', ');
 }
 
@@ -2440,7 +2448,7 @@ function filaTurno(t, opc) {
   var cls = 'fila' + (opc.compacta ? ' compacta' : '') + (t.estado === 'CANCELADO' || liberado(t) ? ' cancelado' : '') + (t.tieneConflicto ? ' choque' : '');
   return '<button type="button" class="' + cls + '" data-id="' + esc(t.id) + '" onclick="abrirTurno(' + jsArg(t.id) + ')">' +
     '<span class="h num">' + esc(t.horario) + '</span>' +
-    '<span class="cuerpo"><span class="n nombre">' + esc(t.nombreBebe) + '</span>' + (sub ? '<span class="s">' + esc(sub) + '</span>' : '') + '</span>' +
+    '<span class="cuerpo"><span class="n nombre">' + esc(lindo(t.nombreBebe)) + '</span>' + (sub ? '<span class="s">' + esc(sub) + '</span>' : '') + '</span>' +
     '<span class="der"><span class="estado ' + e.c + '">' + esc(e.corto) + '</span>' + monto + '</span></button>';
 }
 // La agenda muestra lo que está GUARDADO en la planilla (no los cambios a medio hacer en "Días y horarios")
@@ -2521,7 +2529,7 @@ function renderFoco() {
     html = '<div class="foco visor" id="foco-visor" data-id="' + esc(t.id) + '">' + ESQUINAS +
       '<div class="cuando">' + esc(cuandoFoco(t)) + '</div>' +
       '<div class="hora num">' + esc(t.horario) + '</div>' +
-      '<div class="quien nombre">' + esc(t.nombreBebe) + '</div>' +
+      '<div class="quien nombre">' + esc(lindo(t.nombreBebe)) + '</div>' +
       (sub ? '<div class="que">' + esc(sub) + '</div>' : '') +
       '<div class="estado-linea"><span class="estado ' + e.c + '">' + esc(e.largo) + '</span></div>' +
       (t.tieneConflicto ? '<div class="estado-linea"><span class="estado mal">Hay otro turno en el mismo horario</span></div>' : '') +
@@ -2548,7 +2556,7 @@ function pendientesDeResolver() {
   });
   allTurnos.forEach(function(t) {
     if (t.estado === 'CANCELADO' || !fechaValida(t.fecha) || t.fecha < hoyStr || t.sinId) return;
-    var s = t.sena || {}, quien = '<em>' + esc(t.nombreBebe) + '</em>', abrir = 'abrirTurno(' + jsArg(t.id) + ')';
+    var s = t.sena || {}, quien = '<em>' + esc(lindo(t.nombreBebe)) + '</em>', abrir = 'abrirTurno(' + jsArg(t.id) + ')';
     var cuando = cuandoDia(t.fecha).toLowerCase() + ' a las ' + esc(t.horario);
     if (liberado(t)) {
       var hace = s.vence ? (Date.now() - new Date(s.vence).getTime()) / 3600000 : 999;
@@ -2725,14 +2733,14 @@ function armarFamilias() {
   lista.forEach(function(f) {
     f.turnos.sort(function(a, b) { return porFechaHora(b, a); });   // lo más reciente primero
     var conNombre = f.turnos.filter(function(t) { return t.nombreMama && t.nombreMama !== '--'; })[0];
-    f.nombre = conNombre ? conNombre.nombreMama.trim() : 'Sin nombre de la mamá';
+    f.nombre = conNombre ? lindo(conNombre.nombreMama) : 'Sin nombre de la mamá';
     var vistos = {};
     f.bebes = [];
     f.turnos.forEach(function(t) {
       var k = sinAcentos(t.nombreBebe).trim();
       if (!k || k === '--' || vistos[k]) return;
       vistos[k] = true;
-      f.bebes.push({ nombre: t.nombreBebe.trim(), cumple: t.cumpleBebe, mesAMes: false });
+      f.bebes.push({ nombre: lindo(t.nombreBebe), cumple: t.cumpleBebe, mesAMes: false });
     });
     f.bebes.forEach(function(b) {
       b.mesAMes = f.turnos.some(function(x) { return sinAcentos(x.nombreBebe).trim() === sinAcentos(b.nombre) && /mes a mes/.test(sinAcentos(x.tipoSesion)); });
@@ -2793,7 +2801,7 @@ function filaHistorial(t) {
   var e = estadoDe(t), s = [t.horario + ' hs', t.tipoSesion !== '--' ? t.tipoSesion : ''].filter(Boolean).join(', ');
   return '<button type="button" class="fila compacta' + (t.estado === 'CANCELADO' || liberado(t) ? ' cancelado' : '') + '" data-id="' + esc(t.id) + '" onclick="abrirTurno(' + jsArg(t.id) + ')">' +
     '<span class="h num">' + esc(fechaCorta(t.fecha)) + '</span>' +
-    '<span class="cuerpo"><span class="n nombre">' + esc(t.nombreBebe) + '</span><span class="s">' + esc(s) + '</span></span>' +
+    '<span class="cuerpo"><span class="n nombre">' + esc(lindo(t.nombreBebe)) + '</span><span class="s">' + esc(s) + '</span></span>' +
     '<span class="der"><span class="estado ' + e.c + '">' + esc(e.corto) + '</span></span></button>';
 }
 function htmlFamilia(f) {
@@ -2822,13 +2830,13 @@ function htmlTurno(t) {
   var idA = jsArg(t.id), idH = esc(t.id), e = estadoDe(t), acc = accionPrincipal(t), sub = subtitulo(t, false);
   var h = '<div class="det-cuando">' + esc(cuandoLargo(t)) + '</div>' +
     '<div class="det-hora num">' + esc(t.horario) + '</div>' +
-    '<h2 class="det-quien nombre" id="hoja-titulo">' + esc(t.nombreBebe) + '</h2>' +
+    '<h2 class="det-quien nombre" id="hoja-titulo">' + esc(lindo(t.nombreBebe)) + '</h2>' +
     (sub ? '<div class="det-que">' + esc(sub) + '</div>' : '') +
     '<div class="det-estado"><span class="estado ' + e.c + '">' + esc(e.largo) + '</span>' +
     (t.tieneConflicto ? '<span class="estado mal">Hay otro turno en el mismo horario</span>' : '') + '</div>';
   if (liberado(t)) {
     var otro = allTurnos.filter(function(x) { return x.id !== t.id && ocupa(x) && x.fecha === t.fecha && x.horario === t.horario; })[0];
-    if (otro) h += '<div class="banda">Ese horario ya lo tiene ' + esc(otro.nombreBebe) + '. Si llega la seña, mejor cambiale el día u horario antes de registrarla.</div>';
+    if (otro) h += '<div class="banda">Ese horario ya lo tiene ' + esc(lindo(otro.nombreBebe)) + '. Si llega la seña, mejor cambiale el día u horario antes de registrarla.</div>';
   }
   if (t.sinId) {
     h += '<div class="banda">Esta reserva no tiene ID en la planilla: para cambiarla hay que editarla a mano en la planilla.</div>';
@@ -2865,7 +2873,7 @@ function htmlTurno(t) {
   var origen = t.sena && t.sena.origen === 'clienta' ? 'desde la web' : (t.sena && t.sena.origen === 'panel' ? 'cargado en el panel' : '');
   var fam = familiasIdx[claveFamilia(t)];
   h += '<section class="bloque"><h3>Datos</h3><dl class="datos">' +
-    datoFila('Mamá', t.nombreMama !== '--' ? t.nombreMama : '') + datoFila('WhatsApp', t.whatsapp) +
+    datoFila('Mamá', t.nombreMama !== '--' ? lindo(t.nombreMama) : '') + datoFila('WhatsApp', t.whatsapp) +
     (t.telefono && t.telefono !== t.whatsapp ? datoFila('Teléfono', t.telefono) : '') +
     datoFila('Cumple', cumpleTexto(t.cumpleBebe)) + datoFila('Reservó', [rs, origen].filter(Boolean).join(', ')) + datoFila('ID', t.id) + '</dl>' +
     (t.notas ? '<div class="nota-cli">' + esc(t.notas) + '</div>' : '') +
@@ -2923,7 +2931,7 @@ function cerrarHoja(sinFoco) {
   if (!sinFoco && p && p.focus && document.body.contains(p)) { try { p.focus({ preventScroll: true }); } catch(e) {} }
 }
 function tituloItem(it) {
-  if (it.tipo === 'turno') { var t = allTurnos.find(function(x) { return x.id === it.id; }); return t ? t.nombreBebe : 'Turno'; }
+  if (it.tipo === 'turno') { var t = allTurnos.find(function(x) { return x.id === it.id; }); return t ? lindo(t.nombreBebe) : 'Turno'; }
   if (it.tipo === 'familia') { var f = familiasIdx[it.clave]; return f ? f.nombre : 'Familia'; }
   return 'Volver';
 }
