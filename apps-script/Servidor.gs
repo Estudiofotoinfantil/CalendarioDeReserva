@@ -913,7 +913,11 @@ function llamarGemini(sistema, mensajes) {
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(modelo) + ':generateContent';
   var cuerpo = {
     systemInstruction: { parts: [{ text: sistema }] },
-    contents: mensajes.map(function (m) { return { role: m.role === 'assistant' ? 'model' : 'user', parts: [{ text: String(m.content || '').slice(0, 4000) }] }; }),
+    contents: mensajes.map(function (m) {
+      var partes = [{ text: String(m.content || '').slice(0, 4000) || '(imagen)' }];
+      if (m.imagen) partes.push({ inlineData: { mimeType: m.imagen.mime, data: m.imagen.data } });
+      return { role: m.role === 'assistant' ? 'model' : 'user', parts: partes };
+    }),
     generationConfig: { temperature: 0.4, maxOutputTokens: 8192 }
   };
   var r = UrlFetchApp.fetch(url, { method: 'post', contentType: 'application/json', headers: { 'x-goog-api-key': key }, payload: JSON.stringify(cuerpo), muteHttpExceptions: true });
@@ -926,8 +930,17 @@ function llamarGemini(sistema, mensajes) {
   return texto_;
 }
 function apiGeminiChat(d) {
-  var msgs = (Array.isArray(d.messages) ? d.messages : []).slice(-20);
+  var msgs = (Array.isArray(d.messages) ? d.messages : []).slice(-20).map(function (m) { return { role: m.role, content: m.content }; });
   if (!msgs.length) return error('No hay mensaje');
+  // Imagen opcional (captura de WhatsApp, foto de una agenda…): solo va con el último mensaje
+  var img = d.imagen;
+  if (img) {
+    var mime = String(img.mime || '');
+    if (!/^image\/(jpeg|png|webp|heic|heif)$/.test(mime)) return error('Formato de imagen no admitido (usá JPG o PNG)');
+    var data = String(img.data || '').replace(/^data:[^,]*,/, '');
+    if (!/^[A-Za-z0-9+\/=]+$/.test(data) || data.length > 6000000) return error('La imagen es demasiado grande o no se pudo leer');
+    msgs[msgs.length - 1].imagen = { mime: mime, data: data };
+  }
   var hoy = hoyLocal();
   var sistema = [
     'Sos el asistente del panel de reservas de Estudio Fotoinfantil (fotos de bebés y niños). Respondé en español rioplatense, corto y claro.',
@@ -938,7 +951,11 @@ function apiGeminiChat(d) {
     '{"tipo":"updateStatus","id":"T123456","newStatus":"CONFIRMADO","descripcion":"Confirmar la sesión de ..."}',
     '```',
     'Tipos permitidos: updateStatus (id, newStatus: PENDIENTE|CONFIRMADO|CANCELADO), reprogramar (id, newFecha AAAA-MM-DD, newHorario HH:MM),',
-    'bloquearDia (fecha), desbloquearDia (fecha), bloquearSlot (fecha, horario), desbloquearSlot (fecha, horario), agregarSlotExtra (fecha, horario).',
+    'bloquearDia (fecha), desbloquearDia (fecha), bloquearSlot (fecha, horario), desbloquearSlot (fecha, horario), agregarSlotExtra (fecha, horario),',
+    'nuevoTurno (fecha AAAA-MM-DD, horario HH:MM, tipoSesion, tematica, nombreBebe, cumpleBebe AAAA-MM-DD, nombreMama, telefono, total, senya).',
+    'Si te mandan una imagen (captura de WhatsApp, foto de una agenda o un comprobante), leé los datos del turno y proponé un nuevoTurno con lo que se vea claro;',
+    'dejá vacío lo que no esté y decí qué falta. Fechas sin año: el próximo día que coincida desde hoy. Si el horario ya está ocupado según la lista, avisalo.',
+    'Tipos de sesión habituales: ' + leerAjustes().tiposSesion.concat(['Newborn', 'Embarazadas', '15 años']).join(', ') + '. Montos sin puntos ni signo $.',
     'Usá SOLO ids que estén en la lista. Nunca digas que algo ya se hizo: el panel le pide confirmación a la persona antes de cambiar nada.',
     'No inventes datos. Si falta información, preguntá.'
   ].join('\n');

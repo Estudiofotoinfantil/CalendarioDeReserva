@@ -277,6 +277,12 @@
   .ai-suggestions{padding:8px 14px;background:#141824;border-top:1px solid #1e2545;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;}
   .ai-sug{padding:6px 11px;background:#1e2545;border:1px solid #2d3570;border-radius:20px;color:#9b8fc0;font-size:11px;cursor:pointer;white-space:nowrap;transition:.2s;}
   .ai-sug:hover{background:#2d3570;color:#c9b8f0;}
+  .ai-clip-btn{width:40px;height:40px;background:#1e2545;border:1px solid #2d3570;border-radius:10px;cursor:pointer;font-size:17px;flex-shrink:0;color:#c9b8f0;}
+  .ai-adjunto{display:flex;align-items:center;gap:8px;padding:8px 14px 0;background:#141824;}
+  .ai-adjunto img{height:56px;max-width:120px;object-fit:cover;border-radius:8px;border:1px solid #2d3570;}
+  .ai-adjunto span{font-size:12px;color:#9b8fc0;flex:1;}
+  .ai-adjunto button{background:none;border:1px solid #2d3570;color:#c9b8f0;border-radius:8px;padding:4px 9px;cursor:pointer;}
+  .ai-msg-img{display:block;max-width:180px;max-height:220px;border-radius:10px;margin-bottom:6px;}
   .ai-input-wrap{padding:10px 14px;background:#141824;border-top:1px solid #1e2545;display:flex;gap:8px;align-items:flex-end;flex-shrink:0;}
   .ai-input{flex:1;padding:10px 13px;background:#1e2545;border:1px solid #2d3570;border-radius:12px;color:#e8e0f8;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:none;max-height:90px;min-height:40px;line-height:1.4;}
   .ai-input:focus{border-color:#5b4db8;}
@@ -616,8 +622,12 @@
       <button class="ai-sug" onclick="sendSug(this)">Pagos sin cobrar</button>
       <button class="ai-sug" onclick="sendSug(this)">Bloquear un d&#237;a</button>
       <button class="ai-sug" onclick="sendSug(this)">Agregar horario extra</button>
+      <button class="ai-sug" onclick="document.getElementById('ai-file').click()">&#128206; Cargar turno desde una imagen</button>
     </div>
+    <div class="ai-adjunto" id="ai-adjunto" style="display:none"><img id="ai-adjunto-img" alt=""><span>Imagen lista para enviar</span><button type="button" onclick="quitarImagen()">&#10005;</button></div>
     <div class="ai-input-wrap">
+      <button class="ai-clip-btn" type="button" title="Adjuntar imagen" onclick="document.getElementById('ai-file').click()">&#128206;</button>
+      <input type="file" id="ai-file" accept="image/*" style="display:none" onchange="elegirImagen(this)">
       <textarea class="ai-input" id="ai-input" placeholder="Pregunt&#225; o ped&#237; un cambio..." rows="1" onkeydown="aiKeydown(event)" oninput="autoResize(this)"></textarea>
       <button class="ai-send-btn" id="ai-send-btn" onclick="sendMessage()">&#10148;</button>
     </div>
@@ -2233,7 +2243,11 @@ function addActionCard(action) {
   var card = document.createElement('div'); card.className = 'ai-accion-card';
   card.innerHTML = '<div class="ai-accion-title">&#128203; Acción pendiente de confirmación</div><div class="ai-accion-detail" style="white-space:pre-line"></div><div class="ai-accion-btns"><button class="ai-accion-ok">&#10003; Confirmar</button><button class="ai-accion-cancel">Cancelar</button></div>';
   card.querySelector('.ai-accion-detail').textContent = describirAccion(action);
-  card.querySelector('.ai-accion-ok').addEventListener('click', function() { ejecutarAccion(action, div); });
+  if (action && action.tipo === 'nuevoTurno') {
+    card.querySelector('.ai-accion-title').innerHTML = '&#10133; Turno leído por la IA';
+    card.querySelector('.ai-accion-ok').innerHTML = '&#9998; Revisar y cargar';
+    card.querySelector('.ai-accion-ok').addEventListener('click', function() { abrirNuevoDesdeIA(action, div); });
+  } else card.querySelector('.ai-accion-ok').addEventListener('click', function() { ejecutarAccion(action, div); });
   card.querySelector('.ai-accion-cancel').addEventListener('click', function() { cancelarAccion(div); });
   bub.appendChild(card); div.appendChild(av); div.appendChild(bub);
   c.appendChild(div); c.scrollTop = c.scrollHeight;
@@ -2249,13 +2263,18 @@ function describirAccion(a) {
   } else if (a && a.tipo === 'reprogramar') {
     det = 'Mover ' + (t ? 'a ' + t.nombreBebe + ' del ' + t.fecha + ' ' + t.horario : 'el turno ' + a.id) +
           ' al ' + (a.newFecha || (t ? t.fecha : '?')) + ' ' + (a.newHorario || (t ? t.horario : '?'));
+  } else if (a && a.tipo === 'nuevoTurno') {
+    var campos = [['Fecha', a.fecha], ['Horario', a.horario], ['Sesión', a.tipoSesion], ['Temática', a.tematica], ['Bebé', a.nombreBebe],
+                  ['Cumple', a.cumpleBebe], ['Mamá', a.nombreMama], ['Teléfono', a.telefono], ['Total', a.total], ['Seña', a.senya]];
+    det = 'Nuevo turno (se carga recién cuando lo revises y toques Guardar):\n' +
+      campos.map(function(c) { return '• ' + c[0] + ': ' + (c[1] ? String(c[1]) : '—'); }).join('\n');
   } else if (a && a.tipo) {
     det = a.tipo + ' ' + (a.fecha || '') + (a.horario ? ' ' + a.horario : '');
   }
   return base + (det ? '\n→ ' + det : '');
 }
 
-var TIPOS_ACCION = ['updateStatus','reprogramar','bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'];
+var TIPOS_ACCION = ['updateStatus','reprogramar','bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra','nuevoTurno'];
 
 // Saca de la respuesta de la IA los bloques de acción (tolera saltos de línea de Windows,
 // espacios, bloques marcados "json" y varias acciones en un mismo mensaje)
@@ -2310,18 +2329,93 @@ function sendSug(btn) { var t = btn.textContent.trim(); document.getElementById(
 function aiKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 90) + 'px'; }
 
+// ═══ Imagen adjunta para la IA (se achica a 1600 px antes de enviarla) ═══
+var imagenPendiente = null;
+function elegirImagen(input) {
+  var f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  if (!/^image\//.test(f.type || 'image/')) { toast('Elegí una imagen (JPG o PNG).', 'err'); return; }
+  var url = URL.createObjectURL(f), img = new Image();
+  img.onload = function() {
+    var max = 1600, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+    var c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+    var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    var dataUrl = c.toDataURL('image/jpeg', 0.85);
+    mostrarImagen({ mime: 'image/jpeg', data: dataUrl.split(',')[1], url: dataUrl });
+  };
+  img.onerror = function() { URL.revokeObjectURL(url); toast('No pude abrir esa imagen. Probá con una captura en JPG o PNG.', 'err'); };
+  img.src = url;
+}
+function mostrarImagen(im) {
+  imagenPendiente = im;
+  document.getElementById('ai-adjunto-img').src = im.url;
+  document.getElementById('ai-adjunto').style.display = 'flex';
+  document.getElementById('ai-input').focus();
+}
+function quitarImagen() {
+  imagenPendiente = null;
+  document.getElementById('ai-adjunto').style.display = 'none';
+  document.getElementById('ai-adjunto-img').removeAttribute('src');
+}
+// La IA propuso un turno: se abre "Nuevo turno" con los datos para revisarlos (no se guarda nada solo)
+function abrirNuevoDesdeIA(a, msgDiv) {
+  if (msgDiv && msgDiv.parentNode) msgDiv.remove();
+  var txt = function(v) { return v === undefined || v === null ? '' : String(v).trim(); };
+  var num = function(v) { return txt(v).replace(/[.,](?=\d{3}(\D|$))/g, '').replace(',', '.').replace(/[^\d.]/g, ''); };   // "$60.000" -> 60000
+  hideAI();
+  showNuevo();
+  var fecha = txt(a.fecha), hora = txt(a.horario).slice(0, 5);
+  if (/^\d:\d\d$/.test(hora)) hora = '0' + hora;
+  document.getElementById('nt-fecha').value = fechaValida(fecha) ? fecha : '';
+  ntActualizarHorarios();
+  var sel = document.getElementById('nt-horario-sel');
+  if (horaValida(hora)) {
+    if (Array.prototype.some.call(sel.options, function(o) { return o.value === hora; })) sel.value = hora;
+    else { sel.value = 'otro'; document.getElementById('nt-horario-otro').value = hora; }
+  } else sel.value = '';
+  ntHorarioSel();
+  var tipo = txt(a.tipoSesion), selTipo = document.getElementById('nt-tipo');
+  if (tipo && !Array.prototype.some.call(selTipo.options, function(o) { return o.value === tipo; })) {
+    var op = document.createElement('option'); op.value = tipo; op.textContent = tipo; selTipo.appendChild(op);
+  }
+  selTipo.value = tipo;
+  document.getElementById('nt-tematica').value = txt(a.tematica);
+  document.getElementById('nt-bebe').value = txt(a.nombreBebe);
+  document.getElementById('nt-cumple').value = fechaValida(txt(a.cumpleBebe)) ? txt(a.cumpleBebe) : '';
+  document.getElementById('nt-mama').value = txt(a.nombreMama);
+  document.getElementById('nt-tel').value = txt(a.telefono);
+  document.getElementById('nt-wa').value = '';
+  document.getElementById('nt-total').value = num(a.total);
+  document.getElementById('nt-notas').value = '';
+  var sena = num(a.senya), modo = parseFloat(sena) > 0 ? 'sena' : 'asegurado';
+  document.querySelector('input[name="nt-modo"][value="' + modo + '"]').checked = true;
+  if (modo === 'sena') document.getElementById('nt-sena').value = sena;
+  ntModo();
+  var fb = document.getElementById('nt-feedback');
+  fb.textContent = 'Datos leídos por la IA: revisalos (sobre todo fecha, hora y cómo queda el turno) y tocá «Guardar turno».';
+  fb.className = 'cfg-feedback ok';
+  addMsg('ai', 'Te abrí «Nuevo turno» con los datos. Revisalos y tocá «Guardar turno»: hasta ese momento no se carga nada.');
+}
+
 async function sendMessage() {
   var inputEl = document.getElementById('ai-input');
   var text    = inputEl.value.trim();
-  if (!text) return;
+  var imagen  = imagenPendiente;
+  if (!text && !imagen) return;
+  if (!text) text = 'Leé los datos del turno de esta imagen y proponé cargarlo.';
   inputEl.value = ''; inputEl.style.height = 'auto';
   document.getElementById('ai-send-btn').disabled = true;
-  addMsg('user', text);
-  aiHistory.push({ role:'user', content:text });
+  var bubUser = addMsg('user', text);
+  if (imagen) { var im = document.createElement('img'); im.className = 'ai-msg-img'; im.src = imagen.url; bubUser.insertBefore(im, bubUser.firstChild); quitarImagen(); }
+  aiHistory.push({ role:'user', content: text + (imagen ? ' [imagen adjunta]' : '') });
   var loading = addLoadingMsg();
   try {
-    // El servidor arma el contexto con la planilla (sin teléfonos): acá solo va la conversación
-    var data = await api('geminiChat', { messages: aiHistory.slice(-20) }, 60000);
+    // El servidor arma el contexto con la planilla (sin teléfonos): acá va la conversación y, si hay, la imagen
+    var datos = { messages: aiHistory.slice(-20) };
+    if (imagen) datos.imagen = { mime: imagen.mime, data: imagen.data };
+    var data = await api('geminiChat', datos, 90000);
     if (!data.ok) throw new Error(data.error || 'Error del servidor');
     var rt  = String(data.reply || '');
     aiHistory.push({ role:'assistant', content:rt });
@@ -2332,6 +2426,7 @@ async function sendMessage() {
     if (ex.malas > 0) addMsg('ai', '⚠️ La IA propuso un cambio que no pude interpretar. No se hizo ningún cambio.');
   } catch(e) {
     aiHistory.pop();   // el mensaje no tuvo respuesta: no queda en el historial
+    if (imagen) mostrarImagen(imagen);   // la imagen queda lista para reintentar
     loading.bub.classList.remove('ai-typing');
     loading.bub.textContent = '❌ Error: ' + e.message;
   }
