@@ -953,6 +953,11 @@ async function doLogin() {
       input.value = '';
       guardarToken(r.token, recordar);
       entrarAlPanel();
+    } else if (r.codigo === 'sin_codigo') {
+      // Primera vez: el código se crea con el mail (así nadie más lo conoce)
+      input.value = '';
+      mostrarRecuperar();
+      document.getElementById('rec-ok').textContent = 'Todavía no hay código de acceso. Tocá «Enviar código por mail» y elegí el código que van a usar.';
     } else {
       mostrarErrorLogin(r.error || 'Código incorrecto');
       input.value = '';

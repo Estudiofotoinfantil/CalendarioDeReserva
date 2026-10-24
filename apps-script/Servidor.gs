@@ -179,33 +179,25 @@ function asegurarHoja(nombre, encabezados) {
   var sh = hoja(nombre);
   if (!sh) {
     sh = libro().insertSheet(nombre);
-    sh.getRange(1, 1, 1, encabezados.length).setValues([encabezados]);
+    var enc = sh.getRange(1, 1, 1, encabezados.length);
+    escribirTexto(enc, [encabezados]);
+    enc.setBackground('#9d714c').setFontColor('#ffffff').setFontWeight('bold');
+    sh.setFrozenRows(1);
   }
   return sh;
 }
+// Escribe SIEMPRE como texto, igual que el servidor anterior: formato "texto sin formato" (@) y el valor como texto.
+// Así no hay conversiones automáticas (fechas, números, fórmulas) ni apóstrofes agregados.
+function aTexto(v) { return vacio(v) ? '' : String(v); }
+function escribirTexto(rango, matriz) {
+  rango.setNumberFormat('@');
+  rango.setValues(matriz.map(function (fila) { return fila.map(aTexto); }));
+}
+function proximaFila(sh) { return Math.max(1, sh.getLastRow()) + 1; }
 function mapaColumnas(encabezados) {
   var col = {};
   encabezados.forEach(function (h, i) { h = String(h).trim(); if (h && col[h] === undefined) col[h] = i; });  // si un encabezado se repite, vale el primero
   return col;
-}
-// ¿La columna guarda texto o fechas/horas de la planilla? (para escribir igual que las filas existentes)
-function tipoColumna(valores, idx) {
-  for (var r = valores.length - 1; r >= 1; r--) {
-    var v = valores[r][idx];
-    if (!vacio(v)) return (v instanceof Date || typeof v === 'number') ? 'fecha' : 'texto';
-  }
-  return 'texto';
-}
-// Valor listo para la planilla: evita que un texto se tome como fórmula y respeta el tipo de la columna
-function paraHoja(clave, valor, tipos) {
-  if (vacio(valor)) return '';
-  var s = String(valor);
-  if ((clave === 'fecha' || clave === 'cumpleBebe' || clave === 'horario') && tipos && tipos[clave] === 'texto') return "'" + s;
-  if ((clave === 'senya' || clave === 'total' || clave === 'resta') && /^-?\d+(\.\d+)?$/.test(s)) return Number(s);
-  if (/^[=+\-@]/.test(s)) return "'" + s;
-  if ((clave === 'telefono' || clave === 'whatsapp') && (!/^\d+$/.test(s) || /^0/.test(s))) return "'" + s;   // con espacios/guiones o 0 adelante: texto tal cual
-  if (/^0\d/.test(s) && /^[\d\s-]+$/.test(s)) return "'" + s;
-  return s;
 }
 
 function leerReservas() {
@@ -216,8 +208,6 @@ function leerReservas() {
   var col = mapaColumnas(enc);
   if (col.id === undefined || col.fecha === undefined || col.horario === undefined) throw new Error('La pestaña de reservas no tiene las columnas id, fecha y horario');
   var tz = libro().getSpreadsheetTimeZone() || TZ;
-  var tipos = {};
-  ['fecha', 'horario', 'cumpleBebe'].forEach(function (k) { if (col[k] !== undefined) tipos[k] = tipoColumna(valores, col[k]); });
   var filas = [];
   for (var r = 1; r < valores.length; r++) {
     var v = valores[r], dv = vistos[r];
@@ -233,7 +223,7 @@ function leerReservas() {
     o.id = String(o.id || '').trim();
     filas.push(o);
   }
-  return { hoja: sh, enc: enc, col: col, filas: filas, tipos: tipos };
+  return { hoja: sh, enc: enc, col: col, filas: filas };
 }
 function buscarFila(res, id) {
   id = String(id || '').trim();
@@ -261,7 +251,7 @@ function escribirCampos(res, fila, cambios) {
   aEscribir.forEach(function (x) {
     antes[x.k] = x.actual;
     despues[x.k] = cambios[x.k];
-    x.celda.setValue(paraHoja(x.k, cambios[x.k], res.tipos));
+    escribirTexto(x.celda, [[cambios[x.k]]]);
     fila[x.k] = cambios[x.k];
   });
   return { antes: antes, despues: despues, hubo: aEscribir.length > 0 };
@@ -274,9 +264,10 @@ function nuevoId(res) {
 }
 function agregarReserva(res, datos) {
   var fila = res.enc.map(function () { return ''; });
-  Object.keys(datos).forEach(function (k) { if (res.col[k] !== undefined) fila[res.col[k]] = paraHoja(k, datos[k], res.tipos); });
-  res.hoja.appendRow(fila);
-  var o = { _fila: res.hoja.getLastRow() };
+  Object.keys(datos).forEach(function (k) { if (res.col[k] !== undefined) fila[res.col[k]] = datos[k]; });
+  var nro = proximaFila(res.hoja);
+  escribirTexto(res.hoja.getRange(nro, 1, 1, fila.length), [fila]);
+  var o = { _fila: nro };
   Object.keys(datos).forEach(function (k) { o[k] = datos[k]; });
   res.filas.push(o);
   return o;
@@ -300,23 +291,24 @@ function guardarSeguimiento(id, cambios, seg) {
   var col = mapaColumnas(sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0]);
   var actual = seg && seg[id];
   if (actual) {
-    Object.keys(cambios).forEach(function (k) { if (col[k] !== undefined) sh.getRange(actual._fila, col[k] + 1).setValue(plano(cambios[k])); actual[k] = cambios[k]; });
+    Object.keys(cambios).forEach(function (k) { if (col[k] !== undefined) escribirTexto(sh.getRange(actual._fila, col[k] + 1), [[cambios[k]]]); actual[k] = cambios[k]; });
   } else {
-    var fila = ENC_SEG.map(function (k) { return k === 'id' ? plano(id) : plano(cambios[k]); });
-    sh.appendRow(fila);
-    if (seg) { var o = { _fila: sh.getLastRow(), id: id }; Object.keys(cambios).forEach(function (k) { o[k] = cambios[k]; }); seg[id] = o; }
+    var fila = ENC_SEG.map(function (k) { return k === 'id' ? id : cambios[k]; });
+    var nro = proximaFila(sh);
+    escribirTexto(sh.getRange(nro, 1, 1, fila.length), [fila]);
+    if (seg) { var o = { _fila: nro, id: id }; Object.keys(cambios).forEach(function (k) { o[k] = cambios[k]; }); seg[id] = o; }
   }
 }
-function plano(v) { return vacio(v) ? '' : "'" + String(v); }
-// Fila leída de la planilla, lista para volver a escribirla EXACTAMENTE igual (los textos siguen siendo texto)
-function filaCruda(raw, ncol) {
+// Fila tal como se ve en la planilla (texto), con el ancho pedido
+function filaVista(visto, ncol) {
   var f = [];
-  for (var j = 0; j < ncol; j++) { var x = raw[j]; f.push(typeof x === 'string' ? plano(x) : (x === undefined || x === null ? '' : x)); }
+  for (var j = 0; j < ncol; j++) f.push(visto && visto[j] !== undefined && visto[j] !== null ? String(visto[j]) : '');
   return f;
 }
 function registrar(accion, id, antes, despues) {
   var sh = asegurarHoja(H_REG, ENC_REG);
-  sh.appendRow([ahoraISO(), accion, id || '', antes === undefined ? '' : "'" + JSON.stringify(antes), despues === undefined ? '' : "'" + JSON.stringify(despues)]);
+  var fila = [ahoraISO(), accion, id || '', antes === undefined ? '' : JSON.stringify(antes), despues === undefined ? '' : JSON.stringify(despues)];
+  escribirTexto(sh.getRange(proximaFila(sh), 1, 1, fila.length), [fila]);
 }
 
 function leerConfig() {
@@ -330,11 +322,10 @@ function leerConfig() {
     var fecha = normFecha(v[r][col.fecha], dv[r][col.fecha], tz);
     var horario = col.horario === undefined || vacio(v[r][col.horario]) ? '' : normHora(v[r][col.horario], dv[r][col.horario], tz);
     var nota = col.nota === undefined ? '' : texto(v[r][col.nota]);
-    if (TIPOS_BLOQUEO.indexOf(tipo) >= 0 && fechaValida(fecha)) lista.push({ tipo: tipo, fecha: fecha, horario: horario, nota: nota, raw: v[r] });
-    else otras.push(v[r]);   // filas que este panel no maneja: se conservan tal cual
+    if (TIPOS_BLOQUEO.indexOf(tipo) >= 0 && fechaValida(fecha)) lista.push({ tipo: tipo, fecha: fecha, horario: horario, nota: nota, visto: dv[r] });
+    else otras.push(dv[r]);   // filas que este panel no maneja: se conservan tal cual
   }
-  var tipos = { fecha: col.fecha === undefined ? 'texto' : tipoColumna(v, col.fecha), horario: col.horario === undefined ? 'texto' : tipoColumna(v, col.horario) };
-  return { hoja: sh, col: col, enc: v[0], lista: lista, otras: otras, version: versionConfig(lista), tipos: tipos };
+  return { hoja: sh, col: col, enc: v[0], lista: lista, otras: otras, version: versionConfig(lista) };
 }
 function versionConfig(lista) {
   return sha(lista.map(function (b) { return [b.tipo, b.fecha, b.horario || ''].join('|'); }).sort().join('\n')).slice(0, 16);
@@ -560,7 +551,7 @@ function avisarCambioCodigo(como) {
 function apiLogin(d) {
   var c = cache(), fallos = Number(c.get('login_fallos') || 0);
   if (fallos >= 5) return error('Demasiados intentos. Probá de nuevo en 15 minutos.', 'bloqueado');
-  if (!asegurarCodigo()) return error('Todavía no se configuró el código de acceso (CODIGO_INICIAL).');
+  if (!asegurarCodigo()) return error('Todavía no hay código de acceso: tocá «Olvidé el código» y elegí uno (llega un mail a los correos del estudio).', 'sin_codigo');
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -681,23 +672,19 @@ function apiSaveConfig(d) {
     var filas = nueva.map(function (b) {
       var p = previos[b.tipo + '|' + b.fecha + '|' + (b.horario || '')];
       if (b.nota === undefined) b.nota = p ? p.nota : '';   // la nota se conserva
-      if (p) {   // fila que ya existía: se reescribe exactamente igual (todas sus columnas); solo cambia la nota si la editaron
-        var g = filaCruda(p.raw, ncol);
-        if (col.nota !== undefined && b.nota !== p.nota) g[col.nota] = paraHoja('nota', b.nota);
-        return g;
-      }
-      var f = []; for (var j = 0; j < ncol; j++) f.push('');
+      // Fila nueva o existente: tipo, fecha, horario y nota normalizados; si ya existía, el resto de sus columnas queda igual
+      var f = p ? filaVista(p.visto, ncol) : filaVista(null, ncol);
       f[col.tipo] = b.tipo;
-      f[col.fecha] = paraHoja('fecha', b.fecha, conf.tipos);
-      if (col.horario !== undefined) f[col.horario] = paraHoja('horario', b.horario, conf.tipos);
-      if (col.nota !== undefined) f[col.nota] = paraHoja('nota', b.nota);
+      f[col.fecha] = b.fecha;
+      if (col.horario !== undefined) f[col.horario] = b.horario || '';
+      if (col.nota !== undefined) f[col.nota] = b.nota || '';
       return f;
     });
-    conf.otras.forEach(function (raw) { filas.push(filaCruda(raw, ncol)); });
+    conf.otras.forEach(function (visto) { filas.push(filaVista(visto, ncol)); });
     // Primero queda anotado lo anterior; después se escribe encima y recién al final se limpian las filas sobrantes
     registrar('saveConfig', '', conf.lista.map(function (b) { return { tipo: b.tipo, fecha: b.fecha, horario: b.horario, nota: b.nota }; }), nueva);
     var filasViejas = Math.max(0, sh.getLastRow() - 1);
-    if (filas.length) sh.getRange(2, 1, filas.length, ncol).setValues(filas);
+    if (filas.length) escribirTexto(sh.getRange(2, 1, filas.length, ncol), filas);
     if (filasViejas > filas.length) sh.getRange(2 + filas.length, 1, filasViejas - filas.length, ncol).clearContent();
     var v = versionConfig(nueva);
     return { ok: true, version: v, bloqueos: nueva.map(function (b) { return { tipo: b.tipo, fecha: b.fecha, horario: b.horario, nota: b.nota }; }) };
@@ -861,8 +848,8 @@ function apiSaveAjustes(d) {
     Object.keys(limpios).forEach(function (k) {
       var fila = -1;
       for (var r = 1; r < v.length; r++) if (String(v[r][0]).trim() === k) { fila = r + 1; antes[k] = String(v[r][1]); break; }
-      if (fila < 0) { sh.appendRow([k, plano(limpios[k]), AJUSTES_BASE[k].desc]); v = sh.getDataRange().getValues(); }
-      else sh.getRange(fila, 2).setValue(plano(limpios[k]));
+      if (fila < 0) { escribirTexto(sh.getRange(proximaFila(sh), 1, 1, 3), [[k, limpios[k], AJUSTES_BASE[k].desc]]); v = sh.getDataRange().getValues(); }
+      else escribirTexto(sh.getRange(fila, 2), [[limpios[k]]]);
     });
     registrar('saveAjustes', '', antes, limpios);
     return apiGetAjustes();
@@ -874,8 +861,8 @@ function crearAjustesSiFalta() {
   var sh = hoja(H_AJ);
   if (sh) return sh;
   sh = asegurarHoja(H_AJ, ENC_AJ);
-  var filas = Object.keys(AJUSTES_BASE).map(function (k) { return [k, plano(AJUSTES_BASE[k].valor), AJUSTES_BASE[k].desc]; });
-  sh.getRange(2, 1, filas.length, 3).setValues(filas);
+  var filas = Object.keys(AJUSTES_BASE).map(function (k) { return [k, AJUSTES_BASE[k].valor, AJUSTES_BASE[k].desc]; });
+  escribirTexto(sh.getRange(2, 1, filas.length, 3), filas);
   return sh;
 }
 function apiCopiaAhora() { return { ok: true, nombre: copiaDiaria() }; }
@@ -919,7 +906,7 @@ function datosParaIA() {
     });
 }
 function llamarGemini(sistema, mensajes) {
-  var key = props().getProperty('GEMINI_API_KEY');
+  var key = props().getProperty('GEMINI_API_KEY') || props().getProperty('GEMINI_KEY');   // GEMINI_KEY: nombre del servidor anterior
   if (!key) throw new Error('Falta la clave de la IA (GEMINI_API_KEY) en las propiedades del script');
   var modelo = props().getProperty('GEMINI_MODEL') || 'gemini-3.6-flash';
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(modelo) + ':generateContent';
@@ -986,9 +973,9 @@ function revisarInstalacion() {
   out.push('✓ Pestañas nuevas listas: ' + [H_SEG, H_REG, H_AJ].join(', '));
   var aj = leerAjustes();
   out.push('· Seña: $' + aj.senaMonto + ' · plazo web: ' + aj.senaHoras + ' h · alias: ' + (aj.alias || '(falta cargarlo en Ajustes)'));
-  out.push(p.getProperty('CODIGO_HASH') ? '✓ Código de acceso configurado' : (p.getProperty('CODIGO_INICIAL') ? '✓ CODIGO_INICIAL cargado (se cifra al primer ingreso)' : '✗ Falta CODIGO_INICIAL'));
+  out.push(p.getProperty('CODIGO_HASH') ? '✓ Código de acceso configurado' : (p.getProperty('CODIGO_INICIAL') ? '✓ CODIGO_INICIAL cargado (se cifra al primer ingreso)' : '· Sin código todavía: se crea desde el panel con «Olvidé el código» (llega un mail)'));
   out.push(emailsAdmin().length ? '✓ Correos para recuperar: ' + emailsAdmin().length : '✗ Falta EMAILS_ADMIN');
-  out.push(p.getProperty('GEMINI_API_KEY') ? '✓ Clave de IA cargada (modelo ' + (p.getProperty('GEMINI_MODEL') || 'gemini-3.6-flash') + ')' : '· Sin clave de IA (el asistente no va a responder)');
+  out.push(p.getProperty('GEMINI_API_KEY') || p.getProperty('GEMINI_KEY') ? '✓ Clave de IA cargada (modelo ' + (p.getProperty('GEMINI_MODEL') || 'gemini-3.6-flash') + ')' : '· Sin clave de IA (el asistente no va a responder)');
   var trig = ScriptApp.getProjectTriggers().map(function (t) { return t.getHandlerFunction(); });
   out.push(trig.indexOf('copiaDiaria') >= 0 ? '✓ Copia diaria programada' : '· Copia diaria sin programar: ejecutá instalarCopiaDiaria()');
   if (trig.length) out.push('· Activadores del proyecto: ' + trig.join(', '));
