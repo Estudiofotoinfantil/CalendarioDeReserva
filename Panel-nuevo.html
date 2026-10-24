@@ -123,6 +123,9 @@ svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;str
 @media (hover:hover){.btn-principal:hover{background:#3A2F40;}}
 .btn-suave{background:var(--hundido);color:var(--tinta);}
 @media (hover:hover){.btn-suave:hover{background:#DCDDD8;}}
+.fotos-acciones{margin:14px 0 4px;display:flex;flex-direction:column;gap:10px;}
+.fotos-acciones .btn{width:100%;}
+.bloque .btn[disabled]{opacity:.55;pointer-events:none;}
 .btn-texto{height:auto;padding:6px 2px;font-weight:500;color:var(--tinta-2);text-decoration:underline;text-underline-offset:3px;}
 .btn:disabled{opacity:.55;cursor:default;}
 .btn-ancho{width:100%;}
@@ -1093,6 +1096,7 @@ function salirDelPanel() {
   document.getElementById('pwd-input').value = '';
   mostrarLogin();
   allTurnos = []; aiHistory = []; datosCargados = false; errorCarga = '';
+  fotos = {}; fotosOk = false;
   showDebug('');
   cerrarHoja(true);
   document.getElementById('hoja-cuerpo').innerHTML = '';
@@ -1215,6 +1219,7 @@ async function loadData(conAviso) {
   stopLoading();
   if (!sesion.token) return;   // la sesión venció mientras se leía: ya se volvió al ingreso
   refrescarVista();
+  if (ok) cargarFotos();
   if (ok && conAviso === true) toast('Agenda actualizada.', 'ok');
 }
 
@@ -2823,6 +2828,81 @@ function filaHistorial(t) {
     '<span class="cuerpo"><span class="n nombre">' + esc(lindo(t.nombreBebe)) + '</span><span class="s">' + esc(s) + '</span></span>' +
     '<span class="der"><span class="estado ' + e.c + '">' + esc(e.corto) + '</span></span></button>';
 }
+// ═══════════════════════════════════════════════════════════
+// FOTOS DE LA FAMILIA (una carpeta de Drive por familia, privada hasta que se comparte)
+// ═══════════════════════════════════════════════════════════
+var fotos = {}, fotosOk = false, fotosOcupado = false;
+async function cargarFotos() {
+  try {
+    var r = await api('fotosListar', {}, 20000);
+    if (r && r.ok && r.fotos) { fotos = r.fotos; fotosOk = true; }
+    else fotosOk = false;   // servidor sin la versión nueva: la sección no se muestra
+  } catch(e) { fotosOk = false; }
+  var tope = topeHoja();
+  if (hoja.abierta && tope && tope.tipo === 'familia') pintarHoja(true);
+}
+// La sesión de la que son las fotos: la más reciente que ya pasó (o es hoy)
+function sesionDeFotos(f) {
+  var hoyStr = fechaLocal();
+  return f.turnos.filter(function(t) { return t.estado !== 'CANCELADO' && !liberado(t) && fechaValida(t.fecha) && t.fecha <= hoyStr; })[0] || null;
+}
+function saldoDe(t) {
+  var tot = parseFloat(t.total) || 0, sen = parseFloat(t.senya) || 0;
+  return tot > 0 ? tot - sen : null;   // null: no hay total cargado
+}
+function htmlFotos(f) {
+  if (!fotosOk) return '';
+  var x = fotos[f.clave], ses = sesionDeFotos(f), cl = jsArg(f.clave);
+  var h = '<section class="bloque" id="bloque-fotos"><h3>Fotos</h3>';
+  if (!x) {
+    h += '<p class="det-que">Todavía no tiene carpeta. Al crearla queda privada: solo la ves vos.</p>' +
+      '<button type="button" class="btn btn-principal" data-accion="crear-carpeta" onclick="crearCarpetaFotos(' + cl + ')"' + (fotosOcupado ? ' disabled' : '') + '>Crear carpeta de fotos</button>';
+    return h + '</section>';
+  }
+  h += '<p class="det-que">' + (x.compartida ? 'Compartida: quien tenga el link puede ver y descargar estas fotos, nada más.' : 'Privada: solo la ves vos.') + '</p>' +
+    '<div class="fotos-acciones"><a class="btn btn-principal" data-accion="abrir-carpeta" href="' + esc(x.url) + '" target="_blank" rel="noopener">Abrir carpeta en Drive</a></div>';
+  var saldo = ses ? saldoDe(ses) : null, listo = !!ses && saldo !== null && saldo <= 0;
+  if (!ses) {
+    h += '<div class="banda">Todavía no hubo ninguna sesión. Cuando la haya y esté cobrada completa, vas a poder enviarles las fotos.</div>';
+  } else if (!listo && !x.compartida) {
+    h += '<div class="banda" data-fotos="falta-cobro">' + (saldo === null ? 'Falta cargar el total de la sesión del ' + esc(fechaCorta(ses.fecha)) + ' para poder enviar las fotos.' :
+      'Falta cobrar ' + esc(pesos(saldo)) + ' de la sesión del ' + esc(fechaCorta(ses.fecha)) + '. Cuando esté saldada vas a poder enviar las fotos.') + '</div>';
+  } else if (!x.compartida) {
+    h += '<div class="fotos-acciones"><button type="button" class="btn btn-suave" data-accion="compartir-fotos" onclick="accesoFotos(' + cl + ', true)"' + (fotosOcupado ? ' disabled' : '') + '>Compartir con la familia</button></div>';
+  } else {
+    var bebe = ses ? lindo(ses.nombreBebe) : '';
+    var msg = encodeURIComponent([
+      'Hola ' + f.nombre + '! ' + cp(128149) + ' Ya están listas las fotos' + (bebe && bebe !== '--' ? ' de ' + bebe : '') + ' ' + cp(128248),
+      'Las podés ver y descargar desde este link:', x.url, '', 'Gracias por elegirnos! ' + cp(128149)
+    ].join('\n'));
+    if (f.wa) h += '<div class="det-acciones"><div class="wa-grupo"><a class="wa-btn" data-accion="enviar-fotos" href="https://wa.me/' + esc(f.wa) + '?text=' + msg + '" target="_blank" rel="noopener">' + icono('wa') + 'Enviar fotos por WhatsApp</a></div></div>';
+    else h += '<div class="banda">Esta familia no tiene WhatsApp cargado: copiá el link desde Drive para mandárselo.</div>';
+    h += '<button type="button" class="btn btn-texto" data-accion="cortar-fotos" onclick="accesoFotos(' + cl + ', false)"' + (fotosOcupado ? ' disabled' : '') + '>Dejar de compartir</button>';
+  }
+  return h + '</section>';
+}
+async function crearCarpetaFotos(clave) {
+  var f = familiasIdx[clave];
+  if (!f || fotosOcupado) return;
+  fotosOcupado = true; pintarHoja(true);
+  try {
+    var r = await api('fotosCrear', { clave: clave, nombre: f.nombre }, 45000);
+    if (r && r.ok) { fotos[clave] = { url: r.url, compartida: !!r.compartida }; toast('Carpeta creada. Ya podés subir las fotos.', 'ok'); }
+    else toast((r && r.error) || 'No se pudo crear la carpeta.', 'err');
+  } catch(e) { toast('No pude crear la carpeta: ' + e.message + '. Revisá la conexión y probá de nuevo.', 'err'); }
+  fotosOcupado = false; pintarHoja(true);
+}
+async function accesoFotos(clave, compartir) {
+  if (!fotos[clave] || fotosOcupado) return;
+  fotosOcupado = true; pintarHoja(true);
+  try {
+    var r = await api('fotosAcceso', { clave: clave, compartir: compartir === true }, 45000);
+    if (r && r.ok) { fotos[clave].compartida = !!r.compartida; toast(r.compartida ? 'Listo: la familia puede ver las fotos con el link.' : 'Listo: dejaste de compartir la carpeta.', 'ok'); }
+    else toast((r && r.error) || 'No se pudo cambiar el acceso.', 'err');
+  } catch(e) { toast('No pude cambiar el acceso: ' + e.message + '. Revisá la conexión y probá de nuevo.', 'err'); }
+  fotosOcupado = false; pintarHoja(true);
+}
+
 function htmlFamilia(f) {
   var d = f.desde ? fechaObj(f.desde) : null;
   var h = '<div class="det-cuando">' + (f.sesiones ? f.sesiones + (f.sesiones === 1 ? ' sesión' : ' sesiones') : 'Sin sesiones') +
@@ -2832,6 +2912,7 @@ function htmlFamilia(f) {
   if (f.wa) h += '<div class="det-acciones"><div class="wa-grupo"><a class="wa-btn" href="https://wa.me/' + esc(f.wa) + '" target="_blank" rel="noopener">' + icono('wa') + 'Escribir por WhatsApp</a></div></div>';
   if (f.bebes.length) h += '<section class="bloque"><h3>' + (f.bebes.length === 1 ? 'Bebé' : 'Bebés') + '</h3><div class="bebes">' +
     f.bebes.map(function(b) { return '<div><em>' + esc(b.nombre) + '</em>' + esc(cumpleBebe(b)) + '</div>'; }).join('') + '</div></section>';
+  h += htmlFotos(f);
   h += '<section class="bloque"><h3>Sesiones</h3><div class="historial linea-dia">' + f.turnos.map(filaHistorial).join('') + '</div></section>';
   return h;
 }

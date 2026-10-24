@@ -22,14 +22,22 @@
  *   revisarInstalacion()   revisa todo, crea las pestañas nuevas y muestra un resumen en el registro.
  *   instalarCopiaDiaria()  deja programada una copia de seguridad todos los días (y hace una ahora).
  *   probarMail()           manda un mail de prueba a los correos de EMAILS_ADMIN.
+ *
+ * Fotos de las familias (v2.1): cada familia tiene una carpeta en tu Drive (dentro de "Fotos de familias").
+ *   La carpeta nace PRIVADA. Solo al tocar "Compartir con la familia" en el panel se abre para quien tenga el link
+ *   (solo ver y descargar). El link de una carpeta no deja entrar a nada más de tu Drive.
+ *   Los links se guardan en la pestaña nueva "Fotos"; no se toca ninguna reserva.
  */
 
-var VERSION = 'v2.0 · 2026-10-23';
+var VERSION = 'v2.1 · 2026-10-24';
 var TZ = 'America/Argentina/Buenos_Aires';
 var H_RES = 'Reservas', H_CONF = 'Configuracion', H_SEG = 'Seguimiento', H_REG = 'Registro', H_AJ = 'Ajustes';
 var ENC_SEG = ['id', 'origen', 'creado', 'venceSena', 'senaRecibida', 'asegurado'];
 var ENC_REG = ['fecha', 'accion', 'id', 'antes', 'despues'];
 var ENC_AJ = ['clave', 'valor', 'descripcion'];
+var H_FOT = 'Fotos';
+var ENC_FOT = ['clave', 'nombre', 'carpetaId', 'url', 'compartida', 'creada'];
+var CARPETA_FOTOS = 'Fotos de familias';
 var CARPETA_RESPALDOS = 'Respaldos Estudio Infantil';
 var MAX_COPIAS = 30;
 var ESTADOS = ['PENDIENTE', 'CONFIRMADO', 'CANCELADO'];
@@ -71,7 +79,8 @@ var PRIVADAS = {
   reprogramar: apiReprogramar, nuevoTurno: apiNuevoTurno,
   getAjustes: apiGetAjustes, saveAjustes: apiSaveAjustes,
   copiaAhora: apiCopiaAhora, cerrarSesiones: apiCerrarSesiones, logout: apiLogout, cambiarCodigo: apiCambiarCodigo,
-  geminiChat: apiGeminiChat, geminiResumen: apiGeminiResumen
+  geminiChat: apiGeminiChat, geminiResumen: apiGeminiResumen,
+  fotosListar: apiFotosListar, fotosCrear: apiFotosCrear, fotosAcceso: apiFotosAcceso
 };
 
 function doPost(e) {
@@ -310,6 +319,71 @@ function registrar(accion, id, antes, despues) {
   var sh = asegurarHoja(H_REG, ENC_REG);
   var fila = [ahoraISO(), accion, id || '', antes === undefined ? '' : JSON.stringify(antes), despues === undefined ? '' : JSON.stringify(despues)];
   escribirTexto(sh.getRange(proximaFila(sh), 1, 1, fila.length), [fila]);
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// FOTOS DE LAS FAMILIAS (una carpeta de Drive por familia)
+// ════════════════════════════════════════════════════════════════════════════
+function claveFotosValida(c) { return /^(tel|nom|bebe):.{1,80}$/.test(c); }
+function carpetaDeFotos() {
+  var it = DriveApp.getFoldersByName(CARPETA_FOTOS);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(CARPETA_FOTOS);
+}
+// Lee la pestaña "Fotos" (si no existe todavía, no la crea: devuelve vacío)
+function leerFotos() {
+  var sh = hoja(H_FOT);
+  if (!sh) return { hoja: null, filas: [] };
+  var v = sh.getDataRange().getValues(), filas = [];
+  for (var r = 1; r < v.length; r++) {
+    if (v[r].every(vacio)) continue;
+    filas.push({ _fila: r + 1, clave: String(v[r][0]), nombre: String(v[r][1]), carpetaId: String(v[r][2]), url: String(v[r][3]), compartida: String(v[r][4]) === 'si', creada: String(v[r][5]) });
+  }
+  return { hoja: sh, filas: filas };
+}
+function carpetaViva(id) {
+  try { var c = DriveApp.getFolderById(id); return c.isTrashed() ? null : c; } catch (e) { return null; }
+}
+function apiFotosListar() {
+  var f = leerFotos(), out = {};
+  f.filas.forEach(function (x) { out[x.clave] = { url: x.url, compartida: x.compartida }; });
+  return { ok: true, fotos: out };
+}
+// Crea la carpeta de una familia (si ya tiene, devuelve la que hay). Nace privada.
+function apiFotosCrear(d) {
+  var clave = texto(d.clave, 100), nombre = texto(d.nombre, 80) || 'Familia';
+  if (!claveFotosValida(clave)) return error('No reconozco a qué familia pertenece la carpeta');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var f = leerFotos(), ex = f.filas.filter(function (x) { return x.clave === clave; })[0];
+    if (ex && carpetaViva(ex.carpetaId)) return { ok: true, url: ex.url, compartida: ex.compartida, yaExistia: true };
+    var carpeta = carpetaDeFotos().createFolder('Fotos · ' + nombre);
+    carpeta.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+    var fila = [clave, nombre, carpeta.getId(), carpeta.getUrl(), 'no', ahoraISO()];
+    var sh = asegurarHoja(H_FOT, ENC_FOT);
+    if (ex) escribirTexto(sh.getRange(ex._fila, 1, 1, fila.length), [fila]);   // la carpeta anterior se había borrado de Drive
+    else escribirTexto(sh.getRange(proximaFila(sh), 1, 1, fila.length), [fila]);
+    registrar('fotosCrear', clave, ex ? { carpeta: ex.carpetaId } : undefined, { carpeta: carpeta.getId() });
+    return { ok: true, url: carpeta.getUrl(), compartida: false };
+  } finally { lock.releaseLock(); }
+}
+// Abre o cierra el acceso por link (solo ver y descargar)
+function apiFotosAcceso(d) {
+  var clave = texto(d.clave, 100), compartir = d.compartir === true;
+  if (!claveFotosValida(clave)) return error('No reconozco a qué familia pertenece la carpeta');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var f = leerFotos(), ex = f.filas.filter(function (x) { return x.clave === clave; })[0];
+    if (!ex) return error('Esta familia todavía no tiene carpeta de fotos');
+    var carpeta = carpetaViva(ex.carpetaId);
+    if (!carpeta) return error('La carpeta ya no está en Drive (¿la borraste?). Creá una nueva desde la ficha.');
+    if (compartir) carpeta.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    else carpeta.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+    escribirTexto(f.hoja.getRange(ex._fila, 5), [[compartir ? 'si' : 'no']]);
+    registrar('fotosAcceso', clave, { compartida: ex.compartida }, { compartida: compartir });
+    return { ok: true, url: ex.url, compartida: compartir };
+  } finally { lock.releaseLock(); }
 }
 
 function leerConfig() {
