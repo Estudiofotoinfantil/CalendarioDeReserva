@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#EEEFEC">
 <meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest-panel.json">
+<link rel="icon" type="image/png" sizes="192x192" href="iconos/panel-192.png">
+<link rel="apple-touch-icon" href="iconos/panel-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Estudio">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <title>Panel del estudio</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -429,8 +436,19 @@ body.con-capa{overflow:hidden;}
 .dia:active{background:var(--hundido);}
 .ai-msg-bubble{white-space:normal;}
 
+/* ─── como app desde la pantalla de inicio ─── */
+html{-webkit-tap-highlight-color:transparent;}
+button,a,label,select{touch-action:manipulation;}
+.barra,.tab,.obturador,.filtro,.btn,.wa-btn,.menu-item,.fila,.aviso,.clienta,.dia,.cfg-day,.cfg-slot,.config-back-btn,.hoja-volver{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;}
+.vista{padding-top:calc(22px + env(safe-area-inset-top, 0px));}
+.pag-cabeza{padding-top:calc(10px + env(safe-area-inset-top, 0px));}
+.login-screen{padding-top:calc(28px + env(safe-area-inset-top, 0px));}
+.tirar{position:fixed;top:calc(10px + env(safe-area-inset-top, 0px));left:50%;z-index:350;width:40px;height:40px;margin-left:-20px;border-radius:50%;background:var(--hoja);color:var(--tinta-2);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(43,34,48,.16);opacity:0;transform:translateY(-60px);pointer-events:none;}
+.tirar.listo{color:var(--laton);}
+.tirar svg{width:20px;height:20px;}
+
 @media (min-width:760px){
-  .vista{padding-top:40px;}
+  .vista{padding-top:calc(40px + env(safe-area-inset-top, 0px));}
   .foco .hora{font-size:88px;}
 }
 </style>
@@ -472,6 +490,7 @@ body.con-capa{overflow:hidden;}
 
 <!-- ═══════ PANEL ═══════ -->
 <div class="admin-panel" id="admin-panel">
+  <div class="tirar" id="tirar" aria-hidden="true"><i data-ic="recargar"></i></div>
   <div class="debug-box" id="debug-box"></div>
 
   <!-- HOY -->
@@ -3050,6 +3069,44 @@ document.addEventListener('visibilitychange', function() {
   if (ocultoDesde && Date.now() - ocultoDesde > 3 * 60 * 1000 && !hoja.abierta && !paginaAbierta()) loadData();
   else if (datosCargados && vistaActual === 'hoy') renderHoy();
 });
+// Tirar hacia abajo para actualizar: solo cuando se abre desde el ícono de la pantalla de inicio
+// (ahí no está el "recargar" del navegador; en el navegador ya lo hace el propio navegador)
+function modoApp() {
+  try { return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches; } catch(e) { return false; }
+}
+var TIRAR_UMBRAL = 76, tirar = { y0: null, d: 0 };
+function puedeTirar() {
+  return modoApp() && document.getElementById('admin-panel').classList.contains('show') && !hoja.abierta && !paginaAbierta() &&
+    (window.scrollY || 0) <= 0 && !document.getElementById('modal-gen').classList.contains('show') &&
+    !document.getElementById('cancel-modal').classList.contains('show');
+}
+function pintarTirar(d, soltar) {
+  var el = document.getElementById('tirar');
+  if (!el) return;
+  tirar.d = d;
+  el.style.transition = soltar ? 'transform .25s ease, opacity .25s ease' : 'none';
+  el.style.opacity = d > 8 ? String(Math.min(1, d / TIRAR_UMBRAL)) : '0';
+  el.style.transform = 'translateY(' + Math.round(Math.min(d, 110) * 0.75 - 60) + 'px) rotate(' + Math.round(d * 3) + 'deg)';
+  el.classList.toggle('listo', d >= TIRAR_UMBRAL);
+}
+document.addEventListener('touchstart', function(e) {
+  tirar.y0 = e.touches.length === 1 && puedeTirar() ? e.touches[0].clientY : null;
+}, { passive: true });
+document.addEventListener('touchmove', function(e) {
+  if (tirar.y0 === null) return;
+  var d = e.touches[0].clientY - tirar.y0;
+  if (d <= 0 || (window.scrollY || 0) > 0) { tirar.y0 = null; pintarTirar(0, true); return; }
+  pintarTirar(d, false);
+}, { passive: true });
+document.addEventListener('touchend', function() {
+  if (tirar.y0 === null) return;
+  var actualizar = tirar.d >= TIRAR_UMBRAL;
+  tirar.y0 = null;
+  pintarTirar(0, true);
+  if (actualizar) loadData(true);
+}, { passive: true });
+document.addEventListener('touchcancel', function() { if (tirar.y0 !== null) { tirar.y0 = null; pintarTirar(0, true); } }, { passive: true });
+
 // "En 40 minutos" se mantiene al día
 setInterval(function() {
   if (document.hidden || !datosCargados || vistaActual !== 'hoy') return;

@@ -1,0 +1,32 @@
+{
+  "id": "panel-estudio",
+  "name": "Panel del estudio",
+  "short_name": "Estudio",
+  "description": "Turnos, señas y familias de Estudio Fotoinfantil.",
+  "lang": "es-AR",
+  "start_url": "./Panel-nuevo.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#EEEFEC",
+  "theme_color": "#EEEFEC",
+  "icons": [
+    {
+      "src": "iconos/panel-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/panel-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "iconos/panel-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
