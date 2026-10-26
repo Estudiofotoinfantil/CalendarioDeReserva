@@ -6,5 +6,5 @@
 // WHATSAPP:   número del estudio con 54, sin + ni espacios (se usa si el servidor no responde).
 window.ESTUDIO_CONFIG = {
   SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbxlWQSw4Bj2PYrJlnUVC4QdpcYAVV0vIu-ZqenCTMEOgbolkSfKY_Gr1h140VeMAc3YXw/exec',
-  WHATSAPP: '541133408139'
+  WHATSAPP: '5491130448139'
 };

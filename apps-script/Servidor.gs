@@ -46,7 +46,7 @@ var AJUSTES_BASE = {
   senaMonto:       { valor: '17000', desc: 'Monto de la seña en pesos' },
   senaHoras:       { valor: '24', desc: 'Horas que se guarda una reserva de la web para transferir la seña' },
   alias:           { valor: '', desc: 'Alias para transferir la seña (se muestra a la clienta)' },
-  whatsappEstudio: { valor: '541133408139', desc: 'WhatsApp del estudio (con 54, sin + ni espacios)' },
+  whatsappEstudio: { valor: '5491130448139', desc: 'WhatsApp del estudio (con 54, sin + ni espacios)' },
   grillaSemana:    { valor: '18:00,19:00', desc: 'Horarios de lunes a viernes' },
   grillaSabado:    { valor: '10:00,11:00,13:00,14:00', desc: 'Horarios de los sábados' },
   minDias:         { valor: '2', desc: 'Días mínimos de anticipación para reservar desde la web' },
