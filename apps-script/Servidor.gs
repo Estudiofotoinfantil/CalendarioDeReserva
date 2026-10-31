@@ -27,9 +27,11 @@
  *   La carpeta nace PRIVADA. Solo al tocar "Compartir con la familia" en el panel se abre para quien tenga el link
  *   (solo ver y descargar). El link de una carpeta no deja entrar a nada más de tu Drive.
  *   Los links se guardan en la pestaña nueva "Fotos"; no se toca ninguna reserva.
+ *   (v2.2) El panel sube las fotos directo a esa carpeta, una por una, en su calidad original,
+ *   y muestra las miniaturas y el espacio que queda en Drive.
  */
 
-var VERSION = 'v2.1 · 2026-10-24';
+var VERSION = 'v2.2 · 2026-10-31';
 var TZ = 'America/Argentina/Buenos_Aires';
 var H_RES = 'Reservas', H_CONF = 'Configuracion', H_SEG = 'Seguimiento', H_REG = 'Registro', H_AJ = 'Ajustes';
 var ENC_SEG = ['id', 'origen', 'creado', 'venceSena', 'senaRecibida', 'asegurado'];
@@ -80,7 +82,8 @@ var PRIVADAS = {
   getAjustes: apiGetAjustes, saveAjustes: apiSaveAjustes,
   copiaAhora: apiCopiaAhora, cerrarSesiones: apiCerrarSesiones, logout: apiLogout, cambiarCodigo: apiCambiarCodigo,
   geminiChat: apiGeminiChat, geminiResumen: apiGeminiResumen,
-  fotosListar: apiFotosListar, fotosCrear: apiFotosCrear, fotosAcceso: apiFotosAcceso
+  fotosListar: apiFotosListar, fotosCrear: apiFotosCrear, fotosAcceso: apiFotosAcceso,
+  fotosSubir: apiFotosSubir, fotosVer: apiFotosVer
 };
 
 function doPost(e) {
@@ -384,6 +387,72 @@ function apiFotosAcceso(d) {
     registrar('fotosAcceso', clave, { compartida: ex.compartida }, { compartida: compartir });
     return { ok: true, url: ex.url, compartida: compartir };
   } finally { lock.releaseLock(); }
+}
+
+// ── Subida de fotos desde el panel (una por pedido, archivo original sin achicar)
+var TIPOS_FOTO = /^image\/(jpeg|jpg|png|heic|heif|webp)$/i;
+var MAX_FOTO_MB = 30;   // en base64 viaja ~40 MB: por debajo del límite de 50 MB de Apps Script
+function nombreArchivoSeguro(n) {
+  var s = texto(n, 120).replace(/[\\\/:*?"<>|]/g, '_');
+  return s || ('foto-' + Utilities.formatDate(new Date(), TZ, 'yyyyMMdd-HHmmss') + '.jpg');
+}
+function apiFotosSubir(d) {
+  var clave = texto(d.clave, 100), a = d.archivo || {};
+  if (!claveFotosValida(clave)) return error('No reconozco a qué familia pertenece la foto');
+  var nombre = nombreArchivoSeguro(a.nombre), tipo = texto(a.tipo, 40).toLowerCase(), datos = String(a.datos || '');
+  if (!TIPOS_FOTO.test(tipo)) return error('«' + nombre + '» no es una foto (JPG, PNG o HEIC)');
+  if (!datos) return error('«' + nombre + '» llegó vacía');
+  var bytes;
+  try { bytes = Utilities.base64Decode(datos); } catch (e) { return error('«' + nombre + '» llegó dañada, probá de nuevo'); }
+  if (bytes.length > MAX_FOTO_MB * 1024 * 1024) return error('«' + nombre + '» pesa más de ' + MAX_FOTO_MB + ' MB');
+  if (a.tam && Number(a.tam) !== bytes.length) return error('«' + nombre + '» no llegó completa, probá de nuevo');
+  // Carpeta de la familia (si no tiene, se crea privada)
+  var f = leerFotos(), ex = f.filas.filter(function (x) { return x.clave === clave; })[0];
+  var carpeta = ex ? carpetaViva(ex.carpetaId) : null;
+  if (!carpeta) {
+    var c = apiFotosCrear({ clave: clave, nombre: d.nombre });
+    if (!c.ok) return c;
+    ex = leerFotos().filas.filter(function (x) { return x.clave === clave; })[0];
+    carpeta = carpetaViva(ex.carpetaId);
+    if (!carpeta) return error('No pude crear la carpeta de la familia');
+  }
+  // Si ya está (mismo nombre y mismo tamaño), no se duplica
+  var it = carpeta.getFilesByName(nombre);
+  while (it.hasNext()) {
+    var x = it.next();
+    if (!x.isTrashed() && x.getSize() === bytes.length) return { ok: true, id: x.getId(), yaEstaba: true, url: ex.url };
+  }
+  var archivo;
+  try { archivo = carpeta.createFile(Utilities.newBlob(bytes, tipo, nombre)); }
+  catch (e) { return error('No pude guardar «' + nombre + '» en Drive (' + mensaje(e) + '). Si el Drive está lleno, liberá espacio o ampliá el plan.', 'drive'); }
+  return { ok: true, id: archivo.getId(), url: ex.url, compartida: ex.compartida };
+}
+// Fotos de la carpeta con miniaturas (chicas, solo para chequear) y espacio de Drive
+function apiFotosVer(d) {
+  var clave = texto(d.clave, 100);
+  if (!claveFotosValida(clave)) return error('No reconozco a qué familia pertenece la carpeta');
+  var ex = leerFotos().filas.filter(function (x) { return x.clave === clave; })[0];
+  var carpeta = ex ? carpetaViva(ex.carpetaId) : null;
+  var out = { ok: true, fotos: [], espacio: espacioDrive() };
+  if (!carpeta) return out;
+  var it = carpeta.getFiles(), lista = [];
+  while (it.hasNext()) { var f = it.next(); if (!f.isTrashed() && /^image\//i.test(String(f.getMimeType()))) lista.push(f); }
+  lista.sort(function (a, b) { return String(a.getName()).localeCompare(String(b.getName())); });
+  var c = cache(), tope = Math.min(lista.length, 200);
+  for (var i = 0; i < tope; i++) {
+    var a = lista[i], k = 'mini_' + a.getId(), mini = c.get(k);
+    if (mini === null) {
+      mini = '';
+      try { var b = a.getThumbnail(); if (b) mini = Utilities.base64Encode(b.getBytes()); } catch (e) {}
+      if (mini && mini.length < 90000) c.put(k, mini, 21600);
+    }
+    out.fotos.push({ id: a.getId(), nombre: a.getName(), tam: a.getSize(), url: a.getUrl(), mini: mini });
+  }
+  out.total = lista.length;
+  return out;
+}
+function espacioDrive() {
+  try { return { usado: DriveApp.getStorageUsed(), limite: DriveApp.getStorageLimit() }; } catch (e) { return null; }
 }
 
 function leerConfig() {

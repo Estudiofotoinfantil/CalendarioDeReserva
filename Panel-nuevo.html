@@ -125,6 +125,19 @@ svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;str
 @media (hover:hover){.btn-suave:hover{background:#DCDDD8;}}
 .fotos-acciones{margin:14px 0 4px;display:flex;flex-direction:column;gap:10px;}
 .fotos-acciones .btn{width:100%;}
+.fotos-acciones .btn svg{width:18px;height:18px;}
+.subida{margin:14px 0 6px;padding:14px;border-radius:var(--r-chico);background:var(--hoja-2);}
+.subida-txt{display:flex;flex-direction:column;gap:2px;font-size:14.5px;}
+.subida-txt span{font-size:13px;color:var(--tinta-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.subida-barra{height:6px;border-radius:999px;background:var(--hundido);margin:10px 0 8px;overflow:hidden;}
+.subida-barra i{display:block;height:100%;background:var(--laton);transition:width .3s;}
+.subida-nota{font-size:13px;color:var(--tinta-2);margin:8px 0;}
+.subida-fallas{font-size:13px;color:var(--granate);margin:8px 0 12px 18px;}
+.galeria-cab{font-size:14px;color:var(--tinta-2);margin:16px 0 8px;}
+.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:4px;}
+.galeria a{display:block;aspect-ratio:1;border-radius:4px;overflow:hidden;background:var(--hundido);}
+.galeria img{width:100%;height:100%;object-fit:cover;display:block;}
+.galeria span{display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--tinta-2);}
 .bloque .btn[disabled]{opacity:.55;pointer-events:none;}
 .btn-texto{height:auto;padding:6px 2px;font-weight:500;color:var(--tinta-2);text-decoration:underline;text-underline-offset:3px;}
 .btn:disabled{opacity:.55;cursor:default;}
@@ -1096,7 +1109,7 @@ function salirDelPanel() {
   document.getElementById('pwd-input').value = '';
   mostrarLogin();
   allTurnos = []; aiHistory = []; datosCargados = false; errorCarga = '';
-  fotos = {}; fotosOk = false;
+  fotos = {}; fotosOk = false; galeria = {}; espacioDrive = null; subida = null;
   showDebug('');
   cerrarHoja(true);
   document.getElementById('hoja-cuerpo').innerHTML = '';
@@ -2852,15 +2865,18 @@ function saldoDe(t) {
 }
 function htmlFotos(f) {
   if (!fotosOk) return '';
-  var x = fotos[f.clave], ses = sesionDeFotos(f), cl = jsArg(f.clave);
+  var x = fotos[f.clave], ses = sesionDeFotos(f), cl = jsArg(f.clave), sub = subida && subida.clave === f.clave ? subida : null;
+  var ocupado = fotosOcupado || !!(subida && subida.activa);
   var h = '<section class="bloque" id="bloque-fotos"><h3>Fotos</h3>';
-  if (!x) {
-    h += '<p class="det-que">Todavía no tiene carpeta. Al crearla queda privada: solo la ves vos.</p>' +
-      '<button type="button" class="btn btn-principal" data-accion="crear-carpeta" onclick="crearCarpetaFotos(' + cl + ')"' + (fotosOcupado ? ' disabled' : '') + '>Crear carpeta de fotos</button>';
-    return h + '</section>';
-  }
-  h += '<p class="det-que">' + (x.compartida ? 'Compartida: quien tenga el link puede ver y descargar estas fotos, nada más.' : 'Privada: solo la ves vos.') + '</p>' +
-    '<div class="fotos-acciones"><a class="btn btn-principal" data-accion="abrir-carpeta" href="' + esc(x.url) + '" target="_blank" rel="noopener">Abrir carpeta en Drive</a></div>';
+  h += '<p class="det-que">' + (!x ? 'Todavía no tiene carpeta. Al cargar la sesión se crea sola en tu Drive, privada: solo la ves vos.' :
+    x.compartida ? 'Compartida: quien tenga el link puede ver y descargar estas fotos, nada más.' : 'Privada: solo la ves vos.') + '</p>';
+  h += '<div class="fotos-acciones"><button type="button" class="btn btn-principal" data-accion="cargar-sesion" onclick="elegirFotos(' + cl + ')"' + (ocupado ? ' disabled' : '') + '>' + icono('imagen') + 'Cargar sesión</button>';
+  if (x) h += '<a class="btn btn-suave" data-accion="abrir-carpeta" href="' + esc(x.url) + '" target="_blank" rel="noopener">Abrir carpeta en Drive</a>';
+  h += '</div>';
+  if (!x) h += '<button type="button" class="btn btn-texto" data-accion="crear-carpeta" onclick="crearCarpetaFotos(' + cl + ')"' + (ocupado ? ' disabled' : '') + '>Crear la carpeta vacía</button>';
+  if (sub) h += htmlAvance(sub);
+  if (x && !(sub && sub.activa)) h += htmlGaleria(f.clave);
+  if (!x) return h + '</section>';
   var saldo = ses ? saldoDe(ses) : null, listo = !!ses && saldo !== null && saldo <= 0;
   if (!ses) {
     h += '<div class="banda">Todavía no hubo ninguna sesión. Cuando la haya y esté cobrada completa, vas a poder enviarles las fotos.</div>';
@@ -2881,6 +2897,135 @@ function htmlFotos(f) {
   }
   return h + '</section>';
 }
+
+// ── Cargar sesión: sube las fotos originales una por una a la carpeta de la familia
+var subida = null, galeria = {}, espacioDrive = null;
+var MAX_FOTO_MB = 30;
+function tipoFoto(file) {
+  if (file.type && /^image\//i.test(file.type)) return file.type.toLowerCase();
+  var ext = (String(file.name).split('.').pop() || '').toLowerCase();
+  return { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', heic: 'image/heic', heif: 'image/heif', webp: 'image/webp' }[ext] || '';
+}
+function elegirFotos(clave) {
+  if (subida && subida.activa) { toast('Esperá a que termine la subida que está en curso.', 'err'); return; }
+  var inp = document.getElementById('fotos-input');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type = 'file'; inp.id = 'fotos-input'; inp.multiple = true; inp.accept = 'image/*'; inp.hidden = true;
+    document.body.appendChild(inp);
+  }
+  inp.value = '';
+  inp.onchange = function() { var l = Array.prototype.slice.call(inp.files || []); inp.value = ''; if (l.length) subirFotos(clave, l); };
+  inp.click();
+}
+function leerBase64(file) {
+  return new Promise(function(ok, mal) {
+    var r = new FileReader();
+    r.onload = function() { var s = String(r.result || ''); ok(s.slice(s.indexOf(',') + 1)); };
+    r.onerror = function() { mal(new Error('no pude leer el archivo')); };
+    r.readAsDataURL(file);
+  });
+}
+function esperar(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+async function hayConexion() {   // si el celular se bloqueó o se cortó internet, espera y sigue
+  var t = 0;
+  while ((document.hidden || navigator.onLine === false) && t < 600) { await esperar(1000); t++; }
+}
+async function subirUna(sub, file) {
+  var tipo = tipoFoto(file);
+  if (!tipo) return { ok: false, error: 'no es una foto' };
+  if (file.size > MAX_FOTO_MB * 1024 * 1024) return { ok: false, error: 'pesa más de ' + MAX_FOTO_MB + ' MB' };
+  var datos;
+  try { datos = await leerBase64(file); } catch(e) { return { ok: false, error: e.message }; }
+  for (var intento = 1; intento <= 4; intento++) {
+    await hayConexion();
+    try {
+      var r = await api('fotosSubir', { clave: sub.clave, nombre: sub.nombre, archivo: { nombre: file.name, tipo: tipo, datos: datos, tam: file.size } }, 180000);
+      if (r.ok || r.codigo === 'auth' || !/completa|dañada/.test(r.error || '')) return r;   // solo se reintenta si llegó cortada
+    } catch(e) { /* sin conexión: se reintenta (el servidor no duplica si ya había llegado) */ }
+    if (!sesion.token) return { ok: false, codigo: 'auth', error: 'La sesión venció' };
+    await esperar(1500 * intento);
+  }
+  return { ok: false, error: 'no se pudo subir (conexión)' };
+}
+async function subirFotos(clave, files) {
+  var f = familiasIdx[clave];
+  if (!f || (subida && subida.activa)) return;
+  subida = { clave: clave, nombre: f.nombre, total: files.length, hechas: 0, ya: 0, fallas: [], actual: '', activa: true };
+  var sub = subida;
+  repintarFotos(clave);
+  for (var i = 0; i < files.length; i++) {
+    sub.actual = files[i].name;
+    repintarFotos(clave);
+    var r = await subirUna(sub, files[i]);
+    if (r && r.codigo === 'auth') { sub.activa = false; return; }
+    if (r && r.ok) {
+      if (r.yaEstaba) sub.ya++;
+      if (!fotos[clave] && r.url) fotos[clave] = { url: r.url, compartida: !!r.compartida };
+    } else sub.fallas.push({ file: files[i], error: (r && r.error) || 'error' });
+    sub.hechas++;
+    repintarFotos(clave);
+  }
+  sub.activa = false; sub.actual = '';
+  var bien = sub.total - sub.fallas.length;
+  toast(sub.fallas.length ? 'Se subieron ' + bien + ' de ' + sub.total + '. Revisá las que fallaron en la ficha de ' + sub.nombre + '.' :
+    'Listo: ' + bien + (bien === 1 ? ' foto subida' : ' fotos subidas') + ' a la carpeta de ' + sub.nombre + '.', sub.fallas.length ? 'err' : 'ok');
+  delete galeria[clave];
+  cargarGaleria(clave);
+  repintarFotos(clave);
+}
+function reintentarFallidas(clave) {
+  if (!subida || subida.clave !== clave || subida.activa || !subida.fallas.length) return;
+  subirFotos(clave, subida.fallas.map(function(x) { return x.file; }));
+}
+function htmlAvance(sub) {
+  var pct = sub.total ? Math.round(sub.hechas * 100 / sub.total) : 0, h = '<div class="subida" id="subida-avance">';
+  if (sub.activa) {
+    h += '<div class="subida-txt"><b>Subiendo ' + Math.min(sub.hechas + 1, sub.total) + ' de ' + sub.total + '</b><span>' + esc(sub.actual) + '</span></div>' +
+      '<div class="subida-barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="' + pct + '"><i style="width:' + pct + '%"></i></div>' +
+      '<p class="subida-nota">Dejá esta pantalla abierta. Si se corta internet o se bloquea el celular, sigue sola cuando vuelve.</p>';
+  } else if (sub.fallas.length) {
+    h += '<div class="subida-txt"><b>Se subieron ' + (sub.total - sub.fallas.length) + ' de ' + sub.total + '</b></div><ul class="subida-fallas">' +
+      sub.fallas.map(function(x) { return '<li>' + esc(x.file.name) + ': ' + esc(x.error) + '</li>'; }).join('') + '</ul>' +
+      '<button type="button" class="btn btn-suave btn-ancho" data-accion="reintentar-fotos" onclick="reintentarFallidas(' + jsArg(sub.clave) + ')">Reintentar las que fallaron</button>';
+  } else {
+    h += '<div class="subida-txt"><b>' + sub.total + (sub.total === 1 ? ' foto subida' : ' fotos subidas') + '</b>' + (sub.ya ? '<span>' + sub.ya + ' ya estaban en la carpeta</span>' : '') + '</div>';
+  }
+  return h + '</div>';
+}
+function repintarFotos(clave) {
+  var tope = topeHoja();
+  if (hoja.abierta && tope && tope.tipo === 'familia' && tope.clave === clave) pintarHoja(true);
+}
+async function cargarGaleria(clave) {
+  if (galeria[clave] && (galeria[clave].cargando || galeria[clave].fotos)) return;
+  galeria[clave] = { cargando: true };
+  try {
+    var r = await api('fotosVer', { clave: clave }, 60000);
+    galeria[clave] = r && r.ok ? { fotos: r.fotos || [], total: r.total || 0 } : { error: (r && r.error) || 'error' };
+    if (r && r.ok && r.espacio) espacioDrive = r.espacio;
+  } catch(e) { galeria[clave] = { error: 'sin conexión' }; }
+  repintarFotos(clave);
+}
+function gb(n) { return (n / 1073741824).toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' GB'; }
+function htmlGaleria(clave) {
+  var g = galeria[clave];
+  if (!g) { setTimeout(function() { cargarGaleria(clave); }, 0); return '<p class="subida-nota" data-galeria="cargando">Buscando las fotos de la carpeta…</p>'; }
+  if (g.cargando) return '<p class="subida-nota" data-galeria="cargando">Buscando las fotos de la carpeta…</p>';
+  if (g.error) return '<p class="subida-nota">No pude ver las fotos (' + esc(g.error) + '). <button type="button" class="btn btn-texto" onclick="delete galeria[' + jsArg(clave) + '];cargarGaleria(' + jsArg(clave) + ')">Probar de nuevo</button></p>';
+  var h = '<div class="galeria-cab" data-galeria="lista">' + (g.total ? g.total + (g.total === 1 ? ' foto en la carpeta' : ' fotos en la carpeta') : 'La carpeta está vacía') + '</div>';
+  if (g.fotos.length) h += '<div class="galeria">' + g.fotos.map(function(p) {
+    return '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" title="' + esc(p.nombre) + '">' +
+      (p.mini ? '<img src="data:image/png;base64,' + esc(p.mini) + '" alt="' + esc(p.nombre) + '" loading="lazy">' : '<span>Procesando</span>') + '</a>';
+  }).join('') + '</div>';
+  if (espacioDrive && espacioDrive.limite > 0) {
+    var uso = espacioDrive.usado / espacioDrive.limite;
+    h += uso >= 0.85 ? '<div class="banda" data-fotos="espacio">Te queda poco lugar en Drive: ' + gb(espacioDrive.usado) + ' usados de ' + gb(espacioDrive.limite) + '. Ampliá el plan en Google One antes de la próxima sesión.</div>' :
+      '<p class="subida-nota" data-fotos="espacio">Drive: ' + gb(espacioDrive.usado) + ' usados de ' + gb(espacioDrive.limite) + '.</p>';
+  }
+  return h;
+}
+window.addEventListener('beforeunload', function(e) { if (subida && subida.activa) { e.preventDefault(); e.returnValue = ''; } });
 async function crearCarpetaFotos(clave) {
   var f = familiasIdx[clave];
   if (!f || fotosOcupado) return;
