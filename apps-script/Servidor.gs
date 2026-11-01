@@ -32,7 +32,7 @@
  *   (v2.3) Dentro de la carpeta de cada familia hay una carpeta por sesión. Se comparte solo la sesión que se manda.
  */
 
-var VERSION = 'v2.3 · 2026-11-01';
+var VERSION = 'v2.4 · 2026-11-01';
 var TZ = 'America/Argentina/Buenos_Aires';
 var H_RES = 'Reservas', H_CONF = 'Configuracion', H_SEG = 'Seguimiento', H_REG = 'Registro', H_AJ = 'Ajustes';
 var ENC_SEG = ['id', 'origen', 'creado', 'venceSena', 'senaRecibida', 'asegurado'];
@@ -332,9 +332,15 @@ function registrar(accion, id, antes, despues) {
 function claveFamiliaValida(c) { return /^(tel|nom|bebe):.{1,80}$/.test(c); }
 function claveSesionValida(c) { return /^ses:[A-Za-z0-9_-]{1,40}$/.test(c); }
 function claveFotosValida(c) { return claveFamiliaValida(c) || claveSesionValida(c); }
+// La carpeta raíz SIEMPRE es del Drive de la cuenta que hace funcionar el servidor (así el espacio que se usa es el de esa cuenta)
+function cuentaActual() { try { return String(Session.getEffectiveUser().getEmail() || ''); } catch (e) { return ''; } }
+function esMia(c) {
+  try { var o = c.getOwner(), yo = cuentaActual(); return !o || !yo || String(o.getEmail()) === yo; } catch (e) { return true; }
+}
 function carpetaDeFotos() {
   var it = DriveApp.getFoldersByName(CARPETA_FOTOS);
-  return it.hasNext() ? it.next() : DriveApp.createFolder(CARPETA_FOTOS);
+  while (it.hasNext()) { var c = it.next(); if (!c.isTrashed() && esMia(c)) return c; }
+  return DriveApp.createFolder(CARPETA_FOTOS);
 }
 // Lee la pestaña "Fotos" (si no existe todavía, no la crea: devuelve vacío)
 function leerFotos() {
@@ -356,7 +362,7 @@ function carpetaViva(id) {
 // No toma el bloqueo: lo toma quien la llama.
 function asegurarCarpeta(clave, nombre, padre, nombrePadre) {
   var f = leerFotos(), ex = filaFotos(f, clave), viva = ex ? carpetaViva(ex.carpetaId) : null;
-  if (viva) return { ok: true, fila: ex, carpeta: viva };
+  if (viva && (claveSesionValida(clave) || esMia(viva))) return { ok: true, fila: ex, carpeta: viva };
   var dentro, titulo;
   if (claveSesionValida(clave)) {
     if (!claveFamiliaValida(padre)) return error('No reconozco a qué familia pertenece la sesión');
@@ -502,6 +508,42 @@ function apiFotoGrande(d) {
   var tam = archivo.getSize(), tipo = String(archivo.getMimeType());   // sin miniatura: la original si es liviana y el navegador la muestra
   if (tam <= 6 * 1024 * 1024 && /jpe?g|png|webp/i.test(tipo)) return { ok: true, tipo: tipo, datos: Utilities.base64Encode(archivo.getBlob().getBytes()) };
   return error('Drive todavía está preparando la vista de esta foto. Abrila en Drive o probá en un rato.', 'sinvista');
+}
+// ── Pasar las fotos a la cuenta que hace funcionar el servidor (ejecutar a mano UNA vez, desde el editor, con esa cuenta).
+// Copia cada sesión cuya carpeta es de otra cuenta a una carpeta nueva propia (mismos archivos, misma calidad),
+// actualiza la pestaña "Fotos" y deja la carpeta vieja intacta (se borra a mano después de revisar).
+function migrarFotosACuentaActual() {
+  var lock = LockService.getScriptLock(); lock.waitLock(30000);
+  var hechas = [], saltadas = [];
+  try {
+    var f = leerFotos();
+    f.filas.filter(function (x) { return claveSesionValida(x.clave); }).forEach(function (x) {
+      var vieja = carpetaViva(x.carpetaId);
+      if (!vieja) { saltadas.push(x.nombre + ' (no veo la carpeta: ¿está compartida con esta cuenta?)'); return; }
+      if (esMia(vieja)) { saltadas.push(x.nombre + ' (ya es de esta cuenta)'); return; }
+      var fam = filaFotos(leerFotos(), x.padre);
+      var p = asegurarCarpeta(x.padre, fam ? fam.nombre : 'Familia');
+      if (!p.ok) { saltadas.push(x.nombre + ' (' + p.error + ')'); return; }
+      var nueva = p.carpeta.createFolder(x.nombre || vieja.getName());
+      var it = vieja.getFiles(), n = 0;
+      while (it.hasNext()) { var a = it.next(); if (a.isTrashed()) continue; a.makeCopy(a.getName(), nueva); n++; }
+      if (x.compartida) nueva.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      else nueva.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
+      var fila = [x.clave, x.nombre, nueva.getId(), nueva.getUrl(), x.compartida ? 'si' : 'no', ahoraISO(), String(n), x.padre];
+      escribirTexto(hoja(H_FOT).getRange(x._fila, 1, 1, fila.length), [fila]);
+      registrar('fotosMigrar', x.clave, { carpeta: x.carpetaId }, { carpeta: nueva.getId(), fotos: n });
+      hechas.push(x.nombre + ': ' + n + ' fotos');
+    });
+  } finally { lock.releaseLock(); }
+  Logger.log('Cuenta: ' + cuentaActual() + '\nCopiadas: ' + (hechas.join(' | ') || 'ninguna') + '\nSin copiar: ' + (saltadas.join(' | ') || 'ninguna'));
+  return { hechas: hechas, saltadas: saltadas };
+}
+// Para ejecutar con la cuenta VIEJA: deja ver sus carpetas de fotos a la cuenta nueva (solo lectura) para poder copiarlas.
+function compartirFotosConCuentaNueva() {
+  var email = 'christiandanieltapia88@gmail.com';
+  var it = DriveApp.getFoldersByName(CARPETA_FOTOS), n = 0;
+  while (it.hasNext()) { var c = it.next(); if (esMia(c)) { c.addViewer(email); n++; } }
+  Logger.log('Carpetas "' + CARPETA_FOTOS + '" compartidas con ' + email + ': ' + n);
 }
 function espacioDrive() {
   try { return { usado: DriveApp.getStorageUsed(), limite: DriveApp.getStorageLimit() }; } catch (e) { return null; }
