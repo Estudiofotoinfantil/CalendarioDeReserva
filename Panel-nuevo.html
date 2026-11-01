@@ -151,7 +151,6 @@ svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;str
 .grupo-bebe:first-of-type{margin-top:4px;}
 .fila.sesion .n{display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden;}
 .fila.sesion .n .nombre{overflow:hidden;text-overflow:ellipsis;min-width:0;}
-.fila .edad{font-family:var(--f-ui, inherit);font-style:normal;font-size:13px;color:var(--laton);font-weight:500;flex:none;}
 .fotos-n{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--tinta-2);}
 .fotos-n svg{width:13px;height:13px;}
 /* visor de fotos (clases verfoto-*: .visor ya es el marco de cámara del diseño) */
@@ -2830,21 +2829,6 @@ function armarBebes(f) {
   }).sort(function(a, b) { return b.ultima.localeCompare(a.ultima); });
   f.sinBebe = f.turnos.filter(function(t) { return !f.bebes.some(function(b) { return b.turnos.indexOf(t) >= 0; }); });
 }
-// Edad de la bebé el día de la sesión ("15 días", "3 meses", "1 año y 2 meses"). Vacío si no se puede saber.
-function edadEn(t, b) {
-  var nac = fechaValida(t.cumpleBebe) ? t.cumpleBebe : (b && fechaValida(b.cumple) ? b.cumple : '');
-  if (!nac || !fechaValida(t.fecha) || t.fecha < nac) return '';
-  var n = nac.split('-').map(Number), s = t.fecha.split('-').map(Number);
-  var meses = (s[0] - n[0]) * 12 + (s[1] - n[1]) - (s[2] < n[2] ? 1 : 0);
-  if (meses < 1) {
-    var dias = Math.round((Date.UTC(s[0], s[1] - 1, s[2]) - Date.UTC(n[0], n[1] - 1, n[2])) / 86400000);
-    return dias < 1 ? '' : dias + (dias === 1 ? ' día' : ' días');
-  }
-  if (meses >= 72) return '';
-  if (meses < 12) return meses + (meses === 1 ? ' mes' : ' meses');
-  var a = Math.floor(meses / 12), r = meses % 12;
-  return a + (a === 1 ? ' año' : ' años') + (r ? ' y ' + r + (r === 1 ? ' mes' : ' meses') : '');
-}
 function bebeDeTurno(t) { var f = familiasIdx[claveFamilia(t)]; return f && f.bebeDe ? f.bebeDe[t.id] || null : null; }
 function armarFamilias() {
   var mapa = {}, lista = [], hoyStr = fechaLocal();
@@ -2942,16 +2926,16 @@ function admiteFotos(t) { return !!t.id && t.estado !== 'CANCELADO' && !liberado
 function temaDe(t) { return t.tematica ? lindo(t.tematica) : (t.tipoSesion && t.tipoSesion !== '--' ? lindo(t.tipoSesion) : ''); }
 function nombreCarpetaSesion(t) {
   var b = bebeDeTurno(t);
-  return [t.fecha, b ? b.nombre : lindo(t.nombreBebe), edadEn(t, b), temaDe(t)].filter(Boolean).join(' · ');
+  return [t.fecha, b ? b.nombre : lindo(t.nombreBebe), temaDe(t)].filter(Boolean).join(' · ');
 }
 
 // ── Fila de una sesión en la ficha de la familia
 function filaSesion(t, b) {
-  var e = estadoDe(t), edad = edadEn(t, b), n = t.id ? nFotos(t.id) : 0;
+  var e = estadoDe(t), n = t.id ? nFotos(t.id) : 0;
   var s = [t.tematica ? lindo(t.tematica) : '', t.horario ? t.horario + ' hs' : '', t.tipoSesion && t.tipoSesion !== '--' ? lindo(t.tipoSesion) : ''].filter(Boolean).join(', ');
   return '<button type="button" class="fila compacta sesion' + (t.estado === 'CANCELADO' || liberado(t) ? ' cancelado' : '') + '" data-id="' + esc(t.id) + '" onclick="abrirTurno(' + jsArg(t.id) + ')">' +
     '<span class="h num">' + esc(fechaCorta(t.fecha)) + '</span>' +
-    '<span class="cuerpo"><span class="n"><span class="nombre">' + esc(b ? b.nombre : lindo(t.nombreBebe)) + '</span>' + (edad ? '<span class="edad">' + esc(edad) + '</span>' : '') + '</span>' +
+    '<span class="cuerpo"><span class="n"><span class="nombre">' + esc(b ? b.nombre : lindo(t.nombreBebe)) + '</span></span>' +
     '<span class="s">' + esc(s) + '</span></span>' +
     '<span class="der"><span class="estado ' + e.c + '">' + esc(e.corto) + '</span>' +
     (n ? '<span class="fotos-n" title="Fotos cargadas">' + icono('imagen') + n + '</span>' : '') + '</span></button>';
@@ -2997,11 +2981,11 @@ function htmlCompartir(t, x) {
     return '<div class="fotos-acciones"><button type="button" class="btn btn-principal" data-accion="compartir-fotos" onclick="accesoFotos(' + idA + ', true)"' + (fotosOcupado ? ' disabled' : '') + '>Compartir con la familia</button></div>' +
       '<p class="subida-nota">La familia solo va a poder ver y descargar las fotos de esta sesión.</p>';
   }
-  var b = bebeDeTurno(t), bebe = b ? b.nombre : lindo(t.nombreBebe), edad = edadEn(t, b), fam = familiasIdx[claveFamilia(t)];
+  var b = bebeDeTurno(t), bebe = b ? b.nombre : lindo(t.nombreBebe), tema = temaDe(t), fam = familiasIdx[claveFamilia(t)];
   var mama = t.nombreMama && t.nombreMama !== '--' ? lindo(t.nombreMama) : (fam ? fam.nombre : '');
   var wa = waNumero(t) || (fam ? fam.wa : '');
   var msg = encodeURIComponent([
-    'Hola' + (mama ? ' ' + mama : '') + '! ' + cp(128149) + ' Ya están listas las fotos de ' + bebe + (edad ? ' de sus ' + edad : ' de la sesión del ' + fechaCorta(t.fecha)) + ' ' + cp(128248),
+    'Hola' + (mama ? ' ' + mama : '') + '! ' + cp(128149) + ' Ya están listas las fotos de ' + bebe + ' de la sesión' + (tema ? ' ' + tema : '') + ' del ' + fechaCorta(t.fecha) + ' ' + cp(128248),
     'Las podés ver y descargar desde este link:', x.url, '', 'Gracias por elegirnos! ' + cp(128149)
   ].join('\n'));
   if (wa) h += '<div class="det-acciones"><div class="wa-grupo"><a class="wa-btn" data-accion="enviar-fotos" href="https://wa.me/' + esc(wa) + '?text=' + msg + '" target="_blank" rel="noopener">' + icono('wa') + 'Enviar fotos por WhatsApp</a></div></div>';
