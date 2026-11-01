@@ -133,11 +133,51 @@ svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;str
 .subida-barra i{display:block;height:100%;background:var(--laton);transition:width .3s;}
 .subida-nota{font-size:13px;color:var(--tinta-2);margin:8px 0;}
 .subida-fallas{font-size:13px;color:var(--granate);margin:8px 0 12px 18px;}
-.galeria-cab{font-size:14px;color:var(--tinta-2);margin:16px 0 8px;}
-.galeria{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:4px;}
-.galeria a{display:block;aspect-ratio:1;border-radius:4px;overflow:hidden;background:var(--hundido);}
-.galeria img{width:100%;height:100%;object-fit:cover;display:block;}
-.galeria span{display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--tinta-2);}
+/* galería de una sesión: tranquila, retrato, sin marcos */
+.galeria{display:grid;grid-template-columns:repeat(3,1fr);gap:3px;margin:16px -2px 4px;}
+@media (min-width:560px){.galeria{grid-template-columns:repeat(4,1fr);}}
+.g-foto{display:block;aspect-ratio:4/5;overflow:hidden;background:var(--hoja-2);border-radius:3px;padding:0;}
+.g-foto img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .2s;}
+.g-foto span{display:flex;align-items:center;justify-content:center;height:100%;font-size:11px;color:var(--tinta-3);}
+.g-foto:focus-visible{outline-offset:-2px;}
+.galeria-cargando{margin:16px 0 6px;height:90px;border-radius:3px;background:linear-gradient(90deg,var(--hoja-2),var(--hundido),var(--hoja-2));background-size:200% 100%;animation:brillo 1.4s linear infinite;display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--tinta-2);}
+@keyframes brillo{to{background-position:-200% 0;}}
+@media (prefers-reduced-motion:reduce){.galeria-cargando{animation:none;}}
+.fotos-estado{margin-top:-2px;}
+.fotos-links{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;}
+.subida-nota.espacio{color:var(--tinta-3);font-size:12.5px;}
+/* sesiones de la familia */
+.grupo-bebe{font-family:var(--f-nombre);font-style:italic;font-weight:500;font-size:17px;color:var(--tinta);margin:18px 0 2px;}
+.grupo-bebe:first-of-type{margin-top:4px;}
+.fila.sesion .n{display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden;}
+.fila.sesion .n .nombre{overflow:hidden;text-overflow:ellipsis;min-width:0;}
+.fila .edad{font-family:var(--f-ui, inherit);font-style:normal;font-size:13px;color:var(--laton);font-weight:500;flex:none;}
+.fotos-n{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--tinta-2);}
+.fotos-n svg{width:13px;height:13px;}
+/* visor de fotos (clases verfoto-*: .visor ya es el marco de cámara del diseño) */
+.verfoto{position:fixed;inset:0;z-index:5000;background:#18131B;color:#F4F1EE;display:none;flex-direction:column;
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);}
+.verfoto.abierto{display:flex;animation:verfotoEntra .18s ease-out;}
+@keyframes verfotoEntra{from{opacity:0;}to{opacity:1;}}
+@media (prefers-reduced-motion:reduce){.verfoto.abierto{animation:none;}}
+html.con-verfoto,html.con-verfoto body{overflow:hidden;}
+.verfoto-top{display:flex;align-items:center;justify-content:space-between;padding:10px 12px 6px 18px;}
+.verfoto-n{font-size:14px;letter-spacing:.02em;color:rgba(244,241,238,.75);}
+.verfoto-x{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#F4F1EE;}
+.verfoto-x svg{width:22px;height:22px;}
+.verfoto-marco{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;position:relative;padding:0 6px;}
+.verfoto-marco img{max-width:100%;max-height:100%;object-fit:contain;border-radius:2px;transition:filter .25s;}
+.verfoto-marco img.borrosa{filter:blur(6px);}
+.verfoto-aviso{position:absolute;left:16px;right:16px;bottom:12px;text-align:center;font-size:13px;color:rgba(244,241,238,.8);}
+.verfoto-aviso:empty{display:none;}
+.verfoto-flecha{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:64px;display:flex;align-items:center;justify-content:center;color:rgba(244,241,238,.85);}
+.verfoto-flecha svg{width:26px;height:26px;}
+.verfoto-flecha.ant{left:0;}.verfoto-flecha.sig{right:0;}
+.verfoto-flecha[hidden]{display:none;}
+@media (hover:none){.verfoto-flecha{opacity:.55;}}
+.verfoto-pie{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px 14px;font-size:13px;color:rgba(244,241,238,.7);}
+.verfoto-nombre{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.verfoto-pie a{color:#E7D3B2;text-decoration:underline;text-underline-offset:3px;flex:none;}
 .bloque .btn[disabled]{opacity:.55;pointer-events:none;}
 .btn-texto{height:auto;padding:6px 2px;font-weight:500;color:var(--tinta-2);text-decoration:underline;text-underline-offset:3px;}
 .btn:disabled{opacity:.55;cursor:default;}
@@ -2760,6 +2800,52 @@ function claveFamilia(t) {
   if (nom && nom !== '--') return 'nom:' + nom;
   return 'bebe:' + sinAcentos(t.nombreBebe).trim();
 }
+// Bebés de una familia. Si dos nombres de la MISMA familia (mismo teléfono o mamá) empiezan igual
+// ("Damaris" y "Damaris Luján"), son la misma bebé: se muestran juntos con el nombre más completo.
+// Solo en pantalla: la planilla no se toca.
+function armarBebes(f) {
+  var porNombre = {}, orden = [];
+  f.turnos.forEach(function(t) {   // f.turnos ya viene de lo más reciente a lo más viejo
+    var k = sinAcentos(t.nombreBebe).replace(/[^a-z0-9ñ ]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!k || k === '--') return;
+    if (!porNombre[k]) { porNombre[k] = []; orden.push(k); }
+    porNombre[k].push(t);
+  });
+  var largos = orden.slice().sort(function(a, b) { return b.split(' ').length - a.split(' ').length || b.length - a.length; });
+  var grupos = [];
+  largos.forEach(function(k) {
+    var w = k.split(' ');
+    var g = grupos.filter(function(x) { return w.every(function(p, i) { return x.w[i] === p; }); })[0];
+    if (g) g.turnos = g.turnos.concat(porNombre[k]);
+    else grupos.push({ w: w, nombre: lindo(porNombre[k][0].nombreBebe), turnos: porNombre[k].slice() });
+  });
+  f.bebeDe = {};
+  f.bebes = grupos.map(function(g) {
+    g.turnos.sort(function(a, b) { return porFechaHora(b, a); });
+    var conCumple = g.turnos.filter(function(t) { return fechaValida(t.cumpleBebe); })[0];
+    var b = { nombre: g.nombre, cumple: conCumple ? conCumple.cumpleBebe : '', turnos: g.turnos,
+      mesAMes: g.turnos.some(function(t) { return /mes a mes/.test(sinAcentos(t.tipoSesion)); }), ultima: g.turnos[0] ? g.turnos[0].fecha || '' : '' };
+    g.turnos.forEach(function(t) { if (t.id) f.bebeDe[t.id] = b; });
+    return b;
+  }).sort(function(a, b) { return b.ultima.localeCompare(a.ultima); });
+  f.sinBebe = f.turnos.filter(function(t) { return !f.bebes.some(function(b) { return b.turnos.indexOf(t) >= 0; }); });
+}
+// Edad de la bebé el día de la sesión ("15 días", "3 meses", "1 año y 2 meses"). Vacío si no se puede saber.
+function edadEn(t, b) {
+  var nac = fechaValida(t.cumpleBebe) ? t.cumpleBebe : (b && fechaValida(b.cumple) ? b.cumple : '');
+  if (!nac || !fechaValida(t.fecha) || t.fecha < nac) return '';
+  var n = nac.split('-').map(Number), s = t.fecha.split('-').map(Number);
+  var meses = (s[0] - n[0]) * 12 + (s[1] - n[1]) - (s[2] < n[2] ? 1 : 0);
+  if (meses < 1) {
+    var dias = Math.round((Date.UTC(s[0], s[1] - 1, s[2]) - Date.UTC(n[0], n[1] - 1, n[2])) / 86400000);
+    return dias < 1 ? '' : dias + (dias === 1 ? ' día' : ' días');
+  }
+  if (meses >= 72) return '';
+  if (meses < 12) return meses + (meses === 1 ? ' mes' : ' meses');
+  var a = Math.floor(meses / 12), r = meses % 12;
+  return a + (a === 1 ? ' año' : ' años') + (r ? ' y ' + r + (r === 1 ? ' mes' : ' meses') : '');
+}
+function bebeDeTurno(t) { var f = familiasIdx[claveFamilia(t)]; return f && f.bebeDe ? f.bebeDe[t.id] || null : null; }
 function armarFamilias() {
   var mapa = {}, lista = [], hoyStr = fechaLocal();
   allTurnos.forEach(function(t) {
@@ -2771,22 +2857,7 @@ function armarFamilias() {
     f.turnos.sort(function(a, b) { return porFechaHora(b, a); });   // lo más reciente primero
     var conNombre = f.turnos.filter(function(t) { return t.nombreMama && t.nombreMama !== '--'; })[0];
     f.nombre = conNombre ? lindo(conNombre.nombreMama) : 'Sin nombre de la mamá';
-    var vistos = {};
-    f.bebes = [];
-    f.turnos.forEach(function(t) {
-      var k = sinAcentos(t.nombreBebe).trim();
-      if (!k || k === '--' || vistos[k]) return;
-      vistos[k] = true;
-      f.bebes.push({ nombre: lindo(t.nombreBebe), cumple: t.cumpleBebe, mesAMes: false });
-    });
-    f.bebes.forEach(function(b) {
-      b.mesAMes = f.turnos.some(function(x) { return sinAcentos(x.nombreBebe).trim() === sinAcentos(b.nombre) && /mes a mes/.test(sinAcentos(x.tipoSesion)); });
-    });
-    f.bebes.forEach(function(b) {   // el cumple puede estar en cualquiera de sus turnos
-      if (b.cumple) return;
-      var t = f.turnos.filter(function(x) { return sinAcentos(x.nombreBebe).trim() === sinAcentos(b.nombre) && x.cumpleBebe; })[0];
-      if (t) b.cumple = t.cumpleBebe;
-    });
+    armarBebes(f);
     var conWa = f.turnos.filter(function(t) { return waNumero(t); })[0];
     f.whatsapp = conWa ? conWa.whatsapp : '';
     f.wa = conWa ? waNumero(conWa) : '';
@@ -2842,63 +2913,116 @@ function filaHistorial(t) {
     '<span class="der"><span class="estado ' + e.c + '">' + esc(e.corto) + '</span></span></button>';
 }
 // ═══════════════════════════════════════════════════════════
-// FOTOS DE LA FAMILIA (una carpeta de Drive por familia, privada hasta que se comparte)
+// FOTOS POR SESIÓN (carpeta de cada sesión dentro de la carpeta de la familia; privada hasta compartirla)
 // ═══════════════════════════════════════════════════════════
 var fotos = {}, fotosOk = false, fotosOcupado = false;
 async function cargarFotos() {
   try {
     var r = await api('fotosListar', {}, 20000);
     if (r && r.ok && r.fotos) { fotos = r.fotos; fotosOk = true; }
-    else fotosOk = false;   // servidor sin la versión nueva: la sección no se muestra
+    else fotosOk = false;   // servidor sin la versión nueva: no se muestra nada de fotos
   } catch(e) { fotosOk = false; }
+  if (!window.document || !document.getElementById('hoja')) return;   // la página se cerró mientras se leía
   var tope = topeHoja();
-  if (hoja.abierta && tope && tope.tipo === 'familia') pintarHoja(true);
+  if (hoja.abierta && tope && (tope.tipo === 'familia' || tope.tipo === 'turno')) pintarHoja(true);
 }
-// La sesión de la que son las fotos: la más reciente que ya pasó (o es hoy)
-function sesionDeFotos(f) {
-  var hoyStr = fechaLocal();
-  return f.turnos.filter(function(t) { return t.estado !== 'CANCELADO' && !liberado(t) && fechaValida(t.fecha) && t.fecha <= hoyStr; })[0] || null;
-}
+function claveSesion(id) { return 'ses:' + id; }
+function turnoPorId(id) { return allTurnos.filter(function(x) { return x.id === id; })[0] || null; }
 function saldoDe(t) {
   var tot = parseFloat(t.total) || 0, sen = parseFloat(t.senya) || 0;
   return tot > 0 ? tot - sen : null;   // null: no hay total cargado
 }
-function htmlFotos(f) {
-  if (!fotosOk) return '';
-  var x = fotos[f.clave], ses = sesionDeFotos(f), cl = jsArg(f.clave), sub = subida && subida.clave === f.clave ? subida : null;
-  var ocupado = fotosOcupado || !!(subida && subida.activa);
-  var h = '<section class="bloque" id="bloque-fotos"><h3>Fotos</h3>';
-  h += '<p class="det-que">' + (!x ? 'Todavía no tiene carpeta. Al cargar la sesión se crea sola en tu Drive, privada: solo la ves vos.' :
-    x.compartida ? 'Compartida: quien tenga el link puede ver y descargar estas fotos, nada más.' : 'Privada: solo la ves vos.') + '</p>';
-  h += '<div class="fotos-acciones"><button type="button" class="btn btn-principal" data-accion="cargar-sesion" onclick="elegirFotos(' + cl + ')"' + (ocupado ? ' disabled' : '') + '>' + icono('imagen') + 'Cargar sesión</button>';
-  if (x) h += '<a class="btn btn-suave" data-accion="abrir-carpeta" href="' + esc(x.url) + '" target="_blank" rel="noopener">Abrir carpeta en Drive</a>';
-  h += '</div>';
-  if (!x) h += '<button type="button" class="btn btn-texto" data-accion="crear-carpeta" onclick="crearCarpetaFotos(' + cl + ')"' + (ocupado ? ' disabled' : '') + '>Crear la carpeta vacía</button>';
-  if (sub) h += htmlAvance(sub);
-  if (x && !(sub && sub.activa)) h += htmlGaleria(f.clave);
-  if (!x) return h + '</section>';
-  var saldo = ses ? saldoDe(ses) : null, listo = !!ses && saldo !== null && saldo <= 0;
-  if (!ses) {
-    h += '<div class="banda">Todavía no hubo ninguna sesión. Cuando la haya y esté cobrada completa, vas a poder enviarles las fotos.</div>';
-  } else if (!listo && !x.compartida) {
-    h += '<div class="banda" data-fotos="falta-cobro">' + (saldo === null ? 'Falta cargar el total de la sesión del ' + esc(fechaCorta(ses.fecha)) + ' para poder enviar las fotos.' :
-      'Falta cobrar ' + esc(pesos(saldo)) + ' de la sesión del ' + esc(fechaCorta(ses.fecha)) + '. Cuando esté saldada vas a poder enviar las fotos.') + '</div>';
-  } else if (!x.compartida) {
-    h += '<div class="fotos-acciones"><button type="button" class="btn btn-suave" data-accion="compartir-fotos" onclick="accesoFotos(' + cl + ', true)"' + (fotosOcupado ? ' disabled' : '') + '>Compartir con la familia</button></div>';
-  } else {
-    var bebe = ses ? lindo(ses.nombreBebe) : '';
-    var msg = encodeURIComponent([
-      'Hola ' + f.nombre + '! ' + cp(128149) + ' Ya están listas las fotos' + (bebe && bebe !== '--' ? ' de ' + bebe : '') + ' ' + cp(128248),
-      'Las podés ver y descargar desde este link:', x.url, '', 'Gracias por elegirnos! ' + cp(128149)
-    ].join('\n'));
-    if (f.wa) h += '<div class="det-acciones"><div class="wa-grupo"><a class="wa-btn" data-accion="enviar-fotos" href="https://wa.me/' + esc(f.wa) + '?text=' + msg + '" target="_blank" rel="noopener">' + icono('wa') + 'Enviar fotos por WhatsApp</a></div></div>';
-    else h += '<div class="banda">Esta familia no tiene WhatsApp cargado: copiá el link desde Drive para mandárselo.</div>';
-    h += '<button type="button" class="btn btn-texto" data-accion="cortar-fotos" onclick="accesoFotos(' + cl + ', false)"' + (fotosOcupado ? ' disabled' : '') + '>Dejar de compartir</button>';
+function nFotos(id) {
+  var k = claveSesion(id), g = galeria[k];
+  if (g && g.fotos) return g.total;
+  return fotos[k] ? (fotos[k].fotos || 0) : 0;
+}
+// Una sesión puede tener fotos si ya pasó (o es hoy) y no está cancelada
+function admiteFotos(t) { return !!t.id && t.estado !== 'CANCELADO' && !liberado(t) && fechaValida(t.fecha) && t.fecha <= fechaLocal(); }
+function temaDe(t) { return t.tematica ? lindo(t.tematica) : (t.tipoSesion && t.tipoSesion !== '--' ? lindo(t.tipoSesion) : ''); }
+function nombreCarpetaSesion(t) {
+  var b = bebeDeTurno(t);
+  return [t.fecha, b ? b.nombre : lindo(t.nombreBebe), edadEn(t, b), temaDe(t)].filter(Boolean).join(' · ');
+}
+
+// ── Fila de una sesión en la ficha de la familia
+function filaSesion(t, b) {
+  var e = estadoDe(t), edad = edadEn(t, b), n = t.id ? nFotos(t.id) : 0;
+  var s = [t.tematica ? lindo(t.tematica) : '', t.horario ? t.horario + ' hs' : '', t.tipoSesion && t.tipoSesion !== '--' ? lindo(t.tipoSesion) : ''].filter(Boolean).join(', ');
+  return '<button type="button" class="fila compacta sesion' + (t.estado === 'CANCELADO' || liberado(t) ? ' cancelado' : '') + '" data-id="' + esc(t.id) + '" onclick="abrirTurno(' + jsArg(t.id) + ')">' +
+    '<span class="h num">' + esc(fechaCorta(t.fecha)) + '</span>' +
+    '<span class="cuerpo"><span class="n"><span class="nombre">' + esc(b ? b.nombre : lindo(t.nombreBebe)) + '</span>' + (edad ? '<span class="edad">' + esc(edad) + '</span>' : '') + '</span>' +
+    '<span class="s">' + esc(s) + '</span></span>' +
+    '<span class="der"><span class="estado ' + e.c + '">' + esc(e.corto) + '</span>' +
+    (n ? '<span class="fotos-n" title="Fotos cargadas">' + icono('imagen') + n + '</span>' : '') + '</span></button>';
+}
+function htmlSesionesFamilia(f) {
+  var h = '<section class="bloque"><h3>Sesiones</h3>';
+  var varios = f.bebes.length > 1 || (f.bebes.length && f.sinBebe.length);
+  f.bebes.forEach(function(b) {
+    if (varios) h += '<h4 class="grupo-bebe">' + esc(b.nombre) + '</h4>';
+    h += '<div class="historial linea-dia">' + b.turnos.map(function(t) { return filaSesion(t, b); }).join('') + '</div>';
+  });
+  if (f.sinBebe.length) {
+    if (varios) h += '<h4 class="grupo-bebe">Sin nombre del bebé</h4>';
+    h += '<div class="historial linea-dia">' + f.sinBebe.map(function(t) { return filaSesion(t, null); }).join('') + '</div>';
   }
   return h + '</section>';
 }
 
-// ── Cargar sesión: sube las fotos originales una por una a la carpeta de la familia
+// ── Bloque "Fotos de esta sesión" en la ficha del turno
+function htmlFotosSesion(t) {
+  if (!fotosOk || !t.id) return '';
+  var k = claveSesion(t.id), x = fotos[k];
+  if (!x && !admiteFotos(t)) return '';
+  var idA = jsArg(t.id), sub = subida && subida.clave === k ? subida : null, ocupado = fotosOcupado || !!(subida && subida.activa);
+  var n = nFotos(t.id);
+  var h = '<section class="bloque fotos-sesion" id="bloque-fotos"><h3>Fotos de esta sesión</h3>';
+  h += '<p class="det-que fotos-estado">' + (!x ? 'Todavía no cargaste las fotos.' :
+    (n ? n + (n === 1 ? ' foto' : ' fotos') : 'La carpeta está vacía') + (x.compartida ? ', compartidas con la familia.' : ', privadas: solo las ves vos.')) + '</p>';
+  h += '<div class="fotos-acciones"><button type="button" class="btn ' + (n ? 'btn-suave' : 'btn-principal') + '" data-accion="cargar-sesion" onclick="elegirFotos(' + idA + ')"' + (ocupado ? ' disabled' : '') + '>' +
+    icono('imagen') + (n ? 'Agregar fotos' : 'Cargar sesión') + '</button></div>';
+  if (sub) h += htmlAvance(sub);
+  if (x && !(sub && sub.activa)) h += htmlGaleria(k);
+  if (x && n) h += htmlCompartir(t, x);
+  return h + '</section>';
+}
+function htmlCompartir(t, x) {
+  var idA = jsArg(t.id), saldo = saldoDe(t), cobrada = saldo !== null && saldo <= 0, h = '';
+  if (!x.compartida && !cobrada) {
+    return '<div class="banda" data-fotos="falta-cobro">' + (saldo === null ? 'Para enviarle las fotos a la familia, primero cargá el total de esta sesión en Pago.' :
+      'Falta cobrar ' + esc(pesos(saldo)) + ' de esta sesión. Cuando esté saldada vas a poder enviarle las fotos a la familia.') + '</div>';
+  }
+  if (!x.compartida) {
+    return '<div class="fotos-acciones"><button type="button" class="btn btn-principal" data-accion="compartir-fotos" onclick="accesoFotos(' + idA + ', true)"' + (fotosOcupado ? ' disabled' : '') + '>Compartir con la familia</button></div>' +
+      '<p class="subida-nota">La familia solo va a poder ver y descargar las fotos de esta sesión.</p>';
+  }
+  var b = bebeDeTurno(t), bebe = b ? b.nombre : lindo(t.nombreBebe), edad = edadEn(t, b), fam = familiasIdx[claveFamilia(t)];
+  var mama = t.nombreMama && t.nombreMama !== '--' ? lindo(t.nombreMama) : (fam ? fam.nombre : '');
+  var wa = waNumero(t) || (fam ? fam.wa : '');
+  var msg = encodeURIComponent([
+    'Hola' + (mama ? ' ' + mama : '') + '! ' + cp(128149) + ' Ya están listas las fotos de ' + bebe + (edad ? ' de sus ' + edad : ' de la sesión del ' + fechaCorta(t.fecha)) + ' ' + cp(128248),
+    'Las podés ver y descargar desde este link:', x.url, '', 'Gracias por elegirnos! ' + cp(128149)
+  ].join('\n'));
+  if (wa) h += '<div class="det-acciones"><div class="wa-grupo"><a class="wa-btn" data-accion="enviar-fotos" href="https://wa.me/' + esc(wa) + '?text=' + msg + '" target="_blank" rel="noopener">' + icono('wa') + 'Enviar fotos por WhatsApp</a></div></div>';
+  else h += '<div class="banda">No tiene WhatsApp cargado: copiá el link desde Drive para mandárselo.</div>';
+  h += '<div class="fotos-links"><a class="btn btn-texto" data-accion="abrir-carpeta" href="' + esc(x.url) + '" target="_blank" rel="noopener">Abrir en Drive</a>' +
+    '<button type="button" class="btn btn-texto" data-accion="cortar-fotos" onclick="accesoFotos(' + idA + ', false)"' + (fotosOcupado ? ' disabled' : '') + '>Dejar de compartir</button></div>';
+  return h;
+}
+async function accesoFotos(id, compartir) {
+  var k = claveSesion(id);
+  if (!fotos[k] || fotosOcupado) return;
+  fotosOcupado = true; repintarFotos(k);
+  try {
+    var r = await api('fotosAcceso', { clave: k, compartir: compartir === true }, 45000);
+    if (r && r.ok) { fotos[k].compartida = !!r.compartida; toast(r.compartida ? 'Listo: la familia puede ver las fotos de esta sesión con el link.' : 'Listo: dejaste de compartir esta sesión.', 'ok'); }
+    else toast((r && r.error) || 'No se pudo cambiar el acceso.', 'err');
+  } catch(e) { toast('No pude cambiar el acceso: ' + e.message + '. Revisá la conexión y probá de nuevo.', 'err'); }
+  fotosOcupado = false; repintarFotos(k);
+}
+
+// ── Cargar sesión: sube las fotos originales una por una a la carpeta de la sesión
 var subida = null, galeria = {}, espacioDrive = null;
 var MAX_FOTO_MB = 30;
 function tipoFoto(file) {
@@ -2906,7 +3030,7 @@ function tipoFoto(file) {
   var ext = (String(file.name).split('.').pop() || '').toLowerCase();
   return { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', heic: 'image/heic', heif: 'image/heif', webp: 'image/webp' }[ext] || '';
 }
-function elegirFotos(clave) {
+function elegirFotos(id) {
   if (subida && subida.activa) { toast('Esperá a que termine la subida que está en curso.', 'err'); return; }
   var inp = document.getElementById('fotos-input');
   if (!inp) {
@@ -2915,7 +3039,7 @@ function elegirFotos(clave) {
     document.body.appendChild(inp);
   }
   inp.value = '';
-  inp.onchange = function() { var l = Array.prototype.slice.call(inp.files || []); inp.value = ''; if (l.length) subirFotos(clave, l); };
+  inp.onchange = function() { var l = Array.prototype.slice.call(inp.files || []); inp.value = ''; if (l.length) subirFotos(id, l); };
   inp.click();
 }
 function leerBase64(file) {
@@ -2940,7 +3064,8 @@ async function subirUna(sub, file) {
   for (var intento = 1; intento <= 4; intento++) {
     await hayConexion();
     try {
-      var r = await api('fotosSubir', { clave: sub.clave, nombre: sub.nombre, archivo: { nombre: file.name, tipo: tipo, datos: datos, tam: file.size } }, 180000);
+      var r = await api('fotosSubir', { clave: sub.clave, nombre: sub.carpeta, padre: sub.padre, nombrePadre: sub.nombrePadre,
+        archivo: { nombre: file.name, tipo: tipo, datos: datos, tam: file.size } }, 180000);
       if (r.ok || r.codigo === 'auth' || !/completa|dañada/.test(r.error || '')) return r;   // solo se reintenta si llegó cortada
     } catch(e) { /* sin conexión: se reintenta (el servidor no duplica si ya había llegado) */ }
     if (!sesion.token) return { ok: false, codigo: 'auth', error: 'La sesión venció' };
@@ -2948,35 +3073,37 @@ async function subirUna(sub, file) {
   }
   return { ok: false, error: 'no se pudo subir (conexión)' };
 }
-async function subirFotos(clave, files) {
-  var f = familiasIdx[clave];
-  if (!f || (subida && subida.activa)) return;
-  subida = { clave: clave, nombre: f.nombre, total: files.length, hechas: 0, ya: 0, fallas: [], actual: '', activa: true };
+async function subirFotos(id, files) {
+  var t = turnoPorId(id);
+  if (!t || (subida && subida.activa)) return;
+  var fam = familiasIdx[claveFamilia(t)], k = claveSesion(id);
+  subida = { clave: k, id: id, carpeta: nombreCarpetaSesion(t), padre: claveFamilia(t), nombrePadre: fam ? fam.nombre : lindo(t.nombreMama),
+    total: files.length, hechas: 0, ya: 0, fallas: [], actual: '', activa: true };
   var sub = subida;
-  repintarFotos(clave);
+  repintarFotos(k);
   for (var i = 0; i < files.length; i++) {
     sub.actual = files[i].name;
-    repintarFotos(clave);
+    repintarFotos(k);
     var r = await subirUna(sub, files[i]);
     if (r && r.codigo === 'auth') { sub.activa = false; return; }
     if (r && r.ok) {
-      if (r.yaEstaba) sub.ya++;
-      if (!fotos[clave] && r.url) fotos[clave] = { url: r.url, compartida: !!r.compartida };
+      if (!fotos[k] && r.url) fotos[k] = { url: r.url, compartida: !!r.compartida, fotos: 0, padre: sub.padre };
+      if (r.yaEstaba) sub.ya++; else if (fotos[k]) fotos[k].fotos = (fotos[k].fotos || 0) + 1;
     } else sub.fallas.push({ file: files[i], error: (r && r.error) || 'error' });
     sub.hechas++;
-    repintarFotos(clave);
   }
   sub.activa = false; sub.actual = '';
   var bien = sub.total - sub.fallas.length;
-  toast(sub.fallas.length ? 'Se subieron ' + bien + ' de ' + sub.total + '. Revisá las que fallaron en la ficha de ' + sub.nombre + '.' :
-    'Listo: ' + bien + (bien === 1 ? ' foto subida' : ' fotos subidas') + ' a la carpeta de ' + sub.nombre + '.', sub.fallas.length ? 'err' : 'ok');
-  delete galeria[clave];
-  cargarGaleria(clave);
-  repintarFotos(clave);
+  toast(sub.fallas.length ? 'Se subieron ' + bien + ' de ' + sub.total + '. Revisá las que fallaron en la sesión.' :
+    'Listo: ' + bien + (bien === 1 ? ' foto subida.' : ' fotos subidas.'), sub.fallas.length ? 'err' : 'ok');
+  delete galeria[k];
+  repintarFotos(k);
+  cargarGaleria(k);
 }
-function reintentarFallidas(clave) {
-  if (!subida || subida.clave !== clave || subida.activa || !subida.fallas.length) return;
-  subirFotos(clave, subida.fallas.map(function(x) { return x.file; }));
+function reintentarFallidas(id) {
+  var k = claveSesion(id);
+  if (!subida || subida.clave !== k || subida.activa || !subida.fallas.length) return;
+  subirFotos(id, subida.fallas.map(function(x) { return x.file; }));
 }
 function htmlAvance(sub) {
   var pct = sub.total ? Math.round(sub.hechas * 100 / sub.total) : 0, h = '<div class="subida" id="subida-avance">';
@@ -2987,66 +3114,139 @@ function htmlAvance(sub) {
   } else if (sub.fallas.length) {
     h += '<div class="subida-txt"><b>Se subieron ' + (sub.total - sub.fallas.length) + ' de ' + sub.total + '</b></div><ul class="subida-fallas">' +
       sub.fallas.map(function(x) { return '<li>' + esc(x.file.name) + ': ' + esc(x.error) + '</li>'; }).join('') + '</ul>' +
-      '<button type="button" class="btn btn-suave btn-ancho" data-accion="reintentar-fotos" onclick="reintentarFallidas(' + jsArg(sub.clave) + ')">Reintentar las que fallaron</button>';
+      '<button type="button" class="btn btn-suave btn-ancho" data-accion="reintentar-fotos" onclick="reintentarFallidas(' + jsArg(sub.id) + ')">Reintentar las que fallaron</button>';
   } else {
     h += '<div class="subida-txt"><b>' + sub.total + (sub.total === 1 ? ' foto subida' : ' fotos subidas') + '</b>' + (sub.ya ? '<span>' + sub.ya + ' ya estaban en la carpeta</span>' : '') + '</div>';
   }
   return h + '</div>';
 }
-function repintarFotos(clave) {
+function repintarFotos(k) {
+  if (!window.document || !document.getElementById('hoja')) return;
   var tope = topeHoja();
-  if (hoja.abierta && tope && tope.tipo === 'familia' && tope.clave === clave) pintarHoja(true);
+  if (!hoja.abierta || !tope) return;
+  if ((tope.tipo === 'turno' && claveSesion(tope.id) === k) || tope.tipo === 'familia') pintarHoja(true);
 }
-async function cargarGaleria(clave) {
-  if (galeria[clave] && (galeria[clave].cargando || galeria[clave].fotos)) return;
-  galeria[clave] = { cargando: true };
+async function cargarGaleria(k) {
+  if (galeria[k] && (galeria[k].cargando || galeria[k].fotos)) return;
+  galeria[k] = { cargando: true };
   try {
-    var r = await api('fotosVer', { clave: clave }, 60000);
-    galeria[clave] = r && r.ok ? { fotos: r.fotos || [], total: r.total || 0 } : { error: (r && r.error) || 'error' };
-    if (r && r.ok && r.espacio) espacioDrive = r.espacio;
-  } catch(e) { galeria[clave] = { error: 'sin conexión' }; }
-  repintarFotos(clave);
+    var r = await api('fotosVer', { clave: k }, 60000);
+    galeria[k] = r && r.ok ? { fotos: r.fotos || [], total: r.total || 0 } : { error: (r && r.error) || 'error' };
+    if (r && r.ok) { if (r.espacio) espacioDrive = r.espacio; if (fotos[k]) fotos[k].fotos = r.total || 0; }
+  } catch(e) { galeria[k] = { error: 'sin conexión' }; }
+  repintarFotos(k);
 }
 function gb(n) { return (n / 1073741824).toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' GB'; }
-function htmlGaleria(clave) {
-  var g = galeria[clave];
-  if (!g) { setTimeout(function() { cargarGaleria(clave); }, 0); return '<p class="subida-nota" data-galeria="cargando">Buscando las fotos de la carpeta…</p>'; }
-  if (g.cargando) return '<p class="subida-nota" data-galeria="cargando">Buscando las fotos de la carpeta…</p>';
-  if (g.error) return '<p class="subida-nota">No pude ver las fotos (' + esc(g.error) + '). <button type="button" class="btn btn-texto" onclick="delete galeria[' + jsArg(clave) + '];cargarGaleria(' + jsArg(clave) + ')">Probar de nuevo</button></p>';
-  var h = '<div class="galeria-cab" data-galeria="lista">' + (g.total ? g.total + (g.total === 1 ? ' foto en la carpeta' : ' fotos en la carpeta') : 'La carpeta está vacía') + '</div>';
-  if (g.fotos.length) h += '<div class="galeria">' + g.fotos.map(function(p) {
-    return '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" title="' + esc(p.nombre) + '">' +
-      (p.mini ? '<img src="data:image/png;base64,' + esc(p.mini) + '" alt="' + esc(p.nombre) + '" loading="lazy">' : '<span>Procesando</span>') + '</a>';
+function htmlGaleria(k) {
+  var g = galeria[k];
+  if (!g) { setTimeout(function() { cargarGaleria(k); }, 0); return '<div class="galeria-cargando" data-galeria="cargando">Trayendo las fotos…</div>'; }
+  if (g.cargando) return '<div class="galeria-cargando" data-galeria="cargando">Trayendo las fotos…</div>';
+  if (g.error) return '<p class="subida-nota">No pude ver las fotos (' + esc(g.error) + '). <button type="button" class="btn btn-texto" onclick="delete galeria[' + jsArg(k) + '];cargarGaleria(' + jsArg(k) + ')">Probar de nuevo</button></p>';
+  var h = '';
+  if (g.fotos.length) h += '<div class="galeria" data-galeria="lista">' + g.fotos.map(function(p, i) {
+    return '<button type="button" class="g-foto" onclick="abrirVisor(' + jsArg(k) + ',' + i + ')" aria-label="Ver ' + esc(p.nombre) + '">' +
+      (p.mini ? '<img src="data:image/png;base64,' + esc(p.mini) + '" alt="" loading="lazy">' : '<span>Preparando</span>') + '</button>';
   }).join('') + '</div>';
+  else h += '<p class="subida-nota" data-galeria="lista">La carpeta está vacía.</p>';
   if (espacioDrive && espacioDrive.limite > 0) {
     var uso = espacioDrive.usado / espacioDrive.limite;
     h += uso >= 0.85 ? '<div class="banda" data-fotos="espacio">Te queda poco lugar en Drive: ' + gb(espacioDrive.usado) + ' usados de ' + gb(espacioDrive.limite) + '. Ampliá el plan en Google One antes de la próxima sesión.</div>' :
-      '<p class="subida-nota" data-fotos="espacio">Drive: ' + gb(espacioDrive.usado) + ' usados de ' + gb(espacioDrive.limite) + '.</p>';
+      '<p class="subida-nota espacio" data-fotos="espacio">Drive: ' + gb(espacioDrive.usado) + ' usados de ' + gb(espacioDrive.limite) + '.</p>';
   }
   return h;
 }
 window.addEventListener('beforeunload', function(e) { if (subida && subida.activa) { e.preventDefault(); e.returnValue = ''; } });
-async function crearCarpetaFotos(clave) {
-  var f = familiasIdx[clave];
-  if (!f || fotosOcupado) return;
-  fotosOcupado = true; pintarHoja(true);
-  try {
-    var r = await api('fotosCrear', { clave: clave, nombre: f.nombre }, 45000);
-    if (r && r.ok) { fotos[clave] = { url: r.url, compartida: !!r.compartida }; toast('Carpeta creada. Ya podés subir las fotos.', 'ok'); }
-    else toast((r && r.error) || 'No se pudo crear la carpeta.', 'err');
-  } catch(e) { toast('No pude crear la carpeta: ' + e.message + '. Revisá la conexión y probá de nuevo.', 'err'); }
-  fotosOcupado = false; pintarHoja(true);
+
+// ── Visor: una foto grande, con anterior / siguiente (tocar, deslizar o flechas)
+var visor = { abierto: false, k: '', i: 0 }, grandes = {}, grandesOrden = [];
+function abrirVisor(k, i) {
+  var g = galeria[k];
+  if (!g || !g.fotos || !g.fotos[i]) return;
+  var el = document.getElementById('verfoto');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'verfoto'; el.className = 'verfoto'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); el.setAttribute('aria-label', 'Foto');
+    el.innerHTML = '<div class="verfoto-top"><span class="verfoto-n num" id="verfoto-n"></span><button type="button" class="verfoto-x" onclick="cerrarVisor()" aria-label="Cerrar">' + icono('x') + '</button></div>' +
+      '<div class="verfoto-marco" id="verfoto-marco"><img id="verfoto-img" alt=""><div class="verfoto-aviso" id="verfoto-aviso"></div></div>' +
+      '<button type="button" class="verfoto-flecha ant" onclick="moverVisor(-1)" aria-label="Foto anterior">' + icono('chevI') + '</button>' +
+      '<button type="button" class="verfoto-flecha sig" onclick="moverVisor(1)" aria-label="Foto siguiente">' + icono('chevD') + '</button>' +
+      '<div class="verfoto-pie"><span class="verfoto-nombre" id="verfoto-nombre"></span><a id="verfoto-drive" target="_blank" rel="noopener">Abrir en Drive</a></div>';
+    document.body.appendChild(el);
+    var x0 = null, y0 = null;
+    el.addEventListener('touchstart', function(e) { if (e.touches.length === 1) { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; } }, { passive: true });
+    el.addEventListener('touchend', function(e) {
+      if (x0 === null) return;
+      var dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0; x0 = null;
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) moverVisor(dx < 0 ? 1 : -1);
+      else if (dy > 90 && Math.abs(dy) > Math.abs(dx)) cerrarVisor();
+    });
+  }
+  visor = { abierto: true, k: k, i: i, previo: document.activeElement };
+  document.documentElement.classList.add('con-verfoto');
+  el.classList.add('abierto');
+  pintarVisor();
+  setTimeout(function() { var b = el.querySelector('.verfoto-x'); if (b) b.focus({ preventScroll: true }); }, 30);
 }
-async function accesoFotos(clave, compartir) {
-  if (!fotos[clave] || fotosOcupado) return;
-  fotosOcupado = true; pintarHoja(true);
-  try {
-    var r = await api('fotosAcceso', { clave: clave, compartir: compartir === true }, 45000);
-    if (r && r.ok) { fotos[clave].compartida = !!r.compartida; toast(r.compartida ? 'Listo: la familia puede ver las fotos con el link.' : 'Listo: dejaste de compartir la carpeta.', 'ok'); }
-    else toast((r && r.error) || 'No se pudo cambiar el acceso.', 'err');
-  } catch(e) { toast('No pude cambiar el acceso: ' + e.message + '. Revisá la conexión y probá de nuevo.', 'err'); }
-  fotosOcupado = false; pintarHoja(true);
+function cerrarVisor() {
+  var el = document.getElementById('verfoto');
+  if (!el || !visor.abierto) return;
+  el.classList.remove('abierto');
+  document.documentElement.classList.remove('con-verfoto');
+  var p = visor.previo; visor = { abierto: false, k: '', i: 0 };
+  if (p && p.focus) try { p.focus({ preventScroll: true }); } catch(e) {}
 }
+function moverVisor(d) {
+  var g = galeria[visor.k];
+  if (!visor.abierto || !g || !g.fotos) return;
+  var n = g.fotos.length;
+  visor.i = (visor.i + d + n) % n;
+  pintarVisor();
+}
+function pintarVisor() {
+  var g = galeria[visor.k], p = g.fotos[visor.i], img = document.getElementById('verfoto-img'), aviso = document.getElementById('verfoto-aviso');
+  document.getElementById('verfoto-n').textContent = (visor.i + 1) + ' de ' + g.fotos.length;
+  document.getElementById('verfoto-nombre').textContent = p.nombre;
+  document.getElementById('verfoto-drive').href = p.url;
+  Array.prototype.forEach.call(document.querySelectorAll('.verfoto-flecha'), function(b) { b.hidden = g.fotos.length < 2; });
+  aviso.textContent = '';
+  if (grandes[p.id]) { img.src = grandes[p.id]; img.className = ''; }
+  else {
+    img.src = p.mini ? 'data:image/png;base64,' + p.mini : ''; img.className = 'borrosa';
+    traerGrande(p).then(function(url) {
+      if (!visor.abierto || g.fotos[visor.i] !== p) return;
+      if (url) { img.src = url; img.className = ''; }
+      else aviso.textContent = p.errorGrande || 'No pude traer la foto en grande. Abrila en Drive.';
+    });
+  }
+  var sig = g.fotos[(visor.i + 1) % g.fotos.length];   // se adelanta la siguiente
+  if (sig && sig !== p) traerGrande(sig);
+}
+async function traerGrande(p) {
+  if (grandes[p.id]) return grandes[p.id];
+  if (p._pidiendo) return p._pidiendo;
+  var ancho = Math.min(2000, Math.round((window.innerWidth || 800) * (window.devicePixelRatio || 1)));
+  p._pidiendo = (async function() {
+    try {
+      var r = await api('fotoGrande', { id: p.id, ancho: ancho }, 60000);
+      if (r && r.ok && r.datos) {
+        grandes[p.id] = 'data:' + (r.tipo || 'image/jpeg') + ';base64,' + r.datos;
+        grandesOrden.push(p.id);
+        while (grandesOrden.length > 24) delete grandes[grandesOrden.shift()];   // no llenar la memoria del celular
+        return grandes[p.id];
+      }
+      p.errorGrande = (r && r.error) || '';
+    } catch(e) { p.errorGrande = 'Sin conexión: no pude traer la foto en grande.'; }
+    return null;
+  })();
+  var res = await p._pidiendo; p._pidiendo = null;
+  return res;
+}
+document.addEventListener('keydown', function(e) {
+  if (!visor.abierto) return;
+  if (e.key === 'Escape') { e.stopImmediatePropagation(); e.preventDefault(); cerrarVisor(); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); moverVisor(-1); }
+  else if (e.key === 'ArrowRight') { e.preventDefault(); moverVisor(1); }
+}, true);
 
 function htmlFamilia(f) {
   var d = f.desde ? fechaObj(f.desde) : null;
@@ -3057,8 +3257,7 @@ function htmlFamilia(f) {
   if (f.wa) h += '<div class="det-acciones"><div class="wa-grupo"><a class="wa-btn" href="https://wa.me/' + esc(f.wa) + '" target="_blank" rel="noopener">' + icono('wa') + 'Escribir por WhatsApp</a></div></div>';
   if (f.bebes.length) h += '<section class="bloque"><h3>' + (f.bebes.length === 1 ? 'Bebé' : 'Bebés') + '</h3><div class="bebes">' +
     f.bebes.map(function(b) { return '<div><em>' + esc(b.nombre) + '</em>' + esc(cumpleBebe(b)) + '</div>'; }).join('') + '</div></section>';
-  h += htmlFotos(f);
-  h += '<section class="bloque"><h3>Sesiones</h3><div class="historial linea-dia">' + f.turnos.map(filaHistorial).join('') + '</div></section>';
+  h += htmlSesionesFamilia(f);
   return h;
 }
 
@@ -3113,6 +3312,7 @@ function htmlTurno(t) {
       '<div class="pago-field"><label class="pago-notas-label" for="notas-int-' + idH + '">Notas internas</label><textarea class="pago-notas" id="notas-int-' + idH + '" oninput="cambioPago(' + idA + ')">\n' + esc(t.notasInternas || '') + '</textarea></div>' +
       '<button class="pago-save-btn" id="save-btn-' + idH + '" onclick="guardarPago(' + idA + ')">Guardar cambios</button></section>';
   }
+  h += htmlFotosSesion(t);
   var rs = '';
   if (t.timestamp) { var dts = new Date(t.timestamp); if (!isNaN(dts)) rs = dts.toLocaleDateString('es-AR'); }
   var origen = t.sena && t.sena.origen === 'clienta' ? 'desde la web' : (t.sena && t.sena.origen === 'panel' ? 'cargado en el panel' : '');
