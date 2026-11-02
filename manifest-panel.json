@@ -4,7 +4,7 @@
   "short_name": "Estudio",
   "description": "Turnos, señas y familias de Estudio Fotoinfantil.",
   "lang": "es-AR",
-  "start_url": "./Panel-nuevo.html",
+  "start_url": "./Panel.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#EEEFEC",

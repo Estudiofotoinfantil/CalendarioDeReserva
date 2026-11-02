@@ -1,0 +1,2495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin · Estudio Fotoinfantil</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold-1:#9d714c;--gold-2:#b49c78;--gold-3:#d4bc9a;
+    --gold-light:#ede0ce;--cream:#fdf8f2;--cream-dark:#f5ece0;
+    --white:#ffffff;--text:#3a2c1e;--text-light:#8a7060;
+    --success:#7cad96;--success-bg:#e8f5ee;
+    --danger:#d47a6a;--danger-bg:#faeae7;
+    --warning:#d4a74a;--warning-bg:#fdf3dc;
+    --panel-bg:#2c1f1a;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--text);min-height:100vh;}
+
+  /* ═══════ LOGIN ═══════ */
+  .login-screen{min-height:100vh;background:linear-gradient(145deg,#2c1f1a 0%,#4a302a 50%,#2c1f1a 100%);display:flex;align-items:center;justify-content:center;padding:24px;}
+  .login-card{background:var(--cream);border-radius:20px;padding:48px 36px;max-width:380px;width:100%;text-align:center;}
+  .login-logo{font-family:'Playfair Display',serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:var(--gold-2);margin-bottom:16px;}
+  .login-card h1{font-family:'Playfair Display',serif;font-size:26px;font-weight:400;color:var(--text);margin-bottom:8px;}
+  .login-card p{font-size:14px;color:var(--text-light);margin-bottom:32px;}
+  .login-card input{width:100%;padding:14px 16px;border:1.5px solid var(--gold-light);border-radius:10px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);margin-bottom:12px;outline:none;text-align:center;letter-spacing:4px;}
+  .login-card input:focus{border-color:var(--gold-1);}
+  .login-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:.2s;}
+  .login-btn:hover{opacity:.9;}
+  .login-error{color:var(--danger);font-size:13px;margin-top:10px;display:none;}
+
+  /* ═══════ ADMIN PANEL ═══════ */
+  .admin-panel{display:none;}
+  .admin-panel.show{display:block;}
+  .admin-header{background:var(--panel-bg);color:#e8c4b8;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;gap:8px;}
+  .admin-header h1{font-family:'Playfair Display',serif;font-size:17px;font-weight:400;letter-spacing:1px;}
+  .studio-sub{font-size:10px;color:var(--gold-2);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:2px;}
+  .header-btns{display:flex;gap:6px;align-items:center;flex-shrink:0;}
+  .logout-btn{background:rgba(255,255,255,0.1);color:#e8c4b8;border:1px solid rgba(232,196,184,0.3);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+  .logout-btn:hover{background:rgba(255,255,255,0.2);}
+  .config-btn{background:rgba(255,255,255,0.08);color:var(--gold-2);border:1px solid rgba(196,168,130,0.3);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+  .config-btn:hover{background:rgba(255,255,255,0.15);}
+  .ai-btn{background:linear-gradient(135deg,#2d3561,#4a3080);color:#c9b8f0;border:1px solid rgba(150,120,220,0.4);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;}
+  .ai-btn:hover{opacity:.85;}
+
+  /* ═══════ PANEL SESIONES DEL DÍA ═══════ */
+  .daily-panel{margin:20px 16px 0;border-radius:18px;overflow:hidden;border:1px solid var(--gold-light);background:var(--white);animation:fadeUp .5s ease;}
+  @media(min-width:600px){.daily-panel{margin:24px 24px 0;}}
+  .daily-header{background:linear-gradient(135deg,#2c1f1a 0%,#4a302a 100%);padding:16px 20px;display:flex;align-items:center;gap:10px;}
+  .daily-header-icon{width:38px;height:38px;border-radius:50%;background:rgba(196,168,130,0.2);border:1px solid rgba(196,168,130,0.4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+  .daily-header-text h2{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:#e8c4b8;letter-spacing:.5px;}
+  .daily-header-text p{font-size:11px;color:var(--gold-2);margin-top:2px;letter-spacing:1px;text-transform:uppercase;}
+  .daily-header-date{margin-left:auto;text-align:right;}
+  .daily-header-date .date-num{font-family:'Playfair Display',serif;font-size:28px;font-weight:400;color:#e8c4b8;line-height:1;}
+  .daily-header-date .date-mes{font-size:10px;color:var(--gold-2);letter-spacing:1.5px;text-transform:uppercase;margin-top:2px;}
+  .daily-sections{display:grid;grid-template-columns:1fr 1fr;}
+  .daily-section{padding:16px 20px;}
+  .daily-section:first-child{border-right:1px solid var(--gold-light);}
+  .section-label{display:flex;align-items:center;gap:6px;margin-bottom:12px;}
+  .section-label-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .dot-today{background:var(--gold-1);}
+  .dot-tomorrow{background:var(--success);}
+  .section-label-text{font-size:11px;letter-spacing:1.5px;text-transform:uppercase;font-weight:500;color:var(--text-light);}
+  .section-label-count{margin-left:auto;font-size:11px;color:var(--text-light);background:var(--cream-dark);border-radius:20px;padding:2px 8px;}
+  .sesion-card{border-radius:10px;padding:10px 12px;margin-bottom:8px;border-left:3px solid var(--gold-light);background:var(--cream);opacity:0;transform:translateY(10px);transition:opacity .4s ease,transform .4s ease;}
+  .sesion-card.visible{opacity:1;transform:translateY(0);}
+  .sesion-card.today-card{border-left-color:var(--gold-1);}
+  .sesion-card.tomorrow-card{border-left-color:var(--success);}
+  .sesion-hora{display:flex;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:wrap;}
+  .hora-badge{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:var(--gold-1);}
+  .hora-sep{font-size:10px;color:var(--gold-3);}
+  .hora-estado{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;letter-spacing:.3px;}
+  .estado-confirmado-badge{background:var(--success-bg);color:var(--success);}
+  .estado-pendiente-badge{background:var(--warning-bg);color:var(--warning);}
+  .sesion-bebe{font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:var(--text);margin-bottom:3px;}
+  .sesion-meta{font-size:12px;color:var(--text-light);display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
+  .meta-tematica{background:var(--gold-light);color:var(--gold-1);border-radius:20px;padding:2px 8px;font-size:11px;font-weight:500;}
+  .sesion-mama{font-size:11px;color:var(--text-light);margin-top:4px;}
+  .shimmer-line{height:10px;border-radius:4px;background:linear-gradient(90deg,var(--cream-dark) 25%,var(--gold-light) 50%,var(--cream-dark) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;}
+  .shimmer-card{padding:12px;border-radius:10px;background:var(--cream);margin-bottom:8px;}
+  @keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+  .empty-day{text-align:center;padding:20px 10px;color:var(--text-light);}
+  .empty-day .empty-icon{font-size:22px;margin-bottom:5px;}
+  .empty-day p{font-size:13px;line-height:1.5;}
+  .empty-day .empty-note{font-size:11px;color:var(--gold-3);margin-top:3px;font-style:italic;}
+  .warm-note{background:linear-gradient(135deg,var(--cream),var(--cream-dark));border-top:1px solid var(--gold-light);padding:12px 20px;display:flex;align-items:flex-start;gap:8px;}
+  .warm-note-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .warm-note-text{font-size:13px;color:var(--text-light);line-height:1.5;font-style:italic;}
+  .warm-note-text strong{color:var(--gold-1);font-style:normal;font-weight:500;}
+
+  /* ═══════ STATS ═══════ */
+  .stats-row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:20px 16px 0;}
+  @media(min-width:600px){.stats-row{grid-template-columns:repeat(4,1fr);padding:24px 24px 0;}}
+  .stat-card{background:var(--white);border-radius:14px;padding:18px;border:1px solid var(--gold-light);}
+  .stat-num{font-family:'Playfair Display',serif;font-size:32px;font-weight:400;color:var(--text);line-height:1;}
+  .stat-label{font-size:12px;color:var(--text-light);margin-top:4px;}
+
+  /* ═══════ CONTROLES ═══════ */
+  .controls{padding:16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  @media(min-width:600px){.controls{padding:20px 24px;}}
+  .filter-btn{padding:8px 16px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;transition:.2s;}
+  .filter-btn.active{background:var(--gold-1);border-color:var(--gold-1);color:white;}
+  .search-input{margin-left:auto;padding:8px 14px;border:1.5px solid var(--gold-light);border-radius:20px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);outline:none;width:160px;}
+  .search-input:focus{border-color:var(--gold-1);}
+  .month-tabs{padding:0 16px 12px;display:flex;gap:8px;flex-wrap:wrap;overflow-x:auto;}
+  @media(min-width:600px){.month-tabs{padding:0 24px 12px;}}
+  .month-tab{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:12px;color:var(--text-light);cursor:pointer;transition:.2s;white-space:nowrap;}
+  .month-tab:hover{border-color:var(--gold-2);color:var(--gold-1);}
+  .month-tab.active{background:var(--gold-2);border-color:var(--gold-2);color:white;font-weight:500;}
+
+  /* ═══════ TURNOS ═══════ */
+  .month-group-header{display:flex;align-items:center;gap:10px;margin:20px 0 10px;}
+  .month-group-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);}
+  .month-group-count{font-size:12px;color:var(--text-light);background:var(--cream-dark);border-radius:10px;padding:2px 8px;}
+  .month-group-line{flex:1;height:1px;background:var(--gold-light);}
+  .turnos-wrap{padding:0 16px 100px;}
+  @media(min-width:600px){.turnos-wrap{padding:0 24px 80px;}}
+  .section-heading{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+  .turno-card{background:var(--white);border-radius:14px;padding:18px;margin-bottom:12px;border:1px solid var(--gold-light);border-left:4px solid var(--gold-light);animation:fadeUp .3s ease;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  .turno-card.pendiente{border-left-color:var(--warning);}
+  .turno-card.confirmado{border-left-color:var(--success);}
+  .turno-card.cancelado{border-left-color:var(--danger);opacity:.65;}
+  .turno-card.realizada{background:#f4f4f2;border-left-color:#b0a89a;opacity:.82;}
+  .turno-card.realizada .turno-date{color:#9a9088;}
+  .turno-card.realizada .info-val{color:#9a9088;}
+  .badge-realizada{background:#ece9e4;color:#9a9088;}
+  .turno-card.conflicto{border:2px solid var(--danger)!important;}
+  .conflicto-badge{background:var(--danger);color:white;font-size:10px;padding:3px 8px;border-radius:10px;font-weight:600;margin-bottom:8px;display:inline-block;}
+  .turno-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;gap:8px;}
+  .turno-date{font-family:'Playfair Display',serif;font-size:16px;color:var(--text);}
+  .turno-time{font-size:13px;color:var(--text-light);margin-top:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+  .status-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap;}
+  .badge-pendiente{background:var(--warning-bg);color:var(--warning);}
+  .badge-confirmado{background:var(--success-bg);color:var(--success);}
+  .badge-cancelado{background:var(--danger-bg);color:var(--danger);}
+  .turno-info{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  .turno-info-item{font-size:13px;}
+  .info-key{color:var(--text-light);font-size:11px;display:block;margin-bottom:2px;}
+  .info-val{color:var(--text);font-weight:500;}
+  .turno-notas{background:var(--cream-dark);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--text-light);margin-bottom:8px;font-style:italic;}
+  .turno-notas-int{background:#fff8e1;border-left:3px solid var(--gold-2);border-radius:0 8px 8px 0;padding:8px 12px;font-size:12px;color:var(--text-light);margin-bottom:14px;}
+  .turno-actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn-action{flex:1;min-width:100px;padding:10px 12px;border-radius:8px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:.2s;text-align:center;}
+  .btn-confirm-action{background:var(--success-bg);color:var(--success);}
+  .btn-confirm-action:hover{background:var(--success);color:white;}
+  .btn-cancel-action{background:var(--danger-bg);color:var(--danger);}
+  .btn-cancel-action:hover{background:var(--danger);color:white;}
+  .btn-whatsapp-action{background:#e8f5ee;color:#25d366;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:4px;}
+  .btn-whatsapp-action:hover{background:#25d366;color:white;}
+  .btn-pago-action{background:var(--cream-dark);color:var(--gold-1);border:1.5px solid var(--gold-light);}
+  .btn-pago-action:hover{background:var(--gold-light);}
+  .turno-id{font-size:11px;color:var(--gold-3);margin-top:8px;}
+  .pago-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;}
+  .pago-badge.saldado{background:var(--success-bg);color:var(--success);}
+  .pago-badge.pendiente-pago{background:var(--warning-bg);color:var(--warning);}
+  .pago-panel{display:none;margin-top:14px;background:var(--cream-dark);border-radius:10px;padding:14px;border:1px solid var(--gold-light);}
+  .pago-titulo{font-family:'Playfair Display',serif;font-size:14px;font-weight:400;color:var(--text);margin-bottom:12px;}
+  .pago-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+  .pago-field label{display:block;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:4px;}
+  .pago-field input{width:100%;padding:9px 11px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
+  .pago-field input:focus{border-color:var(--gold-1);}
+  .pago-resta{display:flex;align-items:center;justify-content:space-between;background:var(--white);border-radius:8px;padding:9px 12px;margin-bottom:10px;border:1px solid var(--gold-light);}
+  .resta-label{font-size:12px;color:var(--text-light);}
+  .resta-val{font-weight:600;font-size:15px;color:var(--text);}
+  .resta-val.saldado{color:var(--success);}
+  .pago-notas-label{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;display:block;margin-bottom:4px;}
+  .pago-notas{width:100%;padding:9px 11px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;resize:none;height:68px;margin-bottom:10px;}
+  .pago-notas:focus{border-color:var(--gold-1);}
+  .pago-save-btn{width:100%;padding:11px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:.2s;}
+  .pago-save-btn:hover{opacity:.9;}
+  .pago-save-btn.saved{background:var(--success);}
+
+  /* ═══════ CONFIG ═══════ */
+  .config-screen{display:none;padding:0 0 80px;}
+  .config-screen.show{display:block;}
+  .config-header{background:var(--cream-dark);border-bottom:1px solid var(--gold-light);padding:16px 20px;display:flex;align-items:center;gap:12px;}
+  .config-header h2{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--text);flex:1;}
+  .config-back-btn{background:none;border:1.5px solid var(--gold-light);border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text-light);cursor:pointer;}
+  .config-back-btn:hover{border-color:var(--gold-1);color:var(--gold-1);}
+  .config-body{padding:20px;}
+  .config-section-title{font-family:'Playfair Display',serif;font-size:16px;font-weight:400;color:var(--text);margin-bottom:6px;}
+  .config-section-sub{font-size:13px;color:var(--text-light);margin-bottom:16px;line-height:1.5;}
+  .cfg-cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+  .cfg-cal-month{font-family:'Playfair Display',serif;font-size:17px;color:var(--text);}
+  .cfg-cal-nav{background:none;border:1px solid var(--gold-light);border-radius:8px;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--gold-1);display:flex;align-items:center;justify-content:center;}
+  .cfg-cal-nav:hover{background:var(--cream-dark);}
+  .cfg-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px;}
+  .cfg-day-name{text-align:center;font-size:10px;color:var(--text-light);padding:4px 0;text-transform:uppercase;}
+  .cfg-day{aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:8px;font-size:12px;cursor:pointer;border:2px solid transparent;color:var(--text);transition:.15s;position:relative;gap:2px;}
+  .cfg-day.empty{cursor:default;}.cfg-day.past{color:var(--gold-light);cursor:default;}
+  .cfg-day:hover:not(.empty):not(.past){background:var(--cream-dark);border-color:var(--gold-2);}
+  .cfg-day.selected-day{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);font-weight:600;}
+  .cfg-day.partial{background:var(--warning-bg);border-color:var(--warning);}
+  .cfg-day.has-extra{background:var(--success-bg);border-color:var(--success);}
+  .cfg-dot{width:4px;height:4px;border-radius:50%;}
+  .cfg-dot.bloq{background:var(--danger);}.cfg-dot.part{background:var(--warning);}.cfg-dot.extra{background:var(--success);}
+  .cfg-day-panel{background:var(--white);border:1px solid var(--gold-light);border-radius:12px;padding:16px;margin-bottom:16px;display:none;}
+  .cfg-day-panel.show{display:block;animation:fadeUp .2s ease;}
+  .cfg-day-panel h4{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:var(--text);margin-bottom:12px;border-bottom:1px solid var(--gold-light);padding-bottom:8px;}
+  .cfg-opts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+  .cfg-opt-btn{padding:9px 14px;border-radius:8px;border:1.5px solid var(--gold-light);background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;transition:.2s;}
+  .cfg-opt-btn:hover{border-color:var(--gold-1);}
+  .cfg-opt-btn.active-block{background:var(--danger-bg);border-color:var(--danger);color:var(--danger);}
+  .cfg-slot-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+  .cfg-slot{padding:10px 6px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);cursor:pointer;text-align:center;transition:.2s;}
+  .cfg-slot:hover{border-color:var(--warning);}
+  .cfg-slot.bloqueado{background:var(--warning-bg);border-color:var(--warning);color:var(--warning);font-weight:500;}
+  .cfg-extra-section{margin-top:14px;padding-top:14px;border-top:1px dashed var(--gold-light);}
+  .cfg-extra-title{font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--success);font-weight:600;margin-bottom:10px;}
+  .cfg-extra-row{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+  .cfg-extra-input{flex:1;padding:9px 12px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;text-align:center;}
+  .cfg-extra-input:focus{border-color:var(--success);}
+  .cfg-extra-add-btn{padding:9px 14px;background:var(--success-bg);color:var(--success);border:1.5px solid var(--success);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .cfg-extra-add-btn:hover{background:var(--success);color:white;}
+  .cfg-extra-list{display:flex;flex-wrap:wrap;gap:8px;}
+  .cfg-extra-tag{display:inline-flex;align-items:center;gap:5px;padding:5px 10px;background:var(--success-bg);border:1.5px solid var(--success);border-radius:20px;font-size:12px;color:var(--success);font-weight:500;}
+  .cfg-extra-tag-del{background:none;border:none;cursor:pointer;color:var(--success);font-size:14px;line-height:1;padding:0 2px;}
+  .cfg-extra-tag-del:hover{color:var(--danger);}
+  .cfg-extra-error{font-size:12px;color:var(--danger);margin-top:4px;display:none;}
+  .bloqueos-lista{margin-bottom:16px;}
+  .bloqueo-item{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--white);border:1px solid var(--gold-light);border-radius:10px;margin-bottom:8px;font-size:13px;}
+  .bloqueo-info{flex:1;}
+  .bloqueo-tipo{font-size:10px;padding:2px 7px;border-radius:10px;font-weight:600;margin-left:6px;}
+  .btipo-dia{background:var(--danger-bg);color:var(--danger);}
+  .btipo-slot{background:var(--warning-bg);color:var(--warning);}
+  .btipo-extra{background:var(--success-bg);color:var(--success);}
+  .bloqueo-del{background:none;border:none;color:var(--text-light);cursor:pointer;font-size:16px;padding:4px 8px;border-radius:6px;}
+  .bloqueo-del:hover{background:var(--danger-bg);color:var(--danger);}
+  .empty-bloqueos{text-align:center;padding:24px;color:var(--text-light);font-size:14px;}
+  .cfg-confirm-wrap{background:var(--cream-dark);border-radius:12px;padding:16px;border:1.5px solid var(--gold-light);}
+  .cfg-confirm-wrap label{display:block;font-size:12px;color:var(--text-light);margin-bottom:8px;line-height:1.5;}
+  .cfg-confirm-wrap label strong{color:var(--text);}
+  .cfg-confirm-input{width:100%;padding:12px 14px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--text);outline:none;text-align:center;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;}
+  .cfg-confirm-input:focus{border-color:var(--gold-1);}
+  .cfg-save-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:.2s;}
+  .cfg-save-btn:hover{opacity:.9;}
+  .cfg-save-btn:disabled{background:var(--gold-light);cursor:not-allowed;}
+  .cfg-feedback{font-size:13px;text-align:center;margin-top:8px;min-height:18px;}
+  .cfg-feedback.ok{color:var(--success);}.cfg-feedback.err{color:var(--danger);}
+
+  /* ═══════ IA ═══════ */
+  .ai-screen{display:none;flex-direction:column;height:calc(100vh - 53px);}
+  .ai-screen.show{display:flex;}
+  .ai-header{background:linear-gradient(135deg,#1e2340,#2d1f45);padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(150,120,220,0.3);}
+  .ai-header-icon{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#5b4db8,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+  .ai-header-info h3{font-family:'Playfair Display',serif;font-size:15px;font-weight:400;color:#e8e0f8;margin-bottom:1px;}
+  .ai-header-info p{font-size:11px;color:#9b8fc0;}
+  .ai-back-btn{background:rgba(255,255,255,0.08);color:#c9b8f0;border:1px solid rgba(150,120,220,0.3);border-radius:8px;padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;margin-left:auto;}
+  .ai-back-btn:hover{background:rgba(255,255,255,0.15);}
+  .ai-resumen{background:linear-gradient(135deg,#1a2035,#251a35);border-bottom:1px solid rgba(150,120,220,0.2);padding:12px 20px;flex-shrink:0;}
+  .ai-resumen-titulo{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#7c6fa0;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .ai-resumen-content{font-size:13px;color:#c9b8f0;line-height:1.6;min-height:36px;}
+  .ai-resumen-content.loading{color:#6b5f8a;font-style:italic;}
+  .ai-resumen-refresh{background:none;border:none;color:#7c6fa0;font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;margin-left:auto;}
+  .ai-resumen-refresh:hover{color:#c9b8f0;}
+  .ai-messages{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:#141824;}
+  .ai-msg{display:flex;gap:8px;animation:fadeUp .25s ease;}
+  .ai-msg.user{flex-direction:row-reverse;}
+  .ai-msg-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;margin-top:2px;}
+  .ai-msg.ai .ai-msg-avatar{background:linear-gradient(135deg,#5b4db8,#8b5cf6);}
+  .ai-msg.user .ai-msg-avatar{background:linear-gradient(135deg,var(--gold-1),var(--gold-2));}
+  .ai-msg-bubble{max-width:82%;padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.55;}
+  .ai-msg.ai .ai-msg-bubble{background:#1e2545;color:#d4c8f0;border-radius:4px 14px 14px 14px;}
+  .ai-msg.user .ai-msg-bubble{background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border-radius:14px 4px 14px 14px;}
+  .ai-typing::after{content:'...';animation:dots 1s infinite steps(3);}
+  @keyframes dots{0%{content:'.';}33%{content:'..';}66%{content:'...';}100%{content:'...';}}
+  .ai-accion-card{background:#1a2a1a;border:1px solid #3a5a3a;border-radius:10px;padding:12px;margin-top:8px;}
+  .ai-accion-title{font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:#7cad96;margin-bottom:6px;font-weight:600;}
+  .ai-accion-detail{font-size:13px;color:#a8d4b0;margin-bottom:10px;line-height:1.5;}
+  .ai-accion-btns{display:flex;gap:8px;}
+  .ai-accion-ok{flex:1;padding:8px;background:var(--success);color:white;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;}
+  .ai-accion-ok:hover{opacity:.85;}
+  .ai-accion-cancel{flex:1;padding:8px;background:rgba(255,255,255,0.07);color:#9b8fc0;border:1px solid rgba(150,120,220,0.2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+  .ai-accion-cancel:hover{background:rgba(255,255,255,0.12);}
+  .ai-suggestions{padding:8px 14px;background:#141824;border-top:1px solid #1e2545;display:flex;gap:6px;overflow-x:auto;flex-shrink:0;}
+  .ai-sug{padding:6px 11px;background:#1e2545;border:1px solid #2d3570;border-radius:20px;color:#9b8fc0;font-size:11px;cursor:pointer;white-space:nowrap;transition:.2s;}
+  .ai-sug:hover{background:#2d3570;color:#c9b8f0;}
+  .ai-clip-btn{width:40px;height:40px;background:#1e2545;border:1px solid #2d3570;border-radius:10px;cursor:pointer;font-size:17px;flex-shrink:0;color:#c9b8f0;}
+  .ai-adjunto{display:flex;align-items:center;gap:8px;padding:8px 14px 0;background:#141824;}
+  .ai-adjunto img{height:56px;max-width:120px;object-fit:cover;border-radius:8px;border:1px solid #2d3570;}
+  .ai-adjunto span{font-size:12px;color:#9b8fc0;flex:1;}
+  .ai-adjunto button{background:none;border:1px solid #2d3570;color:#c9b8f0;border-radius:8px;padding:4px 9px;cursor:pointer;}
+  .ai-msg-img{display:block;max-width:180px;max-height:220px;border-radius:10px;margin-bottom:6px;}
+  .ai-input-wrap{padding:10px 14px;background:#141824;border-top:1px solid #1e2545;display:flex;gap:8px;align-items:flex-end;flex-shrink:0;}
+  .ai-input{flex:1;padding:10px 13px;background:#1e2545;border:1px solid #2d3570;border-radius:12px;color:#e8e0f8;font-family:'DM Sans',sans-serif;font-size:13px;outline:none;resize:none;max-height:90px;min-height:40px;line-height:1.4;}
+  .ai-input:focus{border-color:#5b4db8;}
+  .ai-input::placeholder{color:#4a4070;}
+  .ai-send-btn{width:40px;height:40px;background:linear-gradient(135deg,#5b4db8,#8b5cf6);border:none;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+  .ai-send-btn:hover{opacity:.85;}
+  .ai-send-btn:disabled{opacity:.4;cursor:not-allowed;}
+
+  /* ═══════ MISC ═══════ */
+  .debug-box{background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:12px 16px;margin:12px 16px;font-size:12px;color:#5d4037;white-space:pre-wrap;display:none;}
+  .refresh-btn{background:var(--panel-bg);color:#e8c4b8;border:none;border-radius:8px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;margin-left:auto;display:flex;align-items:center;gap:6px;}
+  .refresh-btn:hover{opacity:.85;}
+  .empty-state{text-align:center;padding:60px 24px;color:var(--text-light);}
+  .empty-state .empty-icon{font-size:40px;margin-bottom:12px;}
+  .modal-overlay{position:fixed;inset:0;background:rgba(44,31,26,0.6);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+  .modal-overlay.show{display:flex;}
+  .modal{background:var(--cream);border-radius:20px;padding:28px;max-width:360px;width:100%;}
+  .modal h3{font-family:'Playfair Display',serif;font-size:20px;font-weight:400;color:var(--text);margin-bottom:8px;}
+  .modal p{font-size:14px;color:var(--text-light);margin-bottom:20px;line-height:1.6;}
+  .modal-btns{display:flex;gap:10px;}
+  .modal-btns button{flex:1;padding:12px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;cursor:pointer;}
+  .modal-cancel-btn{background:var(--cream-dark);color:var(--text-light);}
+  .modal-confirm-btn{background:var(--danger);color:white;}
+  .loading-bar{height:3px;background:linear-gradient(90deg,var(--gold-1),var(--gold-2));position:fixed;top:0;left:0;z-index:300;width:0%;}
+  .loading-bar.loading{animation:load-bar 1.5s ease infinite;}
+  @keyframes load-bar{0%{width:0%;}50%{width:70%;}100%{width:100%;}}
+  /* ═══════ ARREGLOS FASE 1 ═══════ */
+  .pasadas-divider{display:flex;align-items:center;gap:10px;margin:28px 0 6px;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-light);}
+  .pasadas-divider::before,.pasadas-divider::after{content:'';flex:1;height:1px;background:var(--gold-light);}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);width:max-content;max-width:92%;background:#2c1f1a;color:#f5ece0;padding:12px 16px;border-radius:12px;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:400;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.ok{background:#2f5b47;}
+  .toast.err{background:#8a3424;}
+  .toast.warn{background:#7a5a1a;}
+  .sesion-card,.turno-card,.ai-msg-bubble,.ai-accion-detail{overflow-wrap:anywhere;}
+  /* ═══════ SERVIDOR V2: acceso, seña, nuevo turno, ajustes ═══════ */
+  .login-card p{margin-bottom:22px;}
+  .login-card input{letter-spacing:1px;}
+  .login-check{display:flex;align-items:center;justify-content:center;gap:8px;font-size:13px;color:var(--text-light);margin:2px 0 14px;cursor:pointer;}
+  .login-check input{width:auto;margin:0;}
+  .login-link{background:none;border:none;color:var(--gold-1);font-family:'DM Sans',sans-serif;font-size:13px;margin-top:16px;cursor:pointer;text-decoration:underline;}
+  .login-ok{color:var(--success);font-size:13px;margin-top:10px;line-height:1.5;}
+  .login-error{line-height:1.5;}
+  .sena-badge{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:10px;font-size:11px;font-weight:600;margin:0 0 10px;}
+  .sb-esperando{background:var(--warning-bg);color:#9a7420;}
+  .sb-vencida{background:var(--danger-bg);color:var(--danger);}
+  .sb-recibida{background:var(--success-bg);color:#4f8a6f;}
+  .sb-asegurada{background:#e9eef7;color:#4d6390;}
+  .btn-sena-action{background:#e8f5ee;color:#3f7d61;border:1.5px solid var(--success);}
+  .btn-sena-action:hover{background:var(--success);color:white;}
+  .btn-mover-action{background:var(--white);color:var(--text-light);border:1.5px solid var(--gold-light);}
+  .btn-mover-action:hover{border-color:var(--gold-1);color:var(--gold-1);}
+  .turno-nota-sinid{font-size:12px;color:var(--danger);margin-bottom:10px;}
+  .nuevo-btn{background:linear-gradient(135deg,var(--gold-1),var(--gold-2));color:white;border:none;border-radius:8px;padding:8px 14px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;}
+  .nuevo-btn:hover{opacity:.9;}
+  .section-heading .refresh-btn{margin-left:0;}
+  .section-heading span:first-child{margin-right:auto;}
+  .nt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .nt-field{margin-bottom:12px;}
+  .nt-field label{display:block;font-size:10px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:4px;}
+  .nt-field input,.nt-field select,.nt-field textarea{width:100%;padding:10px 12px;border:1.5px solid var(--gold-light);border-radius:8px;background:var(--white);font-family:'DM Sans',sans-serif;font-size:14px;color:var(--text);outline:none;}
+  .nt-field input:focus,.nt-field select:focus,.nt-field textarea:focus{border-color:var(--gold-1);}
+  .nt-field textarea{resize:vertical;min-height:64px;}
+  .nt-modos{display:flex;flex-direction:column;gap:6px;}
+  .nt-field .nt-modo{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--text);background:var(--white);border:1.5px solid var(--gold-light);border-radius:8px;padding:9px 12px;margin:0;cursor:pointer;text-transform:none;letter-spacing:0;font-weight:400;}
+  .nt-field .nt-modo input{width:auto;margin:0;flex-shrink:0;}
+  .turno-actions .btn-action{overflow-wrap:normal;}
+  .login-card p{line-height:1.5;}
+  .nt-aviso{font-size:12px;color:var(--danger);margin:-4px 0 10px;min-height:0;}
+  .cfg-card{background:var(--white);border:1px solid var(--gold-light);border-radius:14px;padding:16px;margin-top:20px;}
+  .aj-avanzado{margin:4px 0 12px;}
+  .aj-avanzado summary{cursor:pointer;font-size:13px;color:var(--gold-1);margin-bottom:10px;}
+  .modal .nt-field{text-align:left;}
+  .modal-ok-btn{background:linear-gradient(135deg,var(--gold-1),var(--gold-2))!important;color:white;}
+  #mg-texto{white-space:pre-line;}
+</style>
+</head>
+<body>
+<div class="loading-bar" id="loading-bar"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ═══════ LOGIN ═══════ -->
+<div class="login-screen" id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">&#10022; Estudio Fotoinfantil</div>
+    <h1>Panel de Control</h1>
+    <div id="login-form">
+      <p>Ingres&#225; el c&#243;digo de acceso</p>
+      <input type="password" id="pwd-input" placeholder="C&#243;digo de acceso" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()">
+      <label class="login-check"><input type="checkbox" id="login-recordar" checked> Recordar este dispositivo (30 d&#237;as)</label>
+      <button class="login-btn" id="login-btn" onclick="doLogin()">Ingresar</button>
+      <div class="login-ok" id="login-ok"></div>
+      <div class="login-error" id="login-error"></div>
+      <button class="login-link" type="button" onclick="mostrarRecuperar()">Olvid&#233; el c&#243;digo</button>
+    </div>
+    <div id="recuperar-form" style="display:none">
+      <p>Te mandamos un c&#243;digo de 6 n&#250;meros a los correos del estudio para elegir un c&#243;digo de acceso nuevo.</p>
+      <button class="login-btn" id="rec-enviar-btn" onclick="pedirCodigoMail()">Enviar c&#243;digo por mail</button>
+      <div id="rec-paso2" style="display:none;margin-top:16px">
+        <input type="text" id="rec-codigo" inputmode="numeric" maxlength="6" placeholder="C&#243;digo del mail (6 n&#250;meros)" autocomplete="one-time-code">
+        <input type="password" id="rec-nuevo" placeholder="C&#243;digo de acceso nuevo (m&#237;n. 8)" autocomplete="new-password">
+        <input type="password" id="rec-nuevo2" placeholder="Repet&#237; el c&#243;digo nuevo" autocomplete="new-password" onkeydown="if(event.key==='Enter')restablecerCodigo()">
+        <button class="login-btn" id="rec-guardar-btn" onclick="restablecerCodigo()">Guardar y entrar</button>
+      </div>
+      <div class="login-ok" id="rec-ok"></div>
+      <div class="login-error" id="rec-error"></div>
+      <button class="login-link" type="button" onclick="mostrarLogin()">&#8592; Volver</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ ADMIN PANEL ═══════ -->
+<div class="admin-panel" id="admin-panel">
+
+  <div class="admin-header">
+    <div><h1>Panel de Control</h1><span class="studio-sub">Estudio &middot; Gesti&#243;n</span></div>
+    <div class="header-btns">
+      <button class="ai-btn" onclick="showAI()">&#129302; IA</button>
+      <button class="config-btn" onclick="showConfig()">&#9881; Config</button>
+      <button class="logout-btn" onclick="doLogout()">Salir</button>
+    </div>
+  </div>
+
+  <!-- VISTA TURNOS -->
+  <div id="turnos-view">
+
+    <!-- ═══ PANEL SESIONES DEL DÍA ═══ -->
+    <div class="daily-panel" id="daily-panel">
+      <div class="daily-header">
+        <div class="daily-header-icon">📷</div>
+        <div class="daily-header-text">
+          <h2>Sesiones del d&#237;a</h2>
+          <p>Estudio Fotoinfantil</p>
+        </div>
+        <div class="daily-header-date">
+          <div class="date-num" id="dp-fecha-num">--</div>
+          <div class="date-mes" id="dp-fecha-mes">--</div>
+        </div>
+      </div>
+      <div class="daily-sections">
+        <div class="daily-section">
+          <div class="section-label">
+            <div class="section-label-dot dot-today"></div>
+            <span class="section-label-text">Hoy</span>
+            <span class="section-label-count" id="dp-count-hoy">...</span>
+          </div>
+          <div id="dp-list-hoy">
+            <div class="shimmer-card"><div class="shimmer-line" style="width:40%;margin-bottom:8px;"></div><div class="shimmer-line" style="width:70%;margin-bottom:6px;"></div><div class="shimmer-line" style="width:55%;"></div></div>
+            <div class="shimmer-card"><div class="shimmer-line" style="width:35%;margin-bottom:8px;"></div><div class="shimmer-line" style="width:65%;margin-bottom:6px;"></div><div class="shimmer-line" style="width:50%;"></div></div>
+          </div>
+        </div>
+        <div class="daily-section">
+          <div class="section-label">
+            <div class="section-label-dot dot-tomorrow"></div>
+            <span class="section-label-text">Ma&#241;ana</span>
+            <span class="section-label-count" id="dp-count-maniana">...</span>
+          </div>
+          <div id="dp-list-maniana">
+            <div class="shimmer-card"><div class="shimmer-line" style="width:40%;margin-bottom:8px;"></div><div class="shimmer-line" style="width:65%;margin-bottom:6px;"></div><div class="shimmer-line" style="width:50%;"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="warm-note" id="dp-warm-note" style="display:none;">
+        <span class="warm-note-icon">&#10024;</span>
+        <span class="warm-note-text" id="dp-warm-text"></span>
+      </div>
+    </div>
+    <!-- FIN PANEL SESIONES DEL DÍA -->
+
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">Próximas este mes</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-pending">0</div><div class="stat-label">Pendientes</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-confirmed">0</div><div class="stat-label">Confirmadas</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-cancelled">0</div><div class="stat-label">Canceladas</div></div>
+    </div>
+    <div class="controls">
+      <button class="filter-btn active" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" onclick="setFilter('pendiente',this)">Pendientes</button>
+      <button class="filter-btn" onclick="setFilter('sena',this)">Se&#241;a pendiente</button>
+      <button class="filter-btn" onclick="setFilter('confirmado',this)">Confirmados</button>
+      <button class="filter-btn" onclick="setFilter('cancelado',this)">Cancelados</button>
+      <input class="search-input" type="text" id="search-input" placeholder="Buscar..." oninput="renderTurnos()">
+    </div>
+    <div id="month-tabs" class="month-tabs"></div>
+    <div class="debug-box" id="debug-box"></div>
+    <div class="turnos-wrap">
+      <div class="section-heading"><span>Reservas</span><button class="nuevo-btn" onclick="showNuevo()">&#10133; Nuevo turno</button><button class="refresh-btn" onclick="loadData()">&#8635; Actualizar</button></div>
+      <div id="turnos-list"></div>
+    </div>
+  </div>
+
+  <!-- CONFIG -->
+  <div class="config-screen" id="config-screen">
+    <div class="config-header">
+      <button class="config-back-btn" onclick="hideConfig()">&#8592; Volver</button>
+      <h2>&#9881;&#65039; Configuraci&#243;n</h2>
+    </div>
+    <div class="config-body">
+      <div class="config-section-title">Gesti&#243;n de d&#237;as y horarios</div>
+      <div class="config-section-sub">
+        <span style="color:var(--danger);font-weight:500;">&#9632; Rojo</span> = d&#237;a bloqueado &nbsp;
+        <span style="color:var(--warning);font-weight:500;">&#9632; Naranja</span> = horario bloqueado &nbsp;
+        <span style="color:var(--success);font-weight:500;">&#9632; Verde</span> = horario extra
+      </div>
+      <div class="cfg-cal-header">
+        <button class="cfg-cal-nav" onclick="cfgPrevMonth()">&#8249;</button>
+        <div class="cfg-cal-month" id="cfg-cal-month"></div>
+        <button class="cfg-cal-nav" onclick="cfgNextMonth()">&#8250;</button>
+      </div>
+      <div class="cfg-cal-grid" id="cfg-cal-grid"></div>
+      <div class="cfg-day-panel" id="cfg-day-panel">
+        <h4 id="cfg-day-panel-title">D&#237;a seleccionado</h4>
+        <div class="cfg-opts">
+          <button class="cfg-opt-btn" id="btn-blq-dia" onclick="toggleBloquearDia()">&#128683; Bloquear d&#237;a completo</button>
+        </div>
+        <div id="cfg-slots-wrap" style="display:none">
+          <div style="font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:var(--gold-1);font-weight:500;margin-bottom:8px;">Bloquear horarios normales</div>
+          <div class="cfg-slot-grid" id="cfg-slot-grid"></div>
+        </div>
+        <div class="cfg-extra-section" id="cfg-extra-section" style="display:none">
+          <div class="cfg-extra-title">&#10024; Agregar horario especial</div>
+          <div class="cfg-extra-row">
+            <input type="text" class="cfg-extra-input" id="cfg-extra-input" placeholder="Ej: 15:00" maxlength="5" oninput="formatExtraInput(this)" onkeydown="if(event.key==='Enter')agregarSlotExtra()">
+            <button class="cfg-extra-add-btn" onclick="agregarSlotExtra()">+ Agregar</button>
+          </div>
+          <div class="cfg-extra-error" id="cfg-extra-error">Formato inv&#225;lido. Us&#225; HH:MM</div>
+          <div class="cfg-extra-list" id="cfg-extra-list"></div>
+        </div>
+      </div>
+      <div class="config-section-title" style="margin-top:8px;">Cambios activos</div>
+      <div class="bloqueos-lista" id="bloqueos-lista"></div>
+      <div class="cfg-confirm-wrap">
+        <label>Para guardar, escrib&#237; <strong>CONFIRMAR</strong>:</label>
+        <input type="text" class="cfg-confirm-input" id="cfg-confirm-input" placeholder="CONFIRMAR" oninput="checkConfirmWord()">
+        <button class="cfg-save-btn" id="cfg-save-btn" onclick="guardarConfig()" disabled>Guardar cambios</button>
+        <div class="cfg-feedback" id="cfg-feedback"></div>
+      </div>
+      <div class="cfg-card" id="ajustes-card">
+        <div class="config-section-title">&#128176; Se&#241;a y reservas web</div>
+        <div class="config-section-sub">Lo que ve la mam&#225; al reservar desde la web. Si no recibimos la se&#241;a en el plazo, el horario se libera solo (solo en reservas hechas desde la web).</div>
+        <div class="nt-grid">
+          <div class="nt-field"><label>Se&#241;a ($)</label><input type="number" id="aj-senaMonto" inputmode="numeric"></div>
+          <div class="nt-field"><label>Plazo (horas)</label><input type="number" id="aj-senaHoras" inputmode="numeric"></div>
+        </div>
+        <div class="nt-field"><label>Alias para transferir</label><input type="text" id="aj-alias" placeholder="ej: estudio.foto.mp"></div>
+        <div class="nt-field"><label>WhatsApp del estudio (con 54, sin +)</label><input type="tel" id="aj-whatsappEstudio"></div>
+        <div class="nt-field"><label>Aviso por mail de cada reserva web</label><select id="aj-avisoReservaMail"><option value="si">S&#237;</option><option value="no">No</option></select></div>
+        <details class="aj-avanzado"><summary>Horarios y tipos de sesi&#243;n de la web</summary>
+          <div class="nt-field"><label>Horarios de lunes a viernes</label><input type="text" id="aj-grillaSemana" placeholder="18:00,19:00"></div>
+          <div class="nt-field"><label>Horarios de los s&#225;bados</label><input type="text" id="aj-grillaSabado" placeholder="10:00,11:00,13:00,14:00"></div>
+          <div class="nt-field"><label>D&#237;as m&#237;nimos de anticipaci&#243;n</label><input type="number" id="aj-minDias" inputmode="numeric"></div>
+          <div class="nt-field"><label>Tipos de sesi&#243;n (separados por coma)</label><input type="text" id="aj-tiposSesion"></div>
+        </details>
+        <button class="cfg-save-btn" id="aj-guardar" onclick="guardarAjustes()">Guardar ajustes</button>
+        <div class="cfg-feedback" id="aj-feedback"></div>
+      </div>
+      <div class="cfg-card">
+        <div class="config-section-title">&#128190; Copia de seguridad</div>
+        <div class="config-section-sub">Todos los d&#237;as a las 3 a. m. se guarda una copia de la planilla en Drive (carpeta &#171;Respaldos Estudio Infantil&#187;; quedan las &#250;ltimas 30).</div>
+        <button class="cfg-opt-btn" id="copia-btn" onclick="copiaAhora()">Hacer una copia ahora</button>
+        <div class="cfg-feedback" id="copia-feedback"></div>
+      </div>
+      <div class="cfg-card">
+        <div class="config-section-title">&#128273; C&#243;digo de acceso</div>
+        <div class="config-section-sub">Es uno solo para los dos. Al cambiarlo se cierran las sesiones de los otros dispositivos y les llega un aviso por mail.</div>
+        <div class="nt-field"><label>C&#243;digo actual</label><input type="password" id="cc-actual" autocomplete="current-password"></div>
+        <div class="nt-field"><label>C&#243;digo nuevo (m&#237;nimo 8 caracteres)</label><input type="password" id="cc-nuevo" autocomplete="new-password"></div>
+        <div class="nt-field"><label>Repet&#237; el c&#243;digo nuevo</label><input type="password" id="cc-nuevo2" autocomplete="new-password"></div>
+        <button class="cfg-save-btn" id="cc-guardar" onclick="cambiarCodigo()">Cambiar c&#243;digo</button>
+        <div class="cfg-feedback" id="cc-feedback"></div>
+        <button class="cfg-opt-btn" style="margin-top:14px" onclick="cerrarTodas()">Cerrar sesi&#243;n en todos los dispositivos</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- NUEVO TURNO -->
+  <div class="config-screen" id="nuevo-screen">
+    <div class="config-header">
+      <button class="config-back-btn" onclick="hideNuevo()">&#8592; Volver</button>
+      <h2>&#10133; Nuevo turno</h2>
+    </div>
+    <div class="config-body">
+      <div class="config-section-sub">Para turnos que arreglan por WhatsApp o en persona. Los que cargan ustedes nunca se liberan solos.</div>
+      <div class="nt-grid">
+        <div class="nt-field"><label>Fecha *</label><input type="date" id="nt-fecha" onchange="ntActualizarHorarios()"></div>
+        <div class="nt-field"><label>Horario *</label><select id="nt-horario-sel" onchange="ntHorarioSel()"></select><input type="time" id="nt-horario-otro" style="display:none;margin-top:6px" onchange="ntRevisarChoque()"></div>
+      </div>
+      <div class="nt-aviso" id="nt-aviso"></div>
+      <div class="nt-field"><label>Tipo de sesi&#243;n *</label><select id="nt-tipo"></select></div>
+      <div class="nt-field"><label>Tem&#225;tica</label><input type="text" id="nt-tematica"></div>
+      <div class="nt-field"><label>Nombre del beb&#233; *</label><input type="text" id="nt-bebe"></div>
+      <div class="nt-field"><label>Cumple meses / a&#241;os</label><input type="date" id="nt-cumple"></div>
+      <div class="nt-field"><label>Nombre de la mam&#225;</label><input type="text" id="nt-mama"></div>
+      <div class="nt-grid">
+        <div class="nt-field"><label>Tel&#233;fono</label><input type="tel" id="nt-tel"></div>
+        <div class="nt-field"><label>WhatsApp</label><input type="tel" id="nt-wa" placeholder="si es distinto"></div>
+      </div>
+      <div class="nt-field"><label>&#191;C&#243;mo queda el turno?</label>
+        <div class="nt-modos">
+          <label class="nt-modo"><input type="radio" name="nt-modo" value="asegurado" checked onchange="ntModo()"> Asegurado sin se&#241;a</label>
+          <label class="nt-modo"><input type="radio" name="nt-modo" value="sena" onchange="ntModo()"> Se&#241;a recibida</label>
+          <label class="nt-modo"><input type="radio" name="nt-modo" value="espera" onchange="ntModo()"> Esperando se&#241;a (queda como recordatorio)</label>
+        </div>
+      </div>
+      <div class="nt-grid">
+        <div class="nt-field" id="nt-sena-wrap" style="display:none"><label>Se&#241;a ($)</label><input type="number" id="nt-sena" inputmode="numeric"></div>
+        <div class="nt-field"><label>Total ($)</label><input type="number" id="nt-total" inputmode="numeric"></div>
+      </div>
+      <div class="nt-field"><label>Notas internas</label><textarea id="nt-notas"></textarea></div>
+      <button class="cfg-save-btn" id="nt-guardar" onclick="guardarNuevoTurno()">Guardar turno</button>
+      <div class="cfg-feedback" id="nt-feedback"></div>
+    </div>
+  </div>
+
+  <!-- IA -->
+  <div class="ai-screen" id="ai-screen">
+    <div class="ai-header">
+      <div class="ai-header-icon">&#129302;</div>
+      <div class="ai-header-info">
+        <h3>Asistente Fotoinfantil</h3>
+        <p>Gemini AI &mdash; Gestion&#225; turnos en lenguaje natural</p>
+      </div>
+      <button class="ai-back-btn" onclick="hideAI()">&#8592; Volver</button>
+    </div>
+    <div class="ai-resumen">
+      <div class="ai-resumen-titulo">
+        <span>&#128197;</span> Resumen de hoy y pr&#243;ximos cumplea&#241;os
+        <button class="ai-resumen-refresh" onclick="cargarResumen()">&#8635;</button>
+      </div>
+      <div class="ai-resumen-content loading" id="ai-resumen-content">Cargando...</div>
+    </div>
+    <div class="ai-messages" id="ai-messages"></div>
+    <div class="ai-suggestions">
+      <button class="ai-sug" onclick="sendSug(this)">Sesiones de hoy</button>
+      <button class="ai-sug" onclick="sendSug(this)">Turnos pendientes</button>
+      <button class="ai-sug" onclick="sendSug(this)">Cumplea&#241;os pr&#243;ximos</button>
+      <button class="ai-sug" onclick="sendSug(this)">Pagos sin cobrar</button>
+      <button class="ai-sug" onclick="sendSug(this)">Bloquear un d&#237;a</button>
+      <button class="ai-sug" onclick="sendSug(this)">Agregar horario extra</button>
+      <button class="ai-sug" onclick="document.getElementById('ai-file').click()">&#128206; Cargar turno desde una imagen</button>
+    </div>
+    <div class="ai-adjunto" id="ai-adjunto" style="display:none"><img id="ai-adjunto-img" alt=""><span>Imagen lista para enviar</span><button type="button" onclick="quitarImagen()">&#10005;</button></div>
+    <div class="ai-input-wrap">
+      <button class="ai-clip-btn" type="button" title="Adjuntar imagen" onclick="document.getElementById('ai-file').click()">&#128206;</button>
+      <input type="file" id="ai-file" accept="image/*" style="display:none" onchange="elegirImagen(this)">
+      <textarea class="ai-input" id="ai-input" placeholder="Pregunt&#225; o ped&#237; un cambio..." rows="1" onkeydown="aiKeydown(event)" oninput="autoResize(this)"></textarea>
+      <button class="ai-send-btn" id="ai-send-btn" onclick="sendMessage()">&#10148;</button>
+    </div>
+  </div>
+
+</div><!-- fin admin-panel -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="cancel-modal">
+  <div class="modal">
+    <h3>&#191;Cancelar este turno?</h3>
+    <p>El turno quedar&#225; marcado como cancelado. Pod&#233;s reactivarlo despu&#233;s.</p>
+    <div class="modal-btns">
+      <button class="modal-cancel-btn" onclick="closeModal()">Volver</button>
+      <button class="modal-confirm-btn" onclick="confirmCancel()">Cancelar turno</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL GENERAL (confirmaciones y datos cortos) -->
+<div class="modal-overlay" id="modal-gen">
+  <div class="modal">
+    <h3 id="mg-titulo"></h3>
+    <p id="mg-texto"></p>
+    <div id="mg-campos"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel-btn" id="mg-cancel" onclick="cerrarModalGen(null)">Volver</button>
+      <button class="modal-confirm-btn" id="mg-ok" onclick="aceptarModalGen()">Aceptar</button>
+    </div>
+  </div>
+</div>
+
+<script src="config.js?v=2"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+// La dirección del servidor está en config.js (la misma para el formulario y el panel).
+// El código de acceso lo controla el servidor: no está escrito en ninguna página.
+var EXT_CONFIG = window.ESTUDIO_CONFIG || {};
+const ADMIN_CONFIG = {
+  SCRIPT_URL: String(EXT_CONFIG.SCRIPT_URL || ''),
+  // Horarios base: se reemplazan por los de la pestaña "Ajustes" al entrar
+  SLOTS_WEEKDAY: ['18:00','19:00'],
+  SLOTS_SATURDAY: ['10:00','11:00','13:00','14:00']
+};
+var ajustes = null;   // seña, alias, horarios… (pestaña "Ajustes" de la planilla)
+var ajustesPromesa = null;   // carga de ajustes en curso (las tarjetas la esperan para armar los mensajes)
+
+var allTurnos = [], currentFilter = 'todos', currentMonth = 'todos';
+var cancelTarget = null, bloqueos = [], pendingAction = null, aiHistory = [];
+var cfgCal = { month: new Date().getMonth(), year: new Date().getFullYear(), selectedDate: null };
+
+// ═══════════════════════════════════════════════════════════
+// SESIÓN Y SERVIDOR
+// ═══════════════════════════════════════════════════════════
+var sesion = { token: '', recordar: false };
+var CLAVE_TOKEN = 'panelEstudioToken';
+function leerTokenGuardado() {
+  try {
+    var t = localStorage.getItem(CLAVE_TOKEN);
+    if (t) return { token: t, recordar: true };
+    t = sessionStorage.getItem(CLAVE_TOKEN);
+    if (t) return { token: t, recordar: false };
+  } catch(e) {}
+  return null;
+}
+function guardarToken(token, recordar) {
+  sesion.token = token || ''; sesion.recordar = !!recordar;
+  try {
+    localStorage.removeItem(CLAVE_TOKEN); sessionStorage.removeItem(CLAVE_TOKEN);
+    if (token) (recordar ? localStorage : sessionStorage).setItem(CLAVE_TOKEN, token);
+  } catch(e) {}
+}
+var ACCIONES_PUBLICAS = ['login', 'recuperar', 'restablecer'];
+
+// Habla con el servidor. Devuelve SIEMPRE su respuesta ({ ok:true, ... } o { ok:false, error }).
+// Solo lanza un error si no hubo conexión (en ese caso no se sabe si llegó).
+async function api(action, datos, ms) {
+  if (ADMIN_CONFIG.SCRIPT_URL.indexOf('https://') !== 0) throw new Error('falta la dirección del servidor en config.js');
+  var body = Object.assign({ action: action, token: sesion.token }, datos || {});
+  var ctrl  = (typeof AbortController !== 'undefined') ? new AbortController() : null;
+  var timer = ctrl ? setTimeout(function() { ctrl.abort(); }, ms || 30000) : null;
+  var data;
+  try {
+    var opts = { method: 'POST', body: JSON.stringify(body) };   // texto plano: la respuesta se puede leer
+    if (ctrl) opts.signal = ctrl.signal;
+    var resp = await fetch(ADMIN_CONFIG.SCRIPT_URL, opts);
+    data = await resp.json();
+  } catch(e) {
+    throw new Error('sin conexión con el servidor');
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+  if (!data || typeof data !== 'object') throw new Error('respuesta vacía del servidor');
+  if (data.ok === false && data.codigo === 'auth' && ACCIONES_PUBLICAS.indexOf(action) < 0 && action !== 'logout') sesionVencida(data.error);
+  return data;
+}
+function sesionVencida(msg) {
+  if (!sesion.token && document.getElementById('login-screen').style.display !== 'none') return;
+  guardarToken('', false);
+  salirDelPanel();
+  mostrarErrorLogin(msg || 'Tu sesión venció. Ingresá el código de nuevo.');
+}
+function idAlAzar() {
+  try {
+    var a = new Uint32Array(4); window.crypto.getRandomValues(a);
+    return Array.prototype.map.call(a, function(n) { return n.toString(36); }).join('');
+  } catch(e) { return String(Math.random()).slice(2) + String(Date.now()); }
+}
+function hashTexto(s) {
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) h = ((h * 33) ^ s.charCodeAt(i)) >>> 0;
+  return h.toString(36);
+}
+
+// ═══════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════
+function cp(n) { return String.fromCodePoint(n); }
+
+// Escapa texto para mostrarlo como HTML: lo que escribe una clienta nunca se ejecuta como código
+function esc(v) {
+  return String(v === undefined || v === null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+// Valor seguro para pasar como argumento dentro de onclick="..."
+function jsArg(v) { return esc(JSON.stringify(String(v === undefined || v === null ? '' : v))); }
+// Fecha local YYYY-MM-DD (antes se usaba la hora UTC: después de las 21 h "hoy" pasaba a ser mañana)
+function fechaLocal(d) {
+  d = d || new Date();
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function fechaValida(f) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(f || ''))) return false;
+  var d = new Date(f + 'T12:00:00');
+  return !isNaN(d) && fechaLocal(d) === f;
+}
+function horaValida(h) { return /^([01]\d|2[0-3]):[0-5]\d$/.test(String(h || '')); }
+function esperar(ms) { return new Promise(function(r) { setTimeout(r, ms); }); }
+// Aviso flotante (abajo de la pantalla)
+var toastTimer = null;
+function toast(msg, tipo) {
+  var el = document.getElementById('toast');
+  if (!el) return;
+  el.textContent = msg;
+  el.className = 'toast show ' + (tipo || '');
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function() { el.className = 'toast'; }, tipo === 'err' ? 9000 : 4500);
+}
+function mismoNumero(a, b) {
+  var x = parseFloat(a), y = parseFloat(b);
+  if (isNaN(x) && isNaN(y)) return String(a === undefined || a === null ? '' : a).trim() === String(b === undefined || b === null ? '' : b).trim();
+  return x === y;
+}
+function mismoTexto(a, b) {
+  return String(a || '').replace(/\r\n/g, '\n').trim() === String(b || '').replace(/\r\n/g, '\n').trim();
+}
+
+function parseHorario(v) {
+  if (!v) return '--';
+  if (typeof v === 'number') {
+    var m = Math.round(v * 24 * 60);
+    return String(Math.floor(m / 60)).padStart(2,'0') + ':' + String(m % 60).padStart(2,'0');
+  }
+  var s = String(v).trim();
+  if (s.startsWith('1899-') || s.startsWith('1900-')) {
+    var d = new Date(s);
+    return String(d.getUTCHours()).padStart(2,'0') + ':' + String(d.getUTCMinutes()).padStart(2,'0');
+  }
+  var h = s.replace('.',':');
+  if (h && !h.includes(':')) h += ':00';
+  return h || '--';
+}
+
+function parseFecha(v) {
+  if (!v) return '';
+  var s = String(v).trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (s.includes('T')) return s.split('T')[0];
+  if (s.includes('/')) {
+    var p = s.split('/');
+    if (p.length === 3) return p[2] + '-' + p[1].padStart(2,'0') + '-' + p[0].padStart(2,'0');
+  }
+  return s;
+}
+
+function normalizeReserva(row, idx) {
+  var g = function(k) {
+    for (var i = 0; i < k.length; i++) {
+      if (row[k[i]] !== undefined && row[k[i]] !== null && row[k[i]] !== '') return row[k[i]];
+    }
+    return '';
+  };
+  var estado = String(g(['estado','Estado']) || 'PENDIENTE').toUpperCase().trim();
+  if (!['PENDIENTE','CONFIRMADO','CANCELADO'].includes(estado)) estado = 'PENDIENTE';
+  var ts = g(['timestamp','Timestamp']);
+  if (ts instanceof Date) ts = ts.toISOString();
+  if (!ts) ts = '';   // sin fecha de alta en la planilla: no se inventa la de hoy
+  return {
+    id: String(g(['id','ID']) || 'T' + String(idx + 1).padStart(3,'0')),
+    timestamp: String(ts),
+    fecha: parseFecha(g(['fecha','Fecha'])),
+    horario: parseHorario(g(['horario','Horario'])),
+    tipoSesion: String(g(['tipoSesion','TipoSesion']) || '--'),
+    tematica: String(g(['tematica','Tematica']) || ''),
+    nombreBebe: String(g(['nombreBebe','NombreBebe']) || '--'),
+    cumpleBebe: parseFecha(g(['cumpleBebe','CumpleBebe'])),
+    nombreMama: String(g(['nombreMama','NombreMama']) || '--'),
+    estado,
+    telefono: String(g(['telefono','Telefono']) || ''),
+    whatsapp: String(g(['whatsapp','Whatsapp','WhatsApp']) || g(['telefono','Telefono']) || ''),
+    notas: String(g(['notas','Notas']) || ''),
+    senya: String(g(['senya','Senya']) || ''),
+    total: String(g(['total','Total']) || ''),
+    resta: String(g(['resta','Resta']) || ''),
+    notasInternas: String(g(['notasInternas','NotasInternas']) || ''),
+    sena: row.sena && typeof row.sena === 'object' ? row.sena : null,   // seguimiento de la seña (reservas nuevas)
+    sinId: !g(['id','ID'])
+  };
+}
+
+// ¿Esta reserva ocupa su horario? (las de la web con la seña vencida lo liberan solas)
+function ocupa(t) {
+  if (t.estado === 'CANCELADO') return false;
+  return !(t.sena && t.sena.origen === 'clienta' && t.sena.estado === 'vencida');
+}
+function esperandoSena(t) {
+  return t.estado === 'PENDIENTE' && !!t.sena && (t.sena.estado === 'esperando' || t.sena.estado === 'vencida');
+}
+function pesos(n) { var x = parseFloat(n); return '$' + (isNaN(x) ? '0' : x.toLocaleString('es-AR')); }
+function fechaHoraCorta(iso) {
+  var d = new Date(iso);
+  if (isNaN(d)) return '';
+  return String(d.getDate()).padStart(2,'0') + '/' + String(d.getMonth() + 1).padStart(2,'0') + ' ' +
+         String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0');
+}
+function filtrarPorEstado(list) {
+  if (currentFilter === 'sena') return list.filter(esperandoSena);
+  if (currentFilter !== 'todos') return list.filter(function(t) { return t.estado.toLowerCase() === currentFilter; });
+  return list;
+}
+// Etiqueta de la seña en la tarjeta (solo reservas hechas con el servidor nuevo)
+function badgeSena(t) {
+  var s = t.sena;
+  if (!s || !s.estado || t.estado === 'CANCELADO') return '';
+  var monto = parseFloat(t.senya) > 0 ? ' · ' + esc(pesos(t.senya)) : '';
+  if (s.estado === 'recibida' || (s.estado === 'asegurada' && parseFloat(t.senya) > 0)) return '<div class="sena-badge sb-recibida">&#10003; Se&#241;a recibida' + monto + '</div>';
+  if (s.estado === 'asegurada') return '<div class="sena-badge sb-asegurada">&#128274; Asegurado sin se&#241;a</div>';
+  var vence = s.vence ? fechaHoraCorta(s.vence) : '';
+  if (s.estado === 'esperando') return '<div class="sena-badge sb-esperando">&#9203; Esperando se&#241;a' + (vence ? ' · vence ' + esc(vence) : '') + '</div>';
+  if (s.estado === 'vencida') return s.origen === 'clienta'
+    ? '<div class="sena-badge sb-vencida">&#8987; Se&#241;a vencida · el horario se liber&#243;</div>'
+    : '<div class="sena-badge sb-esperando">&#9203; Se&#241;a pendiente (pas&#243; el plazo)</div>';
+  return '';
+}
+
+// ═══════════════════════════════════════════════════════════
+// WHATSAPP MENSAJES
+// ═══════════════════════════════════════════════════════════
+function buildMsgConfirm(t, ds) {
+  var sN = parseFloat(t.senya) || 0, tN = parseFloat(t.total) || 0;
+  var l = [
+    'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Turno confirmado! Muchas gracias.',
+    'Te dejo la info:', '',
+    cp(128197) + ' *Fecha:* ' + ds,
+    cp(9200) + ' *Hora:* ' + t.horario + ' hs',
+    cp(128118) + ' *Modelo:* ' + t.nombreBebe,
+    cp(127874) + ' *Sesión:* ' + t.tipoSesion,
+    cp(128105) + ' *Mamá:* ' + t.nombreMama,
+    cp(127912) + ' *Temática:* ' + (t.tematica || '-'),
+    cp(128176) + ' *Seña:* ' + (sN > 0 ? pesos(sN) : ''),
+    cp(128181) + ' *Resta:* ' + (tN > 0 ? pesos(Math.max(0, tN - sN)) : ''),
+    cp(9989) + ' *Valor cobrado:* ',
+    cp(128203) + ' *Observaciones:* ', '',
+    'Muchas gracias, nos vemos pronto! ' + cp(128248) + cp(128149)
+  ];
+  return encodeURIComponent(l.join('\n'));
+}
+
+// Pedido de seña por WhatsApp (monto y alias de "Ajustes")
+function buildMsgSena(t, ds) {
+  var monto = ajustes ? ajustes.senaMonto : 0;
+  var alias = ajustes ? String(ajustes.alias || '').trim() : '';
+  var vence = t.sena && t.sena.vence && t.sena.estado === 'esperando' ? fechaHoraCorta(t.sena.vence) : '';
+  var l = [
+    'Hola ' + t.nombreMama + '! ' + cp(128149) + ' Recibimos tu reserva para la sesión de ' + t.nombreBebe + ':',
+    cp(128197) + ' ' + ds + ' a las ' + t.horario + ' hs', '',
+    alias
+      ? 'Para confirmarla, transferí la seña de ' + pesos(monto) + ' al alias *' + alias + '* y mandanos el comprobante por acá.'
+      : 'Para confirmarla te pedimos una seña de ' + pesos(monto) + '. Te paso los datos para transferir:',
+    vence ? 'Te guardamos el horario hasta el ' + vence + ' hs.' : '',
+    '', '¡Gracias! ' + cp(128248)
+  ];
+  return encodeURIComponent(l.filter(function(x, i, arr) { return !(x === '' && arr[i - 1] === ''); }).join('\n'));
+}
+
+function buildMsgRec(t, ds) {
+  var tema = t.tematica ? ' temática ' + t.tematica : '';
+  var l = [
+    cp(10024) + ' Recordatorio de turno ' + cp(10024),
+    'Hola! ' + cp(128522) + ' Te recuerdo que el ' + ds + ' a las ' + t.horario + ' hs tenés tu sesión ' + t.tipoSesion + tema + ' de ' + t.nombreBebe + '.',
+    '',
+    cp(128205) + ' Dirección: Lopez May 2946, Gregorio de Laferrere.',
+    '',
+    cp(128073) + cp(127998) + ' Importante:',
+    '* Traer dos cambios de vestuario para el bebé ' + cp(128118),
+    '* Máximo de personas: 2 adultos (los hermanitos pueden participar en las fotos ' + cp(128149) + '). Abuelo o tía: adicional $10.000',
+    '* Pedimos puntualidad ' + cp(10024),
+    '* ' + cp(161) + 'Los esperamos! ' + cp(128149) + cp(128248)
+  ];
+  return encodeURIComponent(l.join('\n'));
+}
+
+// ═══════════════════════════════════════════════════════════
+// LOGIN / LOGOUT / RECUPERAR CÓDIGO
+// ═══════════════════════════════════════════════════════════
+function mostrarErrorLogin(msg) {
+  var el = document.getElementById('login-error');
+  el.textContent = msg || ''; el.style.display = msg ? 'block' : 'none';
+  document.getElementById('login-ok').textContent = '';
+}
+async function doLogin() {
+  var input = document.getElementById('pwd-input'), btn = document.getElementById('login-btn');
+  var codigo = input.value;
+  if (!codigo.trim()) { mostrarErrorLogin('Escribí el código de acceso.'); return; }
+  var recordar = document.getElementById('login-recordar').checked;
+  btn.disabled = true; btn.textContent = 'Verificando...'; mostrarErrorLogin('');
+  try {
+    var r = await api('login', { codigo: codigo, recordar: recordar });
+    if (r.ok && r.token) {
+      input.value = '';
+      guardarToken(r.token, recordar);
+      entrarAlPanel();
+    } else if (r.codigo === 'sin_codigo') {
+      // Primera vez: el código se crea con el mail (así nadie más lo conoce)
+      input.value = '';
+      mostrarRecuperar();
+      document.getElementById('rec-ok').textContent = 'Todavía no hay código de acceso. Tocá «Enviar código por mail» y elegí el código que van a usar.';
+    } else {
+      mostrarErrorLogin(r.error || 'Código incorrecto');
+      input.value = '';
+    }
+  } catch(e) {
+    mostrarErrorLogin('No se pudo conectar con el servidor (' + e.message + '). Probá de nuevo.');
+  }
+  btn.disabled = false; btn.textContent = 'Ingresar';
+}
+function entrarAlPanel() {
+  mostrarErrorLogin('');
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-panel').classList.add('show');
+  ajustesPromesa = cargarAjustes();
+  loadData();
+  loadConfig();
+}
+// Vuelve a la pantalla de ingreso y borra de la pantalla los datos de las clientas
+function salirDelPanel() {
+  document.getElementById('admin-panel').classList.remove('show');
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('pwd-input').value = '';
+  mostrarLogin();
+  allTurnos = []; aiHistory = [];
+  document.getElementById('turnos-list').innerHTML = '';
+  document.getElementById('ai-messages').innerHTML = '';
+  ['config-screen', 'nuevo-screen', 'ai-screen'].forEach(function(id) { document.getElementById(id).classList.remove('show'); });
+  document.getElementById('turnos-view').style.display = 'block';
+}
+async function doLogout() {
+  var t = sesion.token;
+  guardarToken('', false);
+  salirDelPanel();
+  if (t) { try { await api('logout', { token: t }); } catch(e) {} }
+}
+function mostrarRecuperar() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('recuperar-form').style.display = 'block';
+  document.getElementById('rec-paso2').style.display = 'none';
+  document.getElementById('rec-enviar-btn').textContent = 'Enviar código por mail';
+  document.getElementById('rec-error').textContent = '';
+  document.getElementById('rec-ok').textContent = '';
+  ['rec-codigo', 'rec-nuevo', 'rec-nuevo2'].forEach(function(id) { document.getElementById(id).value = ''; });
+}
+function mostrarLogin() {
+  document.getElementById('recuperar-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+async function pedirCodigoMail() {
+  var btn = document.getElementById('rec-enviar-btn');
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  document.getElementById('rec-error').textContent = '';
+  try {
+    await api('recuperar');
+    document.getElementById('rec-ok').textContent = 'Listo. En un minuto les llega un mail con el código (revisen también Spam). Vence en 15 minutos y sirve una sola vez.';
+    document.getElementById('rec-paso2').style.display = 'block';
+    btn.textContent = 'Reenviar código';
+  } catch(e) {
+    document.getElementById('rec-error').textContent = 'No se pudo conectar con el servidor (' + e.message + ').';
+    btn.textContent = 'Enviar código por mail';
+  }
+  btn.disabled = false;
+}
+async function restablecerCodigo() {
+  var cod = document.getElementById('rec-codigo').value.replace(/\D/g, '');
+  var n1 = document.getElementById('rec-nuevo').value, n2 = document.getElementById('rec-nuevo2').value;
+  var err = document.getElementById('rec-error');
+  err.textContent = '';
+  if (cod.length !== 6) { err.textContent = 'Escribí los 6 números que llegaron por mail.'; return; }
+  if (n1.trim().length < 8) { err.textContent = 'El código nuevo tiene que tener al menos 8 caracteres.'; return; }
+  if (n1 !== n2) { err.textContent = 'Los dos códigos nuevos no coinciden.'; return; }
+  var recordar = document.getElementById('login-recordar').checked;
+  var btn = document.getElementById('rec-guardar-btn');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    var r = await api('restablecer', { codigoMail: cod, nuevo: n1, recordar: recordar });
+    if (r.ok && r.token) {
+      guardarToken(r.token, recordar);
+      ['rec-codigo', 'rec-nuevo', 'rec-nuevo2'].forEach(function(id) { document.getElementById(id).value = ''; });
+      mostrarLogin();
+      entrarAlPanel();
+      toast('✓ Código de acceso cambiado. Les llegó un aviso por mail.', 'ok');
+    } else {
+      err.textContent = r.error || 'No se pudo cambiar el código.';
+    }
+  } catch(e) {
+    err.textContent = 'No se pudo conectar con el servidor (' + e.message + ').';
+  }
+  btn.disabled = false; btn.textContent = 'Guardar y entrar';
+}
+// Al abrir el panel: si este dispositivo tiene una sesión guardada, se entra directo
+async function iniciarPanel() {
+  var g = leerTokenGuardado();
+  if (!g) return;
+  sesion.token = g.token; sesion.recordar = g.recordar;
+  document.getElementById('login-ok').textContent = 'Conectando...';
+  try {
+    var r = await api('verificar');
+    document.getElementById('login-ok').textContent = '';
+    if (r.ok) entrarAlPanel();
+  } catch(e) {
+    mostrarErrorLogin('No se pudo conectar con el servidor. Revisá la conexión y recargá la página.');
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// CARGA DE DATOS
+// ═══════════════════════════════════════════════════════════
+// Lee las reservas de la planilla (solo lectura)
+async function leerTurnosServidor() {
+  var d = await api('getAll');
+  if (!d.ok) throw new Error(d.error || 'error del servidor');
+  if (!Array.isArray(d.reservas)) throw new Error('formato inesperado');
+  return d.reservas.map(function(row, idx) {
+    return normalizeReserva(row, idx);
+  }).filter(function(t) {
+    return t.id && t.id !== '' && (t.nombreBebe !== '--' || t.fecha !== '');
+  });
+}
+
+async function loadData() {
+  startLoading();
+  try {
+    allTurnos = await leerTurnosServidor();
+    showDebug('');
+  } catch(err) {
+    showDebug('No se pudo conectar.\nError: ' + err.message);
+    if (allTurnos.length === 0) allTurnos = [];
+  }
+  if (ajustesPromesa) await ajustesPromesa;   // así los mensajes de WhatsApp ya tienen la seña y el alias
+  stopLoading();
+  refrescarVista();
+}
+
+// Los conflictos se calculan ANTES de dibujar (antes el borde rojo aparecía recién en el segundo dibujo)
+function refrescarVista() {
+  detectarConflictos();
+  updateStats();
+  renderMonthTabs();
+  renderTurnos();
+  renderDailyPanel();
+}
+
+function showDebug(m) {
+  var b = document.getElementById('debug-box');
+  b.style.display = m ? 'block' : 'none';
+  b.textContent = m;
+}
+
+function detectarConflictos() {
+  var map = {};
+  allTurnos.forEach(function(t) {
+    if (!ocupa(t)) return;
+    var k = t.fecha + '_' + t.horario;
+    if (!map[k]) map[k] = [];
+    map[k].push(t.id);
+  });
+  allTurnos.forEach(function(t) {
+    var k = t.fecha + '_' + t.horario;
+    t.tieneConflicto = ocupa(t) && !!(map[k] && map[k].length > 1);
+  });
+  var n = Object.values(map).filter(function(ids) { return ids.length > 1; }).length;
+  if (n > 0) showDebug('⚠️ CONFLICTO: ' + n + ' horario(s) con más de una reserva activa (borde rojo).');
+}
+
+// ═══════════════════════════════════════════════════════════
+// PANEL SESIONES DEL DÍA (sin IA — pura lógica local)
+// ═══════════════════════════════════════════════════════════
+var DP_MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+function dpFechaOffset(n) {
+  var d = new Date();
+  d.setDate(d.getDate() + n);
+  return fechaLocal(d);
+}
+
+function renderDailyPanel() {
+  var hoyStr   = dpFechaOffset(0);
+  var manaStr  = dpFechaOffset(1);
+  var now      = new Date();
+  var mesLabel = DP_MESES[now.getMonth()];
+  mesLabel = mesLabel.charAt(0).toUpperCase() + mesLabel.slice(1);
+
+  document.getElementById('dp-fecha-num').textContent = now.getDate();
+  document.getElementById('dp-fecha-mes').textContent = mesLabel + ' ' + now.getFullYear();
+
+  var hoy  = allTurnos.filter(function(t) { return t.fecha === hoyStr  && ocupa(t); })
+                       .sort(function(a,b) { return (a.horario||'').localeCompare(b.horario||''); });
+  var mana = allTurnos.filter(function(t) { return t.fecha === manaStr && ocupa(t); })
+                       .sort(function(a,b) { return (a.horario||'').localeCompare(b.horario||''); });
+
+  document.getElementById('dp-count-hoy').textContent =
+    hoy.length === 0 ? 'Sin sesiones' : hoy.length + (hoy.length === 1 ? ' sesión' : ' sesiones');
+  document.getElementById('dp-count-maniana').textContent =
+    mana.length === 0 ? 'Sin sesiones' : mana.length + (mana.length === 1 ? ' sesión' : ' sesiones');
+
+  dpRenderList('dp-list-hoy',   hoy,  'today-card');
+  dpRenderList('dp-list-maniana', mana, 'tomorrow-card');
+
+  var nota = dpNotaCalida(hoy, mana);
+  document.getElementById('dp-warm-text').innerHTML = nota;
+  document.getElementById('dp-warm-note').style.display = 'flex';
+}
+
+function dpRenderList(containerId, list, cardClass) {
+  var c = document.getElementById(containerId);
+  c.innerHTML = '';
+  if (list.length === 0) {
+    var icon  = cardClass === 'today-card' ? '🌿' : '🌙';
+    var msg   = cardClass === 'today-card' ? 'Sin sesiones hoy' : 'Sin sesiones mañana';
+    var nota  = cardClass === 'today-card' ? 'Perfecto para organizar el estudio.' : '¡Disfrutá el descanso!';
+    c.innerHTML = '<div class="empty-day"><div class="empty-icon">' + icon + '</div><p>' + msg + '</p><p class="empty-note">' + nota + '</p></div>';
+    return;
+  }
+  list.forEach(function(t, i) {
+    var div = document.createElement('div');
+    div.className = 'sesion-card ' + cardClass;
+    var eb = t.estado === 'CONFIRMADO'
+      ? '<span class="hora-estado estado-confirmado-badge">Confirmado</span>'
+      : '<span class="hora-estado estado-pendiente-badge">Pendiente</span>';
+    var tema = t.tematica
+      ? '<span class="hora-sep">·</span><span class="meta-tematica">' + esc(t.tematica) + '</span>'
+      : '';
+    div.innerHTML =
+      '<div class="sesion-hora">' +
+        '<span class="hora-badge">' + esc(t.horario || '--') + ' hs</span>' +
+        '<span class="hora-sep">·</span>' + eb +
+      '</div>' +
+      '<div class="sesion-bebe">' + esc(t.nombreBebe || '--') + '</div>' +
+      '<div class="sesion-meta"><span class="meta-tipo">' + esc(t.tipoSesion || '--') + '</span>' + tema + '</div>' +
+      '<div class="sesion-mama">👶 ' + esc(t.nombreMama || '--') + '</div>';
+    c.appendChild(div);
+    // animación escalonada
+    (function(el, delay) {
+      setTimeout(function() { el.classList.add('visible'); }, delay);
+    })(div, 80 + i * 110);
+  });
+}
+
+function dpNotaCalida(hoy, mana) {
+  var total = hoy.length + mana.length;
+  if (total === 0)
+    return '¡Jornada tranquila! Sin sesiones por ahora, perfecto para ordenar el estudio. 🌸';
+  if (hoy.length === 0)
+    return 'Hoy podés preparar todo con calma 🌿 Mañana te esperan <strong>' +
+      mana.length + (mana.length === 1 ? ' sesión' : ' sesiones') + '</strong> llenas de magia!';
+  if (hoy.length === 1)
+    return '¡Hoy un día especial para <strong>' + esc(hoy[0].nombreBebe) + '</strong>! Que sea una sesión llena de magia ✨';
+  if (hoy.length === 2)
+    return 'Hoy compartís el estudio con <strong>' + esc(hoy[0].nombreBebe) + '</strong> y <strong>' + esc(hoy[1].nombreBebe) + '</strong>. ¡Dos momentos únicos para atesorar! 🌸';
+  return '¡Qué lindo día! Hoy compartís el estudio con <strong>' + hoy.length + ' familias</strong> increíbles. Cada momento será un recuerdo para siempre 🌸';
+}
+
+// ═══════════════════════════════════════════════════════════
+// STATS / FILTROS / TABS
+// ═══════════════════════════════════════════════════════════
+function updateStats() {
+  var hoy    = new Date(); hoy.setHours(0,0,0,0);
+  var hoyStr = fechaLocal(hoy);
+  var mesActual = hoyStr.slice(0,7); // "YYYY-MM"
+  // Próximas este mes: no canceladas, fecha >= hoy, en el mes corriente
+  var proximas = allTurnos.filter(function(t) {
+    return t.estado !== 'CANCELADO' && t.fecha && t.fecha >= hoyStr && t.fecha.startsWith(mesActual);
+  }).length;
+  document.getElementById('stat-total').textContent     = proximas;
+  document.getElementById('stat-pending').textContent   = allTurnos.filter(function(t) { return t.estado === 'PENDIENTE'; }).length;
+  document.getElementById('stat-confirmed').textContent = allTurnos.filter(function(t) { return t.estado === 'CONFIRMADO'; }).length;
+  document.getElementById('stat-cancelled').textContent = allTurnos.filter(function(t) { return t.estado === 'CANCELADO'; }).length;
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  currentMonth  = 'todos';
+  document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderMonthTabs();
+  renderTurnos();
+}
+
+function setMonthFilter(ym, btn) {
+  currentMonth = ym;
+  document.querySelectorAll('.month-tab').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderTurnos();
+}
+
+function renderMonthTabs() {
+  var c    = document.getElementById('month-tabs');
+  var list = allTurnos;
+  list = filtrarPorEstado(list);
+  var mm = {};
+  list.forEach(function(t) {
+    if (!t.fecha || t.fecha.length < 7) return;
+    var ym = t.fecha.slice(0, 7);
+    if (!mm[ym]) {
+      var d = new Date(ym + '-01T12:00:00');
+      var l = d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+      mm[ym] = l.charAt(0).toUpperCase() + l.slice(1);
+    }
+  });
+  var months = Object.keys(mm).sort();
+  if (months.length <= 1) { c.innerHTML = ''; return; }
+  var html = '<button class="month-tab ' + (currentMonth === 'todos' ? 'active' : '') + '" onclick="setMonthFilter(\'todos\',this)">Todos los meses</button>';
+  months.forEach(function(ym) {
+    html += '<button class="month-tab ' + (currentMonth === ym ? 'active' : '') + '" onclick="setMonthFilter(' + jsArg(ym) + ',this)">' + esc(mm[ym]) + '</button>';
+  });
+  c.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER TURNOS
+// ═══════════════════════════════════════════════════════════
+function renderTurnos() {
+  var search = document.getElementById('search-input').value.toLowerCase();
+  var list   = allTurnos.slice();
+  list = filtrarPorEstado(list);
+  if (search) list = list.filter(function(t) {
+    return t.nombreBebe.toLowerCase().includes(search) ||
+           t.nombreMama.toLowerCase().includes(search) ||
+           t.fecha.includes(search) ||
+           t.whatsapp.includes(search);
+  });
+  if (currentMonth !== 'todos') list = list.filter(function(t) { return t.fecha && t.fecha.startsWith(currentMonth); });
+  // Orden: primero las próximas (de la más cercana a la más lejana) y después las pasadas
+  // (la más reciente primero). Si se eligió un mes puntual, orden cronológico simple.
+  var hoyStr = fechaLocal();
+  var porMes = currentMonth !== 'todos';
+  list.sort(function(a, b) {
+    if (!a.fecha && b.fecha) return 1;   // Turnos sin fecha van al final
+    if (a.fecha && !b.fecha) return -1;
+    if (!a.fecha && !b.fecha) return 0;
+    if (!porMes) {
+      var aPas = a.fecha < hoyStr, bPas = b.fecha < hoyStr;
+      if (aPas !== bPas) return aPas ? 1 : -1;
+      if (aPas) {
+        var cmpPas = b.fecha.localeCompare(a.fecha);
+        return cmpPas !== 0 ? cmpPas : (b.horario || '').localeCompare(a.horario || '');
+      }
+    }
+    var dateCmp = a.fecha.localeCompare(b.fecha);
+    if (dateCmp !== 0) return dateCmp;
+    return (a.horario || '').localeCompare(b.horario || '');
+  });
+  renderMonthTabs();
+  var container = document.getElementById('turnos-list');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="empty-icon">&#127800;</div><p>No hay reservas</p></div>';
+    return;
+  }
+  var grupos = [], idxG = {};
+  list.forEach(function(t) {
+    var ym  = (t.fecha || '').slice(0,7) || 'sin-fecha';
+    var pas = !porMes && !!t.fecha && t.fecha < hoyStr;
+    var key = (pas ? 'P' : 'F') + ym;
+    if (idxG[key] === undefined) { idxG[key] = grupos.length; grupos.push({ ym: ym, pasada: pas, items: [] }); }
+    grupos[idxG[key]].items.push(t);
+  });
+  var html = '', yaPasadas = false;
+  grupos.forEach(function(g) {
+    if (g.pasada && !yaPasadas) { yaPasadas = true; html += '<div class="pasadas-divider">Sesiones pasadas</div>'; }
+    var label = g.ym === 'sin-fecha' ? 'Sin fecha' : g.ym;
+    if (g.ym !== 'sin-fecha') {
+      var d = new Date(g.ym + '-01T12:00:00');
+      if (!isNaN(d)) {
+        var l = d.toLocaleDateString('es-AR', { month: 'long', year: 'numeric' });
+        label = l.charAt(0).toUpperCase() + l.slice(1);
+      }
+    }
+    if (grupos.length > 1) html += '<div class="month-group-header"><span class="month-group-title">' + esc(label) + '</span><span class="month-group-count">' + g.items.length + ' ' + (g.items.length === 1 ? 'sesión' : 'sesiones') + '</span><div class="month-group-line"></div></div>';
+    html += g.items.map(function(t) { return buildTurnoCard(t); }).join('');
+  });
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════
+// BUILD TURNO CARD
+// ═══════════════════════════════════════════════════════════
+function waI() {
+  return '<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.025.504 3.93 1.39 5.6L0 24l6.545-1.364A11.945 11.945 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 0 1-5.273-1.531l-.373-.225-3.882.81.832-3.78-.247-.39A9.818 9.818 0 1 1 12 21.818z"/></svg>';
+}
+
+function buildTurnoCard(t) {
+  var ds = t.fecha || '--';
+  try {
+    if (t.fecha && t.fecha.length === 10) {
+      var d = new Date(t.fecha + 'T12:00:00');
+      if (!isNaN(d)) ds = d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
+    }
+  } catch(e) {}
+  var cs = '';
+  try {
+    if (t.cumpleBebe && t.cumpleBebe.length === 10) {
+      var dc = new Date(t.cumpleBebe + 'T12:00:00');
+      if (!isNaN(dc)) cs = dc.toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+    }
+  } catch(e) {}
+  // Fecha de alta: si la planilla no la tiene, no se inventa la de hoy
+  var rs = '—';
+  if (t.timestamp) {
+    var dts = new Date(t.timestamp);
+    if (!isNaN(dts)) rs = dts.toLocaleDateString('es-AR');
+  }
+
+  // Detectar si la sesión ya pasó (fecha anterior a hoy, no cancelada), con la fecha local
+  var hoyStr2 = fechaLocal();
+  var esPasada = t.estado !== 'CANCELADO' && t.fecha && t.fecha < hoyStr2;
+
+  var el  = t.estado.toLowerCase();
+  var idA = jsArg(t.id);   // para usar dentro de onclick
+  var idH = esc(t.id);     // para atributos id y texto
+  var wn  = t.whatsapp.replace(/\D/g,'');
+  var wf  = wn ? (wn.startsWith('54') ? wn : '54' + wn) : '';
+  var mC  = buildMsgConfirm(t, ds);
+  var mR  = buildMsgRec(t, ds);
+  var mS  = buildMsgSena(t, ds);
+  var waC = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mC + '" target="_blank" rel="noopener">' + waI() + ' WA Confirmación</a>' : '';
+  var waR = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mR + '" target="_blank" rel="noopener">' + waI() + ' WA Recordatorio</a>' : '';
+  var waS = wf ? '<a class="btn-action btn-whatsapp-action" href="https://wa.me/' + wf + '?text=' + mS + '" target="_blank" rel="noopener">' + waI() + ' WA seña</a>' : '';
+  var conSena = (t.sena && t.sena.estado === 'recibida') || parseFloat(t.senya) > 0;
+  var mover = '<button class="btn-action btn-mover-action" onclick="moverTurno(' + idA + ')">&#128197; Mover</button>';
+  var ab  = t.estado === 'PENDIENTE'
+    ? (conSena ? '' : '<button class="btn-action btn-sena-action" onclick="senaRecibida(' + idA + ')">&#128184; Seña recibida</button>') +
+      '<button class="btn-action btn-confirm-action" onclick="updateStatus(' + idA + ',\'CONFIRMADO\')">' + (conSena ? 'Confirmar' : 'Confirmar sin seña') + '</button>' +
+      '<button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>' + (conSena ? waC : waS) + mover
+    : t.estado === 'CONFIRMADO'
+      ? waC + waR + mover + '<button class="btn-action btn-cancel-action" onclick="askCancel(' + idA + ')">Cancelar</button>'
+      : '<button class="btn-action btn-confirm-action" onclick="updateStatus(' + idA + ',\'PENDIENTE\')">Reactivar</button>';
+  if (t.sinId) ab = '';   // sin ID en la planilla no se puede cambiar desde el panel
+  var sN  = parseFloat(t.senya) || 0;
+  var tN  = parseFloat(t.total) || 0;
+  var rN  = tN - sN;
+  var pb  = tN > 0 ? (rN <= 0 ? '<span class="pago-badge saldado">&#10003; Saldado</span>' : '<span class="pago-badge pendiente-pago">Resta $' + rN.toLocaleString('es-AR') + '</span>') : '';
+  var rD  = tN > 0 ? (rN <= 0 ? 'Saldado!' : '$' + rN.toLocaleString('es-AR')) : '$0';
+  var rC  = rN <= 0 && tN > 0 ? 'resta-val saldado' : 'resta-val';
+  // Los valores van escapados: al abrir "Pago" y guardar sin tocar nada, vuelve EXACTAMENTE lo que había.
+  // (El salto de línea después de <textarea> lo descarta el navegador; así no se pierde uno propio de la nota.)
+  var pp  = '<div class="pago-panel" id="pago-' + idH + '"><div class="pago-titulo">&#128176; Gestión de pago</div><div class="pago-grid"><div class="pago-field"><label>Seña ($)</label><input type="number" id="senya-' + idH + '" value="' + esc(t.senya || '') + '" placeholder="15000" oninput="calcResta(' + idA + ')"></div><div class="pago-field"><label>Total ($)</label><input type="number" id="total-' + idH + '" value="' + esc(t.total || '') + '" placeholder="55000" oninput="calcResta(' + idA + ')"></div></div><div class="pago-resta"><span class="resta-label">Resta cobrar:</span><span class="' + rC + '" id="resta-' + idH + '">' + rD + '</span></div><span class="pago-notas-label">Notas internas</span><textarea class="pago-notas" id="notas-int-' + idH + '">\n' + esc(t.notasInternas || '') + '</textarea><button class="pago-save-btn" id="save-btn-' + idH + '" onclick="guardarPago(' + idA + ')">Guardar cambios</button></div>';
+  var ch  = t.tieneConflicto ? '<div class="conflicto-badge">&#9888;&#65039; CONFLICTO DE HORARIO</div>' : '';
+
+  // Badge de estado: si pasó, mostrar "REALIZADA" encima del estado normal
+  var badgePasada = esPasada ? '<span class="status-badge badge-realizada">&#10003; Realizada</span>' : '';
+  var cardExtra   = esPasada ? ' realizada' : '';
+  var badgeEstado = esPasada ? badgePasada : '<span class="status-badge badge-' + esc(el) + '">' + esc(t.estado) + '</span>';
+  var conSaltos   = function(s) { return esc(s).replace(/\r?\n/g, '<br>'); };
+
+  return '<div class="turno-card ' + esc(el) + cardExtra + (t.tieneConflicto ? ' conflicto' : '') + '" id="card-' + idH + '">' + ch +
+    '<div class="turno-top"><div><div class="turno-date">' + esc(ds) + '</div><div class="turno-time">' + esc(t.horario) + ' hs ' + pb + '</div></div>' + badgeEstado + '</div>' + badgeSena(t) +
+    (t.sinId ? '<div class="turno-nota-sinid">Esta reserva no tiene ID en la planilla: para cambiarla hay que editarla a mano en la planilla.</div>' : '') +
+    '<div class="turno-info">' +
+      '<div class="turno-info-item"><span class="info-key">Bebé</span><span class="info-val">' + esc(t.nombreBebe) + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Tipo sesión</span><span class="info-val">' + esc(t.tipoSesion) + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">Mamá</span><span class="info-val">' + esc(t.nombreMama) + '</span></div>' +
+      '<div class="turno-info-item"><span class="info-key">WhatsApp</span><span class="info-val">' + esc(t.whatsapp || '--') + '</span></div>' +
+      (t.tematica ? '<div class="turno-info-item"><span class="info-key">Temática</span><span class="info-val">' + esc(t.tematica) + '</span></div>' : '') +
+      (cs ? '<div class="turno-info-item"><span class="info-key">Cumple</span><span class="info-val">' + esc(cs) + '</span></div>' : '') +
+      (t.senya ? '<div class="turno-info-item"><span class="info-key">Seña</span><span class="info-val">$' + esc(parseFloat(t.senya).toLocaleString('es-AR')) + '</span></div>' : '') +
+      (t.total ? '<div class="turno-info-item"><span class="info-key">Total</span><span class="info-val">$' + esc(parseFloat(t.total).toLocaleString('es-AR')) + '</span></div>' : '') +
+    '</div>' +
+    (t.notas ? '<div class="turno-notas">"' + conSaltos(t.notas) + '"</div>' : '') +
+    (t.notasInternas ? '<div class="turno-notas-int">&#128203; ' + conSaltos(t.notasInternas) + '</div>' : '') +
+    '<div class="turno-actions">' + ab + (t.sinId ? '' : '<button class="btn-action btn-pago-action" onclick="togglePago(' + idA + ')">&#128176; Pago</button>') + '</div>' +
+    pp +
+    '<div class="turno-id">ID: ' + idH + ' &middot; Reservado: ' + esc(rs) + '</div></div>';
+}
+
+// ═══════════════════════════════════════════════════════════
+// PAGO
+// ═══════════════════════════════════════════════════════════
+function togglePago(id) {
+  var p = document.getElementById('pago-' + id);
+  if (!p) return;
+  p.style.display = p.style.display === 'block' ? 'none' : 'block';
+}
+
+function calcResta(id) {
+  var s  = parseFloat(document.getElementById('senya-' + id).value) || 0;
+  var t  = parseFloat(document.getElementById('total-' + id).value) || 0;
+  var el = document.getElementById('resta-' + id);
+  if (!el) return;
+  if (t > 0) {
+    var r = t - s;
+    el.textContent = r <= 0 ? 'Saldado!' : '$' + r.toLocaleString('es-AR');
+    el.className   = r <= 0 ? 'resta-val saldado' : 'resta-val';
+  } else {
+    el.textContent = '$0';
+    el.className   = 'resta-val';
+  }
+}
+
+// Valor a guardar de un campo del panel de pago: si no se tocó, el valor ORIGINAL tal cual
+// (así "Guardar" sin cambios no altera nada); si se editó, lo escrito sin espacios sobrantes.
+function valorCampoPago(el) {
+  if (!el) return '';
+  var ini = el.defaultValue;                       // lo que había en la planilla
+  if (el.type === 'number') {
+    var valido   = /^-?(\d+(\.\d+)?|\.\d+)([eE][-+]?\d+)?$/.test(ini);
+    var mostrado = valido ? ini : '';               // lo que el navegador mostró al abrir
+    if (el.value === mostrado) return ini;
+    return (el.value || '').trim();
+  }
+  return el.value === ini ? el.value : (el.value || '').trim();
+}
+
+// ═══════════════════════════════════════════════════════════
+// GUARDAR CAMBIOS (el servidor responde con la reserva ya guardada)
+// ═══════════════════════════════════════════════════════════
+// Pone en pantalla la reserva tal como quedó en la planilla
+function aplicarReserva(row) {
+  if (!row || !row.id) return null;
+  var nueva = normalizeReserva(row, 0);
+  var i = allTurnos.findIndex(function(t) { return t.id === nueva.id; });
+  if (i >= 0) allTurnos[i] = nueva; else allTurnos.push(nueva);
+  refrescarSinPerderCambios(nueva.id);
+  return nueva;
+}
+// Redibuja sin perder lo que se esté escribiendo en otro panel de pago abierto
+function refrescarSinPerderCambios(id) {
+  var abiertos = Array.prototype.slice.call(document.querySelectorAll('.pago-panel'))
+    .filter(function(p) { return p.style.display === 'block'; })
+    .map(function(p) { return p.id; });
+  var otros = abiertos.filter(function(pid) { return pid !== 'pago-' + id; });
+  detectarConflictos(); updateStats(); renderDailyPanel();
+  if (otros.length === 0) {
+    renderMonthTabs(); renderTurnos();
+    abiertos.forEach(function(pid) { var p = document.getElementById(pid); if (p) p.style.display = 'block'; });
+    return;
+  }
+  var card = document.getElementById('card-' + id);
+  var t = allTurnos.find(function(x) { return x.id === id; });
+  if (card && t) {
+    var tmp = document.createElement('div');
+    tmp.innerHTML = buildTurnoCard(t);
+    var abierto = abiertos.indexOf('pago-' + id) >= 0;
+    card.parentNode.replaceChild(tmp.firstChild, card);
+    if (abierto) { var p = document.getElementById('pago-' + id); if (p) p.style.display = 'block'; }
+  }
+}
+function avisoSinConexion(que) {
+  toast('⚠️ No pude confirmar ' + que + ' (sin conexión). Tocá «Actualizar» para ver cómo quedó.', 'err');
+}
+
+async function guardarPago(id) {
+  var turno = allTurnos.find(function(t) { return t.id === id; });
+  if (!turno) return;
+  // Los campos que no se tocaron se mandan EXACTAMENTE como estaban en la planilla
+  var sv = valorCampoPago(document.getElementById('senya-' + id));
+  var tv = valorCampoPago(document.getElementById('total-' + id));
+  var nv = valorCampoPago(document.getElementById('notas-int-' + id));
+  // "Resta" se recalcula solo si cambió la seña o el total
+  var rv = turno.resta;
+  if (sv !== turno.senya || tv !== turno.total) {
+    var sN = parseFloat(sv) || 0, tN = parseFloat(tv) || 0;
+    rv = tN > 0 ? String(tN - sN) : '';
+  }
+  var btn = document.getElementById('save-btn-' + id);
+  if (btn) { btn.textContent = 'Guardando...'; btn.disabled = true; }
+  try {
+    var r = await api('updatePago', { id: id, senya: sv, total: tv, resta: rv, notasInternas: nv });
+    if (r.ok) {
+      aplicarReserva(r.reserva);
+      toast('✓ Pago guardado en la planilla', 'ok');
+    } else {
+      toast('⚠️ No se guardó: ' + (r.error || 'error del servidor'), 'err');
+    }
+  } catch(e) {
+    avisoSinConexion('el pago');
+  }
+  var b = document.getElementById('save-btn-' + id);
+  if (b) { b.textContent = 'Guardar cambios'; b.disabled = false; }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ESTADO, SEÑA Y CAMBIO DE HORARIO
+// ═══════════════════════════════════════════════════════════
+async function updateStatus(id, ns, forzar) {
+  startLoading();
+  var r;
+  try { r = await api('updateStatus', { id: id, status: ns, forzar: !!forzar }); }
+  catch(e) { stopLoading(); avisoSinConexion('el cambio de estado'); return false; }
+  stopLoading();
+  if (r.ok) {
+    var t = aplicarReserva(r.reserva);
+    var msg = ns === 'CANCELADO' ? '✓ Turno cancelado' : (ns === 'PENDIENTE' ? '✓ Turno reactivado (pendiente)' :
+      (t && t.sena && t.sena.estado === 'asegurada' && !(parseFloat(t.senya) > 0) ? '✓ Turno confirmado sin seña: ya no se libera solo' : '✓ Turno confirmado'));
+    toast(msg, 'ok');
+    return true;
+  }
+  if (r.codigo === 'ocupado' && !forzar) {
+    var si = await confirmar({ titulo: 'Horario ocupado', texto: r.error, ok: 'Sí, igual', peligro: true });
+    return si ? updateStatus(id, ns, true) : false;
+  }
+  toast('⚠️ No se hizo el cambio: ' + (r.error || 'error del servidor'), 'err');
+  return false;
+}
+
+async function senaRecibida(id) {
+  var t = allTurnos.find(function(x) { return x.id === id; });
+  if (!t) return;
+  var monto = ajustes && ajustes.senaMonto ? ajustes.senaMonto : 17000;
+  var v = await pedirDatos({
+    titulo: 'Seña recibida',
+    texto: t.nombreBebe + ' · ' + t.fecha + ' ' + t.horario + ' hs\nSe anota la seña y el turno queda CONFIRMADO.',
+    campos: [{ id: 'monto', label: 'Monto de la seña ($)', tipo: 'number', valor: String(monto), inputmode: 'numeric' }],
+    ok: 'Guardar seña'
+  });
+  if (!v) return;
+  var m = String(v.monto || '').trim();
+  if (!/^\d+(\.\d+)?$/.test(m) || parseFloat(m) <= 0) { toast('⚠️ El monto tiene que ser un número mayor a 0. No se guardó nada.', 'err'); return; }
+  startLoading();
+  var r;
+  try { r = await api('senaRecibida', { id: id, monto: m }); }
+  catch(e) { stopLoading(); avisoSinConexion('la seña'); return; }
+  stopLoading();
+  if (r.ok) { aplicarReserva(r.reserva); toast('✓ Seña de ' + pesos(m) + ' registrada · turno confirmado', 'ok'); }
+  else toast('⚠️ No se guardó la seña: ' + (r.error || 'error del servidor'), 'err');
+}
+
+async function moverTurno(id, forzar, previo) {
+  var t = allTurnos.find(function(x) { return x.id === id; });
+  if (!t) return;
+  var v = previo;
+  if (!v) {
+    v = await pedirDatos({
+      titulo: 'Cambiar día u horario',
+      texto: t.nombreBebe + ' · ahora: ' + t.fecha + ' ' + t.horario + ' hs',
+      campos: [{ id: 'fecha', label: 'Nueva fecha', tipo: 'date', valor: t.fecha }, { id: 'horario', label: 'Nuevo horario', tipo: 'time', valor: horaValida(t.horario) ? t.horario : '' }],
+      ok: 'Mover'
+    });
+    if (!v) return;
+  }
+  var nf = String(v.fecha || ''), nh = String(v.horario || '').slice(0, 5);
+  if (!fechaValida(nf) || !horaValida(nh)) { toast('⚠️ Revisá la fecha y el horario. No se cambió nada.', 'err'); return; }
+  if (nf === t.fecha && nh === t.horario) { toast('Es el mismo día y horario: no se cambió nada.', 'warn'); return; }
+  startLoading();
+  var r;
+  try { r = await api('reprogramar', { id: id, newFecha: nf, newHorario: nh, forzar: !!forzar }); }
+  catch(e) { stopLoading(); avisoSinConexion('el cambio de horario'); return; }
+  stopLoading();
+  if (r.ok) { aplicarReserva(r.reserva); toast('✓ Turno movido al ' + nf + ' a las ' + nh + ' hs', 'ok'); return; }
+  if (r.codigo === 'ocupado' && !forzar) {
+    var si = await confirmar({ titulo: 'Horario ocupado', texto: r.error + '\n¿Mover igual? Van a quedar dos turnos en el mismo horario.', ok: 'Mover igual', peligro: true });
+    if (si) moverTurno(id, true, { fecha: nf, horario: nh });
+    return;
+  }
+  toast('⚠️ No se movió: ' + (r.error || 'error del servidor'), 'err');
+}
+
+// ═══════════════════════════════════════════════════════════
+// VENTANA PARA CONFIRMAR O PEDIR UN DATO
+// ═══════════════════════════════════════════════════════════
+var mgResolver = null, mgCampos = [];
+function pedirDatos(op) {
+  return new Promise(function(resolve) {
+    if (mgResolver) mgResolver(null);
+    mgResolver = resolve;
+    mgCampos = op.campos || [];
+    document.getElementById('mg-titulo').textContent = op.titulo || '';
+    document.getElementById('mg-texto').textContent = op.texto || '';
+    var cont = document.getElementById('mg-campos');
+    cont.innerHTML = '';
+    mgCampos.forEach(function(c) {
+      var w = document.createElement('div'); w.className = 'nt-field';
+      var l = document.createElement('label'); l.textContent = c.label; l.setAttribute('for', 'mg-' + c.id);
+      var i = document.createElement('input'); i.type = c.tipo || 'text'; i.id = 'mg-' + c.id; i.value = c.valor || '';
+      if (c.inputmode) i.setAttribute('inputmode', c.inputmode);
+      w.appendChild(l); w.appendChild(i); cont.appendChild(w);
+    });
+    var ok = document.getElementById('mg-ok');
+    ok.textContent = op.ok || 'Aceptar';
+    ok.className = 'modal-confirm-btn' + (op.peligro ? '' : ' modal-ok-btn');
+    document.getElementById('mg-cancel').textContent = op.cancelar || 'Volver';
+    document.getElementById('modal-gen').classList.add('show');
+  });
+}
+function aceptarModalGen() {
+  var v = { ok: true };
+  mgCampos.forEach(function(c) { var el = document.getElementById('mg-' + c.id); v[c.id] = el ? el.value : ''; });
+  cerrarModalGen(v);
+}
+function cerrarModalGen(valor) {
+  document.getElementById('modal-gen').classList.remove('show');
+  var r = mgResolver; mgResolver = null;
+  if (r) r(valor);
+}
+function confirmar(op) { return pedirDatos(op).then(function(v) { return !!v; }); }
+
+// ═══════════════════════════════════════════════════════════
+// NUEVO TURNO (cargado por el estudio)
+// ═══════════════════════════════════════════════════════════
+var ntSesion = '';
+var TIPOS_EXTRA = ['Newborn', 'Embarazadas', '15 años'];
+function showNuevo() {
+  document.getElementById('turnos-view').style.display = 'none';
+  document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('ai-screen').classList.remove('show');
+  document.getElementById('nuevo-screen').classList.add('show');
+  ntSesion = idAlAzar();
+  var tipos = ((ajustes && ajustes.tiposSesion) ? String(ajustes.tiposSesion).split(',') : ['Mes a mes', 'Temático', 'Pre añito'])
+    .map(function(x) { return x.trim(); }).filter(String);
+  TIPOS_EXTRA.forEach(function(x) { if (tipos.indexOf(x) < 0) tipos.push(x); });
+  var sel = document.getElementById('nt-tipo'), previo = sel.value;
+  sel.innerHTML = '<option value="">Elegí…</option>' + tipos.map(function(x) { return '<option value="' + esc(x) + '">' + esc(x) + '</option>'; }).join('');
+  if (previo && tipos.indexOf(previo) >= 0) sel.value = previo;
+  if (!document.getElementById('nt-sena').value && ajustes) document.getElementById('nt-sena').value = ajustes.senaMonto || '';
+  document.getElementById('nt-feedback').textContent = '';
+  ntActualizarHorarios();
+  ntModo();
+  window.scrollTo(0, 0);
+}
+function hideNuevo() {
+  document.getElementById('nuevo-screen').classList.remove('show');
+  document.getElementById('turnos-view').style.display = 'block';
+}
+function ntModo() {
+  var m = document.querySelector('input[name="nt-modo"]:checked');
+  document.getElementById('nt-sena-wrap').style.display = m && m.value === 'sena' ? 'block' : 'none';
+}
+function ntHorariosBase(fecha) {
+  if (!fechaValida(fecha)) return [];
+  var dow = new Date(fecha + 'T12:00:00').getDay();
+  var base = dow === 6 ? ADMIN_CONFIG.SLOTS_SATURDAY.slice() : (dow >= 1 && dow <= 5 ? ADMIN_CONFIG.SLOTS_WEEKDAY.slice() : []);
+  bloqueos.forEach(function(b) { if (b.tipo === 'slot_extra' && b.fecha === fecha && base.indexOf(b.horario) < 0) base.push(b.horario); });
+  return base.sort();
+}
+function ntOcupante(fecha, horario) {
+  return allTurnos.find(function(t) { return ocupa(t) && t.fecha === fecha && t.horario === horario; }) || null;
+}
+function ntActualizarHorarios() {
+  var fecha = document.getElementById('nt-fecha').value;
+  var sel = document.getElementById('nt-horario-sel'), previo = sel.value;
+  var opciones = ntHorariosBase(fecha).map(function(h) {
+    var o = ntOcupante(fecha, h);
+    var bloq = bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === h; });
+    var txt = h + ' hs' + (o ? ' — ocupado (' + o.nombreBebe + ')' : (bloq ? ' — bloqueado' : ''));
+    return '<option value="' + esc(h) + '">' + esc(txt) + '</option>';
+  });
+  sel.innerHTML = '<option value="">' + (fecha ? 'Elegí…' : 'Primero elegí la fecha') + '</option>' + opciones.join('') + '<option value="otro">Otro horario…</option>';
+  if (previo && Array.prototype.some.call(sel.options, function(o) { return o.value === previo; })) sel.value = previo;
+  ntHorarioSel();
+}
+function ntHorarioSel() {
+  document.getElementById('nt-horario-otro').style.display = document.getElementById('nt-horario-sel').value === 'otro' ? 'block' : 'none';
+  ntRevisarChoque();
+}
+function ntHorarioElegido() {
+  var v = document.getElementById('nt-horario-sel').value;
+  return v === 'otro' ? String(document.getElementById('nt-horario-otro').value || '').slice(0, 5) : v;
+}
+function ntRevisarChoque() {
+  var fecha = document.getElementById('nt-fecha').value, h = ntHorarioElegido(), aviso = '';
+  if (fechaValida(fecha) && horaValida(h)) {
+    var o = ntOcupante(fecha, h);
+    if (o) aviso = '⚠️ Ese horario ya lo tiene ' + o.nombreBebe + ' (' + o.id + ').';
+    else if (bloqueos.some(function(b) { return b.tipo === 'dia' && b.fecha === fecha; })) aviso = '⚠️ Ese día está bloqueado en Config.';
+    else if (bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === h; })) aviso = '⚠️ Ese horario está bloqueado en Config.';
+  }
+  document.getElementById('nt-aviso').textContent = aviso;
+}
+async function guardarNuevoTurno(forzar) {
+  var fb = document.getElementById('nt-feedback'), btn = document.getElementById('nt-guardar');
+  var val = function(id) { return document.getElementById(id).value.trim(); };
+  var modoEl = document.querySelector('input[name="nt-modo"]:checked'), modo = modoEl ? modoEl.value : 'asegurado';
+  var turno = {
+    fecha: val('nt-fecha'), horario: ntHorarioElegido(), tipoSesion: val('nt-tipo'), tematica: val('nt-tematica'),
+    nombreBebe: val('nt-bebe'), cumpleBebe: val('nt-cumple'), nombreMama: val('nt-mama'),
+    telefono: val('nt-tel'), whatsapp: val('nt-wa'), total: val('nt-total'),
+    senya: modo === 'sena' ? val('nt-sena') : '', notasInternas: document.getElementById('nt-notas').value
+  };
+  var error = '';
+  if (!fechaValida(turno.fecha)) error = 'Elegí la fecha.';
+  else if (!horaValida(turno.horario)) error = 'Elegí el horario.';
+  else if (!turno.tipoSesion) error = 'Elegí el tipo de sesión.';
+  else if (!turno.nombreBebe) error = 'Escribí el nombre del bebé.';
+  else if (turno.total && !/^\d+(\.\d+)?$/.test(turno.total)) error = 'El total tiene que ser un número (sin puntos ni $).';
+  else if (modo === 'sena' && !/^\d+(\.\d+)?$/.test(turno.senya)) error = 'Escribí el monto de la seña (sin puntos ni $).';
+  if (error) { fb.textContent = error; fb.className = 'cfg-feedback err'; return; }
+  var clave = ntSesion + '-' + hashTexto(JSON.stringify(turno) + '|' + modo);
+  btn.disabled = true; btn.textContent = 'Guardando...'; fb.textContent = ''; fb.className = 'cfg-feedback';
+  var r;
+  try { r = await api('nuevoTurno', { turno: turno, asegurado: modo === 'asegurado', forzar: !!forzar, clave: clave }); }
+  catch(e) {
+    btn.disabled = false; btn.textContent = 'Guardar turno';
+    fb.textContent = 'No pude confirmar si se guardó (sin conexión). Tocá «Guardar turno» de nuevo: si ya estaba guardado, no se duplica.';
+    fb.className = 'cfg-feedback err';
+    return;
+  }
+  btn.disabled = false; btn.textContent = 'Guardar turno';
+  if (r.ok) {
+    var t = normalizeReserva(r.reserva, 0);
+    if (!allTurnos.some(function(x) { return x.id === t.id; })) allTurnos.push(t);
+    refrescarVista();
+    ['nt-fecha', 'nt-tematica', 'nt-bebe', 'nt-cumple', 'nt-mama', 'nt-tel', 'nt-wa', 'nt-total', 'nt-notas', 'nt-horario-otro'].forEach(function(id) { document.getElementById(id).value = ''; });
+    document.getElementById('nt-sena').value = ajustes ? (ajustes.senaMonto || '') : '';
+    document.getElementById('nt-tipo').value = '';
+    document.getElementById('nt-aviso').textContent = '';
+    hideNuevo();
+    toast('✓ Turno cargado: ' + t.nombreBebe + ' · ' + t.fecha + ' ' + t.horario + ' hs (' + t.estado.toLowerCase() + ')', 'ok');
+    return;
+  }
+  if (r.codigo === 'ocupado' && !forzar) {
+    var si = await confirmar({ titulo: 'Horario ocupado', texto: r.error, ok: 'Cargar igual', peligro: true });
+    if (si) guardarNuevoTurno(true);
+    return;
+  }
+  fb.textContent = r.error || 'No se pudo guardar.'; fb.className = 'cfg-feedback err';
+}
+
+// ═══════════════════════════════════════════════════════════
+// AJUSTES, COPIA DE SEGURIDAD Y CÓDIGO DE ACCESO
+// ═══════════════════════════════════════════════════════════
+var CAMPOS_AJUSTES = ['senaMonto', 'senaHoras', 'alias', 'whatsappEstudio', 'avisoReservaMail', 'grillaSemana', 'grillaSabado', 'minDias', 'tiposSesion'];
+function aplicarAjustes(a) {
+  ajustes = a || ajustes;
+  if (!ajustes) return;
+  var lista = function(s) { return String(s || '').split(',').map(function(x) { return x.trim(); }).filter(horaValida); };
+  var sem = lista(ajustes.grillaSemana), sab = lista(ajustes.grillaSabado);
+  if (sem.length) ADMIN_CONFIG.SLOTS_WEEKDAY = sem;
+  if (sab.length) ADMIN_CONFIG.SLOTS_SATURDAY = sab;
+  CAMPOS_AJUSTES.forEach(function(k) {
+    var el = document.getElementById('aj-' + k);
+    if (el) el.value = ajustes[k] === undefined || ajustes[k] === null ? '' : String(ajustes[k]);
+  });
+}
+async function cargarAjustes() {
+  try {
+    var r = await api('getAjustes');
+    if (r.ok) aplicarAjustes(r.ajustes);
+  } catch(e) {}
+}
+async function guardarAjustes() {
+  var fb = document.getElementById('aj-feedback'), btn = document.getElementById('aj-guardar');
+  if (!ajustes) { fb.textContent = 'Todavía no pude leer los ajustes actuales. Salí de Config y volvé a entrar.'; fb.className = 'cfg-feedback err'; return; }
+  var cambios = {}, n = 0;
+  CAMPOS_AJUSTES.forEach(function(k) {
+    var el = document.getElementById('aj-' + k);
+    if (!el) return;
+    var v = el.value.trim();
+    if (v !== String(ajustes[k] === undefined || ajustes[k] === null ? '' : ajustes[k])) { cambios[k] = v; n++; }
+  });
+  if (!n) { fb.textContent = 'No hay cambios para guardar.'; fb.className = 'cfg-feedback'; return; }
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    var r = await api('saveAjustes', { ajustes: cambios });
+    if (r.ok) { aplicarAjustes(r.ajustes); fb.textContent = '✓ Ajustes guardados. La web ya usa los valores nuevos.'; fb.className = 'cfg-feedback ok'; }
+    else { fb.textContent = r.error || 'No se pudo guardar.'; fb.className = 'cfg-feedback err'; }
+  } catch(e) { fb.textContent = 'No pude confirmar si se guardó (sin conexión). Volvé a entrar a Config para ver cómo quedó.'; fb.className = 'cfg-feedback err'; }
+  btn.disabled = false; btn.textContent = 'Guardar ajustes';
+}
+async function copiaAhora() {
+  var fb = document.getElementById('copia-feedback'), btn = document.getElementById('copia-btn');
+  btn.disabled = true; btn.textContent = 'Copiando...'; fb.textContent = '';
+  try {
+    var r = await api('copiaAhora', null, 60000);
+    if (r.ok) { fb.textContent = '✓ Copia creada: «' + r.nombre + '» (carpeta Respaldos Estudio Infantil en Drive).'; fb.className = 'cfg-feedback ok'; }
+    else { fb.textContent = r.error || 'No se pudo hacer la copia.'; fb.className = 'cfg-feedback err'; }
+  } catch(e) { fb.textContent = 'No pude confirmar la copia (sin conexión).'; fb.className = 'cfg-feedback err'; }
+  btn.disabled = false; btn.textContent = 'Hacer una copia ahora';
+}
+async function cambiarCodigo() {
+  var fb = document.getElementById('cc-feedback'), btn = document.getElementById('cc-guardar');
+  var actual = document.getElementById('cc-actual').value, n1 = document.getElementById('cc-nuevo').value, n2 = document.getElementById('cc-nuevo2').value;
+  var err = !actual ? 'Escribí el código actual.' : (n1.trim().length < 8 ? 'El código nuevo tiene que tener al menos 8 caracteres.' : (n1 !== n2 ? 'Los dos códigos nuevos no coinciden.' : ''));
+  if (err) { fb.textContent = err; fb.className = 'cfg-feedback err'; return; }
+  btn.disabled = true; btn.textContent = 'Cambiando...';
+  try {
+    var r = await api('cambiarCodigo', { actual: actual, nuevo: n1, recordar: sesion.recordar });
+    if (r.ok && r.token) {
+      guardarToken(r.token, sesion.recordar);
+      ['cc-actual', 'cc-nuevo', 'cc-nuevo2'].forEach(function(id) { document.getElementById(id).value = ''; });
+      fb.textContent = '✓ Código cambiado. Se cerraron las otras sesiones y les llegó un aviso por mail.'; fb.className = 'cfg-feedback ok';
+    } else { fb.textContent = r.error || 'No se pudo cambiar.'; fb.className = 'cfg-feedback err'; }
+  } catch(e) { fb.textContent = 'No pude confirmar el cambio (sin conexión). Probá entrar con el código nuevo; si no funciona, con el anterior.'; fb.className = 'cfg-feedback err'; }
+  btn.disabled = false; btn.textContent = 'Cambiar código';
+}
+async function cerrarTodas() {
+  var si = await confirmar({ titulo: 'Cerrar todas las sesiones', texto: 'Se cierra el panel en todos los celulares y compus (también en este). Van a tener que volver a poner el código.', ok: 'Cerrar todas', peligro: true });
+  if (!si) return;
+  try {
+    var r = await api('cerrarSesiones');
+    if (!r.ok) { toast('⚠️ ' + (r.error || 'No se pudo'), 'err'); return; }
+  } catch(e) { toast('⚠️ Sin conexión: no se cerraron las sesiones.', 'err'); return; }
+  guardarToken('', false);
+  salirDelPanel();
+  mostrarErrorLogin('');
+  document.getElementById('login-ok').textContent = 'Listo: se cerraron todas las sesiones. Ingresá de nuevo.';
+}
+
+function askCancel(id)      { cancelTarget = id; document.getElementById('cancel-modal').classList.add('show'); }
+function closeModal()       { document.getElementById('cancel-modal').classList.remove('show'); cancelTarget = null; }
+function confirmCancel()    { if (cancelTarget) updateStatus(cancelTarget,'CANCELADO'); closeModal(); }
+function startLoading()     { document.getElementById('loading-bar').classList.add('loading'); }
+function stopLoading()      { document.getElementById('loading-bar').classList.remove('loading'); }
+
+document.getElementById('cancel-modal').addEventListener('click', function(e) { if (e.target === this) closeModal(); });
+document.getElementById('modal-gen').addEventListener('click', function(e) { if (e.target === this) cerrarModalGen(null); });
+
+// ═══════════════════════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════════════════════
+async function showConfig() {
+  document.getElementById('turnos-view').style.display = 'none';
+  document.getElementById('ai-screen').classList.remove('show');
+  document.getElementById('nuevo-screen').classList.remove('show');
+  document.getElementById('config-screen').classList.add('show');
+  renderCfgCalendar();
+  renderBloqueosList();
+  aplicarAjustes(); cargarAjustes();
+  // Si no hay cambios sin guardar, se vuelve a leer la planilla para trabajar con lo último
+  if (!configLoaded || claveBloqueos(bloqueos) === claveBloqueos(configSnapshot)) {
+    await loadConfig();
+    renderCfgCalendar();
+    if (cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate + 'T12:00:00'));
+    renderBloqueosList();
+  }
+  var fb = document.getElementById('cfg-feedback');
+  if (!configLoaded) {
+    fb.textContent = 'No se pudo cargar la configuración actual. Revisá la conexión y volvé a entrar: así no se puede guardar.';
+    fb.className = 'cfg-feedback err';
+  } else if (fb.className.indexOf('err') >= 0) {
+    fb.textContent = ''; fb.className = 'cfg-feedback';
+  }
+}
+function hideConfig() {
+  document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('turnos-view').style.display = 'block';
+  refrescarSinPerderCambios(null);   // por si cambiaron la seña o el alias (mensajes de WhatsApp)
+}
+
+// Estado de la configuración: guardar reemplaza TODA la lista, así que solo se permite
+// si se pudo leer la lista actual; el servidor además rechaza el cambio si otro dispositivo la modificó.
+var configLoaded = false, configSnapshot = [], configVersion = '';
+
+function copiaBloqueos(lista) {
+  return (lista || []).map(function(b) {
+    var o = { tipo: b.tipo || 'dia', fecha: b.fecha || '', horario: b.horario || '' };
+    if (b.nota !== undefined) o.nota = b.nota;
+    return o;
+  });
+}
+function claveBloqueos(lista) {
+  return (lista || []).map(function(b) {
+    return [String(b.tipo || 'dia'), String(b.fecha || ''), String(b.horario || '')].join('|');
+  }).sort().join('\n');
+}
+async function leerConfigServidor() {
+  var d = await api('getConfig');
+  if (!d.ok) throw new Error(d.error || 'error del servidor');
+  if (!Array.isArray(d.bloqueos)) throw new Error('formato inesperado');
+  return { lista: copiaBloqueos(d.bloqueos), version: String(d.version || '') };
+}
+
+async function loadConfig() {
+  try {
+    var c = await leerConfigServidor();
+    bloqueos = c.lista;
+    configSnapshot = copiaBloqueos(c.lista);
+    configVersion = c.version;
+    configLoaded = true;
+  } catch(e) {
+    // Sin la configuración actual NO se permite guardar (se borrarían los bloqueos existentes)
+    bloqueos = []; configSnapshot = []; configVersion = ''; configLoaded = false;
+  }
+}
+
+// Guarda la lista completa de bloqueos: devuelve { ok, verificado, msg, servidor }
+async function guardarBloqueosSeguro(lista) {
+  if (!configLoaded) return { ok:false, msg:'No se pudo cargar la configuración actual: no guardo nada para no borrar bloqueos. Salí de Config y volvé a entrar.' };
+  var r;
+  try { r = await api('saveConfig', { bloqueos: copiaBloqueos(lista), version: configVersion }); }
+  catch(e) { return { ok:false, msg:'No pude confirmar si se guardó (sin conexión). Salí de Config y volvé a entrar para ver cómo quedó.' }; }
+  if (r.ok) {
+    configSnapshot = copiaBloqueos(r.bloqueos);
+    configVersion = String(r.version || '');
+    return { ok:true, verificado:true, servidor: copiaBloqueos(r.bloqueos) };
+  }
+  if (r.codigo === 'cambio') return { ok:false, msg:'La configuración cambió desde otro dispositivo. No se guardó nada: salí de Config, volvé a entrar y repetí el cambio.' };
+  return { ok:false, msg: 'No se guardó: ' + (r.error || 'error del servidor') };
+}
+
+var CFG_MONTHS = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+var CFG_DAYS   = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+
+function cfgPrevMonth() {
+  if (cfgCal.month === 0) { cfgCal.month = 11; cfgCal.year--; } else cfgCal.month--;
+  cfgCal.selectedDate = null;
+  document.getElementById('cfg-day-panel').classList.remove('show');
+  renderCfgCalendar();
+}
+function cfgNextMonth() {
+  if (cfgCal.month === 11) { cfgCal.month = 0; cfgCal.year++; } else cfgCal.month++;
+  cfgCal.selectedDate = null;
+  document.getElementById('cfg-day-panel').classList.remove('show');
+  renderCfgCalendar();
+}
+
+function renderCfgCalendar() {
+  document.getElementById('cfg-cal-month').textContent = CFG_MONTHS[cfgCal.month] + ' ' + cfgCal.year;
+  var grid  = document.getElementById('cfg-cal-grid');
+  grid.innerHTML = '';
+  CFG_DAYS.forEach(function(d) {
+    var el = document.createElement('div'); el.className = 'cfg-day-name'; el.textContent = d; grid.appendChild(el);
+  });
+  var today = new Date(); today.setHours(0,0,0,0);
+  var fd    = new Date(cfgCal.year, cfgCal.month, 1).getDay();
+  var dm    = new Date(cfgCal.year, cfgCal.month + 1, 0).getDate();
+  for (var i = 0; i < fd; i++) { var e = document.createElement('div'); e.className = 'cfg-day empty'; grid.appendChild(e); }
+  for (var day = 1; day <= dm; day++) {
+    var date = new Date(cfgCal.year, cfgCal.month, day);
+    var ds   = fmtDateCfg(date);
+    var el   = document.createElement('div');
+    el.innerHTML = '<span>' + day + '</span>';
+    var ip  = date < today;
+    var tbd = bloqueos.some(function(b) { return b.tipo === 'dia'  && b.fecha === ds; });
+    var tbs = bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === ds; });
+    var te  = bloqueos.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds; });
+    var cls = 'cfg-day';
+    if (ip) { cls += ' past'; }
+    else {
+      if (tbd) {
+        cls += ' selected-day';
+        var dot = document.createElement('div'); dot.className = 'cfg-dot bloq'; el.appendChild(dot);
+      } else if (tbs) {
+        cls += ' partial';
+        var dot = document.createElement('div'); dot.className = 'cfg-dot part'; el.appendChild(dot);
+      }
+      if (te && !tbd) {
+        cls += ' has-extra';
+        var dot2 = document.createElement('div'); dot2.className = 'cfg-dot extra'; el.appendChild(dot2);
+      }
+      if (cfgCal.selectedDate === ds) cls += ' selected-day';
+      (function(s, dt) { el.onclick = function() { cfgSelectDay(s, dt); }; })(ds, date);
+    }
+    el.className = cls;
+    grid.appendChild(el);
+  }
+}
+
+function fmtDateCfg(d) { return fechaLocal(d); }
+
+function cfgSelectDay(ds, dateObj) {
+  cfgCal.selectedDate = ds;
+  renderCfgCalendar();
+  var panel = document.getElementById('cfg-day-panel');
+  panel.classList.add('show');
+  var d = new Date(ds + 'T12:00:00');
+  document.getElementById('cfg-day-panel-title').textContent =
+    d.toLocaleDateString('es-AR', { weekday:'long', day:'numeric', month:'long', year:'numeric' })
+     .replace(/^\w/, function(c) { return c.toUpperCase(); });
+  var tbd    = bloqueos.some(function(b) { return b.tipo === 'dia' && b.fecha === ds; });
+  var btnDia = document.getElementById('btn-blq-dia');
+  btnDia.textContent = tbd ? '\u2705 Día bloqueado (tap para desbloquear)' : '\uD83D\uDEAB Bloquear día completo';
+  btnDia.className   = tbd ? 'cfg-opt-btn active-block' : 'cfg-opt-btn';
+  var dow   = dateObj.getDay();
+  var slots = dow === 6 ? ADMIN_CONFIG.SLOTS_SATURDAY : (dow >= 1 && dow <= 5 ? ADMIN_CONFIG.SLOTS_WEEKDAY : []);
+  var sw    = document.getElementById('cfg-slots-wrap');
+  var sg    = document.getElementById('cfg-slot-grid');
+  if (slots.length > 0 && !tbd) {
+    sw.style.display = 'block';
+    sg.innerHTML = '';
+    slots.forEach(function(time) {
+      var ib  = bloqueos.some(function(b) { return b.tipo === 'slot' && b.fecha === ds && b.horario === time; });
+      var btn = document.createElement('button');
+      btn.className = 'cfg-slot' + (ib ? ' bloqueado' : '');
+      btn.textContent = time + ' hs' + (ib ? ' \uD83D\uDD12' : '');
+      btn.onclick = function() { toggleBloquearSlot(ds, time); };
+      sg.appendChild(btn);
+    });
+  } else { sw.style.display = 'none'; }
+  var es = document.getElementById('cfg-extra-section');
+  if (!tbd) {
+    es.style.display = 'block';
+    document.getElementById('cfg-extra-input').value = '';
+    document.getElementById('cfg-extra-error').style.display = 'none';
+    renderExtraList(ds);
+  } else { es.style.display = 'none'; }
+}
+
+function toggleBloquearDia() {
+  var ds  = cfgCal.selectedDate;
+  if (!ds) return;
+  var idx = bloqueos.findIndex(function(b) { return b.tipo === 'dia' && b.fecha === ds; });
+  if (idx >= 0) bloqueos.splice(idx, 1);
+  else { bloqueos = bloqueos.filter(function(b) { return !(b.fecha === ds); }); bloqueos.push({ tipo:'dia', fecha:ds, horario:'' }); }
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function toggleBloquearSlot(ds, h) {
+  var idx = bloqueos.findIndex(function(b) { return b.tipo === 'slot' && b.fecha === ds && b.horario === h; });
+  if (idx >= 0) bloqueos.splice(idx, 1);
+  else bloqueos.push({ tipo:'slot', fecha:ds, horario:h });
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function formatExtraInput(input) {
+  var v = input.value.replace(/[^0-9:]/g,'');
+  if (v.length === 2 && !v.includes(':')) v = v + ':';
+  input.value = v;
+}
+function validarHorario(h) { return /^([01]?\d|2[0-3]):([0-5]\d)$/.test(h); }
+
+function agregarSlotExtra() {
+  var ds     = cfgCal.selectedDate;
+  if (!ds) return;
+  var input  = document.getElementById('cfg-extra-input');
+  var errEl  = document.getElementById('cfg-extra-error');
+  var h      = input.value.trim();
+  if (!validarHorario(h)) { errEl.style.display = 'block'; input.focus(); return; }
+  errEl.style.display = 'none';
+  var p = h.split(':');
+  h = p[0].padStart(2,'0') + ':' + p[1];
+  if (bloqueos.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds && b.horario === h; })) { input.value = ''; return; }
+  bloqueos.push({ tipo:'slot_extra', fecha:ds, horario:h });
+  input.value = '';
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function eliminarSlotExtra(ds, h) {
+  var idx = bloqueos.findIndex(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds && b.horario === h; });
+  if (idx >= 0) bloqueos.splice(idx, 1);
+  renderCfgCalendar(); cfgSelectDay(ds, new Date(ds + 'T12:00:00')); renderBloqueosList();
+}
+
+function renderExtraList(ds) {
+  var c  = document.getElementById('cfg-extra-list');
+  var ex = bloqueos.filter(function(b) { return b.tipo === 'slot_extra' && b.fecha === ds; })
+                   .sort(function(a,b) { return a.horario.localeCompare(b.horario); });
+  if (ex.length === 0) { c.innerHTML = '<span style="font-size:12px;color:var(--text-light);">Ningún horario extra</span>'; return; }
+  c.innerHTML = ex.map(function(b) {
+    return '<span class="cfg-extra-tag">' + esc(b.horario) + ' hs <button class="cfg-extra-tag-del" onclick="eliminarSlotExtra(' + jsArg(b.fecha) + ',' + jsArg(b.horario) + ')">&#10005;</button></span>';
+  }).join('');
+}
+
+function renderBloqueosList() {
+  var c = document.getElementById('bloqueos-lista');
+  if (bloqueos.length === 0) { c.innerHTML = '<div class="empty-bloqueos">No hay cambios configurados</div>'; return; }
+  var sorted = bloqueos.slice().sort(function(a,b) { return (a.fecha + a.horario).localeCompare(b.fecha + b.horario); });
+  var html = '';
+  sorted.forEach(function(b) {
+    var d     = new Date(b.fecha + 'T12:00:00');
+    var label = d.toLocaleDateString('es-AR', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
+    var tl, tc;
+    if (b.tipo === 'dia')        { tl = 'Día completo'; tc = 'btipo-dia'; }
+    else if (b.tipo === 'slot')  { tl = b.horario + ' hs (bloqueado)'; tc = 'btipo-slot'; }
+    else                         { tl = b.horario + ' hs ✨ Extra'; tc = 'btipo-extra'; }
+    var ri = bloqueos.indexOf(b);
+    html += '<div class="bloqueo-item"><div class="bloqueo-info">' + esc(label) + ' <span class="bloqueo-tipo ' + tc + '">' + esc(tl) + '</span></div><button class="bloqueo-del" onclick="eliminarBloqueo(' + ri + ')">&#10005;</button></div>';
+  });
+  c.innerHTML = html;
+}
+
+function eliminarBloqueo(idx) {
+  bloqueos.splice(idx, 1);
+  renderCfgCalendar();
+  if (cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate + 'T12:00:00'));
+  renderBloqueosList();
+}
+
+function checkConfirmWord() {
+  document.getElementById('cfg-save-btn').disabled =
+    document.getElementById('cfg-confirm-input').value.trim().toUpperCase() !== 'CONFIRMAR';
+}
+
+async function guardarConfig() {
+  var btn = document.getElementById('cfg-save-btn');
+  var fb  = document.getElementById('cfg-feedback');
+  btn.disabled = true; btn.textContent = 'Guardando...'; fb.textContent = ''; fb.className = 'cfg-feedback';
+  var res = await guardarBloqueosSeguro(bloqueos);
+  if (res.servidor) {
+    bloqueos = res.servidor;
+    renderCfgCalendar();
+    if (cfgCal.selectedDate) cfgSelectDay(cfgCal.selectedDate, new Date(cfgCal.selectedDate + 'T12:00:00'));
+    renderBloqueosList();
+  }
+  if (res.ok) {
+    btn.textContent = 'Guardado!';
+    fb.textContent  = res.verificado ? 'Cambios guardados y verificados en Google Sheets.' : 'Cambios enviados. No pude verificarlos: revisá en un rato.';
+    fb.className    = 'cfg-feedback ok';
+    document.getElementById('cfg-confirm-input').value = '';
+    setTimeout(function() { btn.textContent = 'Guardar cambios'; btn.disabled = true; fb.textContent = ''; }, 3000);
+  } else {
+    btn.textContent = 'Guardar cambios'; btn.disabled = false;
+    fb.textContent  = res.msg; fb.className = 'cfg-feedback err';
+  }
+}
+
+// ═══════════════════════════════════════════════════════════
+// ASISTENTE IA
+// ═══════════════════════════════════════════════════════════
+function showAI() {
+  document.getElementById('turnos-view').style.display = 'none';
+  document.getElementById('config-screen').classList.remove('show');
+  document.getElementById('nuevo-screen').classList.remove('show');
+  document.getElementById('ai-screen').classList.add('show');
+  if (document.getElementById('ai-messages').children.length === 0) {
+    addMsg('ai', 'Hola! Soy tu asistente del estudio 📷\n\nPuedo:\n- Resumir las sesiones de hoy o esta semana\n- Alertar cumpleaños próximos\n- Buscar turnos por nombre\n- Reportar pagos pendientes\n- Confirmar, cancelar o reprogramar turnos\n\n¿En qué te ayudo?');
+  }
+  cargarResumen();
+}
+function hideAI() {
+  document.getElementById('ai-screen').classList.remove('show');
+  document.getElementById('turnos-view').style.display = 'block';
+}
+
+async function cargarResumen() {
+  var el = document.getElementById('ai-resumen-content');
+  el.textContent = 'Cargando...'; el.className = 'ai-resumen-content loading';
+  var hoy     = new Date();
+  var hoyStr  = fechaLocal(hoy);
+  var sesHoy  = allTurnos.filter(function(t) { return t.fecha === hoyStr && t.estado !== 'CANCELADO'; })
+                          .sort(function(a,b) { return a.horario.localeCompare(b.horario); });
+  var cumples = [], vistos = {};
+  allTurnos.forEach(function(t) {
+    if (!t.cumpleBebe || t.estado === 'CANCELADO') return;
+    var cb       = new Date(t.cumpleBebe + 'T12:00:00');
+    var esteAnio = new Date(hoy.getFullYear(), cb.getMonth(), cb.getDate());
+    var diff     = Math.ceil((esteAnio - hoy) / (1000 * 60 * 60 * 24));
+    var cuando   = null;
+    if (diff >= 0 && diff <= 30) cuando = { d: esteAnio, dias: diff };
+    else {
+      var sig  = new Date(hoy.getFullYear() + 1, cb.getMonth(), cb.getDate());
+      var d2   = Math.ceil((sig - hoy) / (1000 * 60 * 60 * 24));
+      if (d2 <= 30) cuando = { d: sig, dias: d2 };
+    }
+    if (!cuando) return;
+    // Un bebé con varias reservas aparece una sola vez (antes salía repetido)
+    var clave = String(t.nombreBebe || '').toLowerCase().trim() + '|' + fechaLocal(cuando.d);
+    if (vistos[clave]) return;
+    vistos[clave] = true;
+    cumples.push({ nombre:t.nombreBebe, dias:cuando.dias, fecha:cuando.d.toLocaleDateString('es-AR', { day:'numeric', month:'long' }) });
+  });
+  cumples.sort(function(a,b) { return a.dias - b.dias; });
+  try {
+    var data = await api('geminiResumen', null, 45000);
+    if (data.ok && data.reply) { el.textContent = data.reply; el.className = 'ai-resumen-content'; }
+    else throw new Error(data.error || 'sin respuesta');
+  } catch(e) {
+    var txt = '';
+    if (sesHoy.length === 0)      txt = 'Hoy no hay sesiones programadas.';
+    else if (sesHoy.length === 1) txt = 'Hoy tenés 1 sesión: ' + sesHoy[0].horario + ' hs con ' + sesHoy[0].nombreBebe + ' — ' + sesHoy[0].tipoSesion + '.';
+    else                          txt = 'Hoy tenés ' + sesHoy.length + ' sesiones: ' + sesHoy.map(function(t) { return t.horario + ' hs - ' + t.nombreBebe; }).join(', ') + '.';
+    if (cumples.length > 0 && cumples[0].dias <= 7) txt += ' 🎂 ' + cumples[0].nombre + ' cumple el ' + cumples[0].fecha + '!';
+    // Antes este error quedaba oculto: ahora se ve que la IA no respondió y por qué
+    txt += '  (Resumen hecho sin IA: la IA no respondió' + (e && e.message ? ' — ' + e.message : '') + ')';
+    el.textContent = txt; el.className = 'ai-resumen-content';
+  }
+}
+
+function addMsg(role, text) {
+  var c   = document.getElementById('ai-messages');
+  var div = document.createElement('div'); div.className = 'ai-msg ' + role;
+  var av  = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = role === 'ai' ? '🤖' : '👤';
+  var bub = document.createElement('div'); bub.className = 'ai-msg-bubble';
+  bub.innerHTML = esc(text).replace(/\n/g,'<br>');
+  div.appendChild(av); div.appendChild(bub);
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
+  return bub;
+}
+function addLoadingMsg() {
+  var c   = document.getElementById('ai-messages');
+  var div = document.createElement('div'); div.className = 'ai-msg ai';
+  var av  = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = '🤖';
+  var bub = document.createElement('div'); bub.className = 'ai-msg-bubble ai-typing'; bub.textContent = '...';
+  div.appendChild(av); div.appendChild(bub);
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
+  return { div, bub };
+}
+// Cada tarjeta guarda y ejecuta SU propia acción (antes, confirmar una tarjeta podía ejecutar otra)
+function addActionCard(action) {
+  var c    = document.getElementById('ai-messages');
+  var div  = document.createElement('div'); div.className = 'ai-msg ai';
+  var av   = document.createElement('div'); av.className  = 'ai-msg-avatar'; av.textContent = '🤖';
+  var bub  = document.createElement('div'); bub.className = 'ai-msg-bubble';
+  var card = document.createElement('div'); card.className = 'ai-accion-card';
+  card.innerHTML = '<div class="ai-accion-title">&#128203; Acción pendiente de confirmación</div><div class="ai-accion-detail" style="white-space:pre-line"></div><div class="ai-accion-btns"><button class="ai-accion-ok">&#10003; Confirmar</button><button class="ai-accion-cancel">Cancelar</button></div>';
+  card.querySelector('.ai-accion-detail').textContent = describirAccion(action);
+  if (action && action.tipo === 'nuevoTurno') {
+    card.querySelector('.ai-accion-title').innerHTML = '&#10133; Turno leído por la IA';
+    card.querySelector('.ai-accion-ok').innerHTML = '&#9998; Revisar y cargar';
+    card.querySelector('.ai-accion-ok').addEventListener('click', function() { abrirNuevoDesdeIA(action, div); });
+  } else card.querySelector('.ai-accion-ok').addEventListener('click', function() { ejecutarAccion(action, div); });
+  card.querySelector('.ai-accion-cancel').addEventListener('click', function() { cancelarAccion(div); });
+  bub.appendChild(card); div.appendChild(av); div.appendChild(bub);
+  c.appendChild(div); c.scrollTop = c.scrollHeight;
+}
+
+// Texto de la tarjeta: lo que dice la IA + el detalle real de lo que se va a cambiar
+function describirAccion(a) {
+  var base = a && a.descripcion ? String(a.descripcion) : 'Acción propuesta por la IA';
+  var t = a && a.id ? allTurnos.find(function(x) { return x.id === a.id; }) : null;
+  var det = '';
+  if (a && a.tipo === 'updateStatus') {
+    det = 'Cambiar el estado ' + (t ? 'de ' + t.nombreBebe + ' (' + t.fecha + ' ' + t.horario + ')' : 'del turno ' + a.id) + ' a ' + a.newStatus;
+  } else if (a && a.tipo === 'reprogramar') {
+    det = 'Mover ' + (t ? 'a ' + t.nombreBebe + ' del ' + t.fecha + ' ' + t.horario : 'el turno ' + a.id) +
+          ' al ' + (a.newFecha || (t ? t.fecha : '?')) + ' ' + (a.newHorario || (t ? t.horario : '?'));
+  } else if (a && a.tipo === 'nuevoTurno') {
+    var campos = [['Fecha', a.fecha], ['Horario', a.horario], ['Sesión', a.tipoSesion], ['Temática', a.tematica], ['Bebé', a.nombreBebe],
+                  ['Cumple', a.cumpleBebe], ['Mamá', a.nombreMama], ['Teléfono', a.telefono], ['Total', a.total], ['Seña', a.senya]];
+    det = 'Nuevo turno (se carga recién cuando lo revises y toques Guardar):\n' +
+      campos.map(function(c) { return '• ' + c[0] + ': ' + (c[1] ? String(c[1]) : '—'); }).join('\n');
+  } else if (a && a.tipo) {
+    det = a.tipo + ' ' + (a.fecha || '') + (a.horario ? ' ' + a.horario : '');
+  }
+  return base + (det ? '\n→ ' + det : '');
+}
+
+var TIPOS_ACCION = ['updateStatus','reprogramar','bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra','nuevoTurno'];
+
+// Saca de la respuesta de la IA los bloques de acción (tolera saltos de línea de Windows,
+// espacios, bloques marcados "json" y varias acciones en un mismo mensaje)
+function extraerAcciones(rt) {
+  var acciones = [], malas = 0;
+  var texto = String(rt || '').replace(/```[ \t]*(action|json)?[ \t]*\r?\n?([\s\S]*?)```/g, function(todo, etiqueta, cuerpo) {
+    var obj = null;
+    try { obj = JSON.parse(String(cuerpo).trim()); } catch(e) {}
+    var lista = Array.isArray(obj) ? obj : (obj ? [obj] : []);
+    var validas = lista.filter(function(a) { return a && typeof a === 'object' && TIPOS_ACCION.indexOf(a.tipo) >= 0; });
+    if (etiqueta === 'action') {
+      validas.forEach(function(a) { acciones.push(a); });
+      if (validas.length === 0 || validas.length < lista.length) malas++;
+      return '';
+    }
+    if (validas.length > 0 && validas.length === lista.length) {
+      validas.forEach(function(a) { acciones.push(a); });
+      return '';
+    }
+    return todo;   // otros bloques de código se muestran tal cual
+  });
+  return { acciones: acciones, malas: malas, texto: texto.trim() };
+}
+
+// Controles antes de tocar la planilla: devuelve null si está todo bien, o el motivo
+function validarAccion(a) {
+  if (!a || typeof a !== 'object') return 'acción vacía';
+  if (a.tipo === 'updateStatus' || a.tipo === 'reprogramar') {
+    var t = allTurnos.find(function(x) { return x.id === a.id; });
+    if (!t) return 'no encontré la reserva con ID ' + a.id;
+    if (a.tipo === 'updateStatus') {
+      if (['PENDIENTE','CONFIRMADO','CANCELADO'].indexOf(a.newStatus) < 0) return 'estado inválido (' + a.newStatus + ')';
+      return null;
+    }
+    if (!a.newFecha && !a.newHorario) return 'no indica nueva fecha ni nuevo horario';
+    if (a.newFecha && !fechaValida(a.newFecha)) return 'fecha inválida (' + a.newFecha + ')';
+    if (a.newHorario && !horaValida(a.newHorario)) return 'horario inválido (' + a.newHorario + ')';
+    var nf = a.newFecha || t.fecha, nh = a.newHorario || t.horario;
+    var choque = allTurnos.find(function(x) { return x.id !== t.id && ocupa(x) && x.fecha === nf && x.horario === nh; });
+    if (choque) return 'ese horario ya está ocupado por otra reserva (' + choque.nombreBebe + ')';
+    return null;
+  }
+  if (['bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'].indexOf(a.tipo) >= 0) {
+    if (!fechaValida(a.fecha)) return 'fecha inválida (' + a.fecha + ')';
+    if (a.tipo !== 'bloquearDia' && a.tipo !== 'desbloquearDia' && !horaValida(a.horario)) return 'horario inválido (' + a.horario + ')';
+    if (!configLoaded) return 'no pude cargar la configuración actual (entrá a Config y volvé a intentar)';
+    return null;
+  }
+  return 'tipo de acción desconocido (' + a.tipo + ')';
+}
+function sendSug(btn) { var t = btn.textContent.trim(); document.getElementById('ai-input').value = t; sendMessage(); }
+function aiKeydown(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 90) + 'px'; }
+
+// ═══ Imagen adjunta para la IA (se achica a 1600 px antes de enviarla) ═══
+var imagenPendiente = null;
+function elegirImagen(input) {
+  var f = input.files && input.files[0];
+  input.value = '';
+  if (!f) return;
+  if (!/^image\//.test(f.type || 'image/')) { toast('Elegí una imagen (JPG o PNG).', 'err'); return; }
+  var url = URL.createObjectURL(f), img = new Image();
+  img.onload = function() {
+    var max = 1600, w = img.naturalWidth, h = img.naturalHeight, k = Math.min(1, max / Math.max(w, h));
+    var c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * k)); c.height = Math.max(1, Math.round(h * k));
+    var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    var dataUrl = c.toDataURL('image/jpeg', 0.85);
+    mostrarImagen({ mime: 'image/jpeg', data: dataUrl.split(',')[1], url: dataUrl });
+  };
+  img.onerror = function() { URL.revokeObjectURL(url); toast('No pude abrir esa imagen. Probá con una captura en JPG o PNG.', 'err'); };
+  img.src = url;
+}
+function mostrarImagen(im) {
+  imagenPendiente = im;
+  document.getElementById('ai-adjunto-img').src = im.url;
+  document.getElementById('ai-adjunto').style.display = 'flex';
+  document.getElementById('ai-input').focus();
+}
+function quitarImagen() {
+  imagenPendiente = null;
+  document.getElementById('ai-adjunto').style.display = 'none';
+  document.getElementById('ai-adjunto-img').removeAttribute('src');
+}
+// La IA propuso un turno: se abre "Nuevo turno" con los datos para revisarlos (no se guarda nada solo)
+function abrirNuevoDesdeIA(a, msgDiv) {
+  if (msgDiv && msgDiv.parentNode) msgDiv.remove();
+  var txt = function(v) { return v === undefined || v === null ? '' : String(v).trim(); };
+  var num = function(v) { return txt(v).replace(/[.,](?=\d{3}(\D|$))/g, '').replace(',', '.').replace(/[^\d.]/g, ''); };   // "$60.000" -> 60000
+  hideAI();
+  showNuevo();
+  var fecha = txt(a.fecha), hora = txt(a.horario).slice(0, 5);
+  if (/^\d:\d\d$/.test(hora)) hora = '0' + hora;
+  document.getElementById('nt-fecha').value = fechaValida(fecha) ? fecha : '';
+  ntActualizarHorarios();
+  var sel = document.getElementById('nt-horario-sel');
+  if (horaValida(hora)) {
+    if (Array.prototype.some.call(sel.options, function(o) { return o.value === hora; })) sel.value = hora;
+    else { sel.value = 'otro'; document.getElementById('nt-horario-otro').value = hora; }
+  } else sel.value = '';
+  ntHorarioSel();
+  var tipo = txt(a.tipoSesion), selTipo = document.getElementById('nt-tipo');
+  if (tipo && !Array.prototype.some.call(selTipo.options, function(o) { return o.value === tipo; })) {
+    var op = document.createElement('option'); op.value = tipo; op.textContent = tipo; selTipo.appendChild(op);
+  }
+  selTipo.value = tipo;
+  document.getElementById('nt-tematica').value = txt(a.tematica);
+  document.getElementById('nt-bebe').value = txt(a.nombreBebe);
+  document.getElementById('nt-cumple').value = fechaValida(txt(a.cumpleBebe)) ? txt(a.cumpleBebe) : '';
+  document.getElementById('nt-mama').value = txt(a.nombreMama);
+  document.getElementById('nt-tel').value = txt(a.telefono);
+  document.getElementById('nt-wa').value = '';
+  document.getElementById('nt-total').value = num(a.total);
+  document.getElementById('nt-notas').value = '';
+  var sena = num(a.senya), modo = parseFloat(sena) > 0 ? 'sena' : 'asegurado';
+  document.querySelector('input[name="nt-modo"][value="' + modo + '"]').checked = true;
+  if (modo === 'sena') document.getElementById('nt-sena').value = sena;
+  ntModo();
+  var fb = document.getElementById('nt-feedback');
+  fb.textContent = 'Datos leídos por la IA: revisalos (sobre todo fecha, hora y cómo queda el turno) y tocá «Guardar turno».';
+  fb.className = 'cfg-feedback ok';
+  addMsg('ai', 'Te abrí «Nuevo turno» con los datos. Revisalos y tocá «Guardar turno»: hasta ese momento no se carga nada.');
+}
+
+async function sendMessage() {
+  var inputEl = document.getElementById('ai-input');
+  var text    = inputEl.value.trim();
+  var imagen  = imagenPendiente;
+  if (!text && !imagen) return;
+  if (!text) text = 'Leé los datos del turno de esta imagen y proponé cargarlo.';
+  inputEl.value = ''; inputEl.style.height = 'auto';
+  document.getElementById('ai-send-btn').disabled = true;
+  var bubUser = addMsg('user', text);
+  if (imagen) { var im = document.createElement('img'); im.className = 'ai-msg-img'; im.src = imagen.url; bubUser.insertBefore(im, bubUser.firstChild); quitarImagen(); }
+  aiHistory.push({ role:'user', content: text + (imagen ? ' [imagen adjunta]' : '') });
+  var loading = addLoadingMsg();
+  try {
+    // El servidor arma el contexto con la planilla (sin teléfonos): acá va la conversación y, si hay, la imagen
+    var datos = { messages: aiHistory.slice(-20) };
+    if (imagen) datos.imagen = { mime: imagen.mime, data: imagen.data };
+    var data = await api('geminiChat', datos, 90000);
+    if (!data.ok) throw new Error(data.error || 'Error del servidor');
+    var rt  = String(data.reply || '');
+    aiHistory.push({ role:'assistant', content:rt });
+    var ex  = extraerAcciones(rt);
+    loading.div.remove();
+    addMsg('ai', ex.texto || (ex.acciones.length ? 'Te propongo este cambio:' : '(sin respuesta)'));
+    ex.acciones.forEach(function(a) { addActionCard(a); });
+    if (ex.malas > 0) addMsg('ai', '⚠️ La IA propuso un cambio que no pude interpretar. No se hizo ningún cambio.');
+  } catch(e) {
+    aiHistory.pop();   // el mensaje no tuvo respuesta: no queda en el historial
+    if (imagen) mostrarImagen(imagen);   // la imagen queda lista para reintentar
+    loading.bub.classList.remove('ai-typing');
+    loading.bub.textContent = '❌ Error: ' + e.message;
+  }
+  document.getElementById('ai-send-btn').disabled = false;
+  document.getElementById('ai-messages').scrollTop = document.getElementById('ai-messages').scrollHeight;
+}
+
+async function ejecutarAccion(action, msgDiv) {
+  if (!action) return;
+  if (msgDiv && msgDiv.parentNode) msgDiv.remove();   // solo se quita ESTA tarjeta
+  var motivo = validarAccion(action);
+  if (motivo) { addMsg('ai', '⚠️ No ejecuté la acción: ' + motivo + '. No se hizo ningún cambio.'); return; }
+  var loading = addLoadingMsg();
+  try {
+    if (action.tipo === 'updateStatus' || action.tipo === 'reprogramar') {
+      var r = action.tipo === 'updateStatus'
+        ? await api('updateStatus', { id: action.id, status: action.newStatus })
+        : await api('reprogramar', { id: action.id, newFecha: action.newFecha, newHorario: action.newHorario });
+      loading.div.remove();
+      if (r.ok) { aplicarReserva(r.reserva); addMsg('ai', '✅ Listo: guardado en la planilla.'); }
+      else { addMsg('ai', '⚠️ No se hizo el cambio: ' + (r.error || 'error del servidor')); return; }
+    } else {
+      // Bloqueos: se trabaja sobre una copia; la lista real cambia solo si se guardó bien
+      var fecha = action.fecha;
+      var nueva = bloqueos.slice();
+      if (action.tipo === 'bloquearDia') {
+        nueva = nueva.filter(function(b) { return b.fecha !== fecha; });
+        nueva.push({ tipo:'dia', fecha, horario:'', nota:action.descripcion||'' });
+      } else if (action.tipo === 'desbloquearDia') {
+        nueva = nueva.filter(function(b) { return !(b.tipo === 'dia' && b.fecha === fecha); });
+      } else if (action.tipo === 'bloquearSlot') {
+        if (!nueva.some(function(b) { return b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario; }))
+          nueva.push({ tipo:'slot', fecha, horario:action.horario, nota:'' });
+      } else if (action.tipo === 'desbloquearSlot') {
+        nueva = nueva.filter(function(b) { return !(b.tipo === 'slot' && b.fecha === fecha && b.horario === action.horario); });
+      } else if (action.tipo === 'agregarSlotExtra') {
+        if (!nueva.some(function(b) { return b.tipo === 'slot_extra' && b.fecha === fecha && b.horario === action.horario; }))
+          nueva.push({ tipo:'slot_extra', fecha, horario:action.horario, nota:'' });
+      }
+      var res = await guardarBloqueosSeguro(nueva);
+      loading.div.remove();
+      if (res.ok) {
+        bloqueos = res.servidor || nueva;
+        addMsg('ai', '✅ Configuración guardada en la planilla.');
+      } else {
+        addMsg('ai', '⚠️ ' + res.msg);
+        return;
+      }
+    }
+    aiHistory.push({ role:'assistant', content:'Acción ejecutada: ' + (action.descripcion || action.tipo) });
+  } catch(e) {
+    loading.bub.classList.remove('ai-typing');
+    loading.bub.textContent = '❌ No pude confirmar si se hizo el cambio (sin conexión). Tocá «Actualizar» para ver cómo quedó.';
+  }
+}
+
+function cancelarAccion(msgDiv) {
+  if (msgDiv && msgDiv.parentNode) msgDiv.remove();   // solo se quita ESTA tarjeta
+  addMsg('ai', 'Entendido, no hice ningún cambio. ¿Querés hacer algo más?');
+}
+
+// INICIO: si este dispositivo ya tiene una sesión abierta, entra directo
+iniciarPanel();
+</script>
+</body>
+</html>
