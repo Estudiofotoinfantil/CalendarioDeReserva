@@ -32,7 +32,7 @@
  *   (v2.3) Dentro de la carpeta de cada familia hay una carpeta por sesión. Se comparte solo la sesión que se manda.
  */
 
-var VERSION = 'v2.4 · 2026-11-01';
+var VERSION = 'v2.5 · 2026-11-09';
 var TZ = 'America/Argentina/Buenos_Aires';
 var H_RES = 'Reservas', H_CONF = 'Configuracion', H_SEG = 'Seguimiento', H_REG = 'Registro', H_AJ = 'Ajustes';
 var ENC_SEG = ['id', 'origen', 'creado', 'venceSena', 'senaRecibida', 'asegurado'];
@@ -79,7 +79,7 @@ var PRIVADAS = {
   verificar: function () { return { ok: true, version: VERSION }; },
   getAll: apiGetAll, getConfig: apiGetConfig, saveConfig: apiSaveConfig,
   updateStatus: apiUpdateStatus, updatePago: apiUpdatePago, senaRecibida: apiSenaRecibida,
-  reprogramar: apiReprogramar, nuevoTurno: apiNuevoTurno,
+  reprogramar: apiReprogramar, nuevoTurno: apiNuevoTurno, cambiarTelefono: apiCambiarTelefono,
   getAjustes: apiGetAjustes, saveAjustes: apiSaveAjustes,
   copiaAhora: apiCopiaAhora, cerrarSesiones: apiCerrarSesiones, logout: apiLogout, cambiarCodigo: apiCambiarCodigo,
   geminiChat: apiGeminiChat, geminiResumen: apiGeminiResumen,
@@ -332,15 +332,9 @@ function registrar(accion, id, antes, despues) {
 function claveFamiliaValida(c) { return /^(tel|nom|bebe):.{1,80}$/.test(c); }
 function claveSesionValida(c) { return /^ses:[A-Za-z0-9_-]{1,40}$/.test(c); }
 function claveFotosValida(c) { return claveFamiliaValida(c) || claveSesionValida(c); }
-// La carpeta raíz SIEMPRE es del Drive de la cuenta que hace funcionar el servidor (así el espacio que se usa es el de esa cuenta)
-function cuentaActual() { try { return String(Session.getEffectiveUser().getEmail() || ''); } catch (e) { return ''; } }
-function esMia(c) {
-  try { var o = c.getOwner(), yo = cuentaActual(); return !o || !yo || String(o.getEmail()) === yo; } catch (e) { return true; }
-}
 function carpetaDeFotos() {
   var it = DriveApp.getFoldersByName(CARPETA_FOTOS);
-  while (it.hasNext()) { var c = it.next(); if (!c.isTrashed() && esMia(c)) return c; }
-  return DriveApp.createFolder(CARPETA_FOTOS);
+  return it.hasNext() ? it.next() : DriveApp.createFolder(CARPETA_FOTOS);
 }
 // Lee la pestaña "Fotos" (si no existe todavía, no la crea: devuelve vacío)
 function leerFotos() {
@@ -362,7 +356,7 @@ function carpetaViva(id) {
 // No toma el bloqueo: lo toma quien la llama.
 function asegurarCarpeta(clave, nombre, padre, nombrePadre) {
   var f = leerFotos(), ex = filaFotos(f, clave), viva = ex ? carpetaViva(ex.carpetaId) : null;
-  if (viva && (claveSesionValida(clave) || esMia(viva))) return { ok: true, fila: ex, carpeta: viva };
+  if (viva) return { ok: true, fila: ex, carpeta: viva };
   var dentro, titulo;
   if (claveSesionValida(clave)) {
     if (!claveFamiliaValida(padre)) return error('No reconozco a qué familia pertenece la sesión');
@@ -508,42 +502,6 @@ function apiFotoGrande(d) {
   var tam = archivo.getSize(), tipo = String(archivo.getMimeType());   // sin miniatura: la original si es liviana y el navegador la muestra
   if (tam <= 6 * 1024 * 1024 && /jpe?g|png|webp/i.test(tipo)) return { ok: true, tipo: tipo, datos: Utilities.base64Encode(archivo.getBlob().getBytes()) };
   return error('Drive todavía está preparando la vista de esta foto. Abrila en Drive o probá en un rato.', 'sinvista');
-}
-// ── Pasar las fotos a la cuenta que hace funcionar el servidor (ejecutar a mano UNA vez, desde el editor, con esa cuenta).
-// Copia cada sesión cuya carpeta es de otra cuenta a una carpeta nueva propia (mismos archivos, misma calidad),
-// actualiza la pestaña "Fotos" y deja la carpeta vieja intacta (se borra a mano después de revisar).
-function migrarFotosACuentaActual() {
-  var lock = LockService.getScriptLock(); lock.waitLock(30000);
-  var hechas = [], saltadas = [];
-  try {
-    var f = leerFotos();
-    f.filas.filter(function (x) { return claveSesionValida(x.clave); }).forEach(function (x) {
-      var vieja = carpetaViva(x.carpetaId);
-      if (!vieja) { saltadas.push(x.nombre + ' (no veo la carpeta: ¿está compartida con esta cuenta?)'); return; }
-      if (esMia(vieja)) { saltadas.push(x.nombre + ' (ya es de esta cuenta)'); return; }
-      var fam = filaFotos(leerFotos(), x.padre);
-      var p = asegurarCarpeta(x.padre, fam ? fam.nombre : 'Familia');
-      if (!p.ok) { saltadas.push(x.nombre + ' (' + p.error + ')'); return; }
-      var nueva = p.carpeta.createFolder(x.nombre || vieja.getName());
-      var it = vieja.getFiles(), n = 0;
-      while (it.hasNext()) { var a = it.next(); if (a.isTrashed()) continue; a.makeCopy(a.getName(), nueva); n++; }
-      if (x.compartida) nueva.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-      else nueva.setSharing(DriveApp.Access.PRIVATE, DriveApp.Permission.NONE);
-      var fila = [x.clave, x.nombre, nueva.getId(), nueva.getUrl(), x.compartida ? 'si' : 'no', ahoraISO(), String(n), x.padre];
-      escribirTexto(hoja(H_FOT).getRange(x._fila, 1, 1, fila.length), [fila]);
-      registrar('fotosMigrar', x.clave, { carpeta: x.carpetaId }, { carpeta: nueva.getId(), fotos: n });
-      hechas.push(x.nombre + ': ' + n + ' fotos');
-    });
-  } finally { lock.releaseLock(); }
-  Logger.log('Cuenta: ' + cuentaActual() + '\nCopiadas: ' + (hechas.join(' | ') || 'ninguna') + '\nSin copiar: ' + (saltadas.join(' | ') || 'ninguna'));
-  return { hechas: hechas, saltadas: saltadas };
-}
-// Para ejecutar con la cuenta VIEJA: deja ver sus carpetas de fotos a la cuenta nueva (solo lectura) para poder copiarlas.
-function compartirFotosConCuentaNueva() {
-  var email = 'christiandanieltapia88@gmail.com';
-  var it = DriveApp.getFoldersByName(CARPETA_FOTOS), n = 0;
-  while (it.hasNext()) { var c = it.next(); if (esMia(c)) { c.addViewer(email); n++; } }
-  Logger.log('Carpetas "' + CARPETA_FOTOS + '" compartidas con ' + email + ': ' + n);
 }
 function espacioDrive() {
   try { return { usado: DriveApp.getStorageUsed(), limite: DriveApp.getStorageLimit() }; } catch (e) { return null; }
@@ -978,6 +936,46 @@ function apiUpdatePago(d) {
     if (!senaAntes && parseFloat(fila.senya) > 0 && s && !s.senaRecibida) guardarSeguimiento(fila.id, { senaRecibida: ahoraISO() }, ctx.seguimiento);   // seña anotada en "Pago": ya no se libera sola
   });
 }
+// Cambiar el WhatsApp de una familia (todas sus reservas que manda el panel).
+// Solo toca las columnas whatsapp y teléfono (el teléfono solo si era el mismo número o estaba vacío).
+// Cada cambio queda en "Registro" con el valor anterior. Las carpetas de fotos siguen siendo de la misma familia.
+function apiCambiarTelefono(d) {
+  var ids = (Array.isArray(d.ids) ? d.ids : []).map(function (x) { return texto(x, 40); }).filter(Boolean);
+  if (!ids.length || ids.length > 300) return error('No sé a qué reservas cambiarles el número');
+  var nuevo = texto(d.whatsapp, 25), dig = nuevo.replace(/\D/g, '');
+  if (dig.length < 8 || dig.length > 15) return error('Revisá el número: tiene que tener entre 8 y 15 números');
+  var lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    var ctx = contexto(), filas = ids.map(function (id) { return buscarFila(ctx.reservas, id); });   // si falta alguna, no se cambia ninguna
+    var viejas = {}, salida = [];
+    filas.forEach(function (fila) {
+      var waAnt = String(fila.whatsapp || '').replace(/\D/g, ''), telAnt = String(fila.telefono || '').replace(/\D/g, '');
+      var cambios = { whatsapp: nuevo };
+      if (!telAnt || !waAnt || telAnt === waAnt) cambios.telefono = nuevo;
+      var viejo = waAnt || telAnt;
+      if (viejo.length >= 8) viejas['tel:' + viejo.slice(-8)] = true;
+      var c = escribirCampos(ctx.reservas, fila, cambios);
+      if (c.hubo) registrar('cambiarTelefono', fila.id, c.antes, c.despues);
+      salida.push(filaParaPanel(fila, ctx.seguimiento[fila.id], Date.now()));
+    });
+    var nueva = 'tel:' + dig.slice(-8);
+    delete viejas[nueva];
+    moverFamiliaDeFotos(Object.keys(viejas), nueva);
+    return { ok: true, reservas: salida };
+  } finally { lock.releaseLock(); }
+}
+// En la pestaña "Fotos", la familia pasa a identificarse con el número nuevo (no se mueve ninguna carpeta)
+function moverFamiliaDeFotos(viejas, nueva) {
+  if (!viejas.length) return;
+  var f = leerFotos();
+  if (!f.hoja) return;
+  var yaHay = !!filaFotos(f, nueva);
+  f.filas.forEach(function (x) {
+    if (viejas.indexOf(x.clave) >= 0 && !yaHay) { escribirTexto(f.hoja.getRange(x._fila, 1), [[nueva]]); yaHay = true; }
+    if (viejas.indexOf(x.padre) >= 0) escribirTexto(f.hoja.getRange(x._fila, 8), [[nueva]]);
+  });
+}
 // Si el estudio toca una reserva de la web que no tiene seña, queda asegurada (ya no se libera sola)
 function asegurarSiEsWeb(ctx, fila, motivo) {
   var s = ctx.seguimiento[fila.id];
@@ -1189,7 +1187,8 @@ function apiGeminiChat(d) {
     '```',
     'Tipos permitidos: updateStatus (id, newStatus: PENDIENTE|CONFIRMADO|CANCELADO), reprogramar (id, newFecha AAAA-MM-DD, newHorario HH:MM),',
     'bloquearDia (fecha), desbloquearDia (fecha), bloquearSlot (fecha, horario), desbloquearSlot (fecha, horario), agregarSlotExtra (fecha, horario),',
-    'nuevoTurno (fecha AAAA-MM-DD, horario HH:MM, tipoSesion, tematica, nombreBebe, cumpleBebe AAAA-MM-DD, nombreMama, telefono, total, senya).',
+    'nuevoTurno (fecha AAAA-MM-DD, horario HH:MM, tipoSesion, tematica, nombreBebe, cumpleBebe AAAA-MM-DD, nombreMama, telefono, total, senya),',
+    'cambiarTelefono (id: el de cualquier sesión de esa familia, whatsapp: el número nuevo como lo dicen, sin espacios). Se cambia en TODAS las sesiones de la familia; vos no ves los números actuales, así que no los inventes.',
     'Si te mandan una imagen (captura de WhatsApp, foto de una agenda o un comprobante), leé los datos del turno y proponé un nuevoTurno con lo que se vea claro;',
     'dejá vacío lo que no esté y decí qué falta. Fechas sin año: el próximo día que coincida desde hoy. Si el horario ya está ocupado según la lista, avisalo.',
     'Tipos de sesión habituales: ' + leerAjustes().tiposSesion.concat(['Newborn', 'Embarazadas', '15 años']).join(', ') + '. Montos sin puntos ni signo $.',

@@ -146,6 +146,13 @@ svg.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;str
 .fotos-estado{margin-top:-2px;}
 .fotos-links{display:flex;gap:18px;flex-wrap:wrap;margin-top:6px;}
 .subida-nota.espacio{color:var(--tinta-3);font-size:12.5px;}
+/* WhatsApp de la familia */
+.tel-linea{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+.tel-cambiar{height:auto;padding:0;font-size:14px;}
+.tel-form{margin:10px 0 4px;padding:14px;border-radius:var(--r-chico);background:var(--hoja-2);}
+.tel-form label{display:block;font-size:13px;color:var(--tinta-2);margin-bottom:6px;}
+.tel-form input{width:100%;font-size:17px;}
+.tel-btns{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-top:4px;}
 /* sesiones de la familia */
 .grupo-bebe{font-family:var(--f-nombre);font-style:italic;font-weight:500;font-size:17px;color:var(--tinta);margin:18px 0 2px;}
 .grupo-bebe:first-of-type{margin-top:4px;}
@@ -2108,13 +2115,17 @@ function describirAccion(a) {
                   ['Cumple', a.cumpleBebe], ['Mamá', a.nombreMama], ['Teléfono', a.telefono], ['Total', a.total], ['Seña', a.senya]];
     det = 'Nuevo turno (se carga recién cuando lo revises y toques Guardar):\n' +
       campos.map(function(c) { return '• ' + c[0] + ': ' + (c[1] ? String(c[1]) : '—'); }).join('\n');
+  } else if (a && a.tipo === 'cambiarTelefono') {
+    var fam = t ? familiasIdx[claveFamilia(t)] : null, n = fam ? idsFamilia(fam).length : 0;
+    det = 'Cambiar el WhatsApp de la familia de ' + (fam ? fam.nombre : (t ? lindo(t.nombreMama) : 'la reserva ' + a.id)) +
+      (fam && fam.whatsapp ? ' (' + fam.whatsapp + ')' : '') + ' a ' + (a.whatsapp || '?') + (n ? ', en ' + (n === 1 ? 'su sesión' : 'sus ' + n + ' sesiones') : '');
   } else if (a && a.tipo) {
     det = a.tipo + ' ' + (a.fecha || '') + (a.horario ? ' ' + a.horario : '');
   }
   return base + (det ? '\n\n' + det : '');
 }
 
-var TIPOS_ACCION = ['updateStatus','reprogramar','bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra','nuevoTurno'];
+var TIPOS_ACCION = ['updateStatus','reprogramar','bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra','nuevoTurno','cambiarTelefono'];
 
 // Saca de la respuesta de la IA los bloques de acción (tolera saltos de línea de Windows,
 // espacios, bloques marcados "json" y varias acciones en un mismo mensaje)
@@ -2155,6 +2166,14 @@ function validarAccion(a) {
     var nf = a.newFecha || t.fecha, nh = a.newHorario || t.horario;
     var choque = allTurnos.find(function(x) { return x.id !== t.id && ocupa(x) && x.fecha === nf && x.horario === nh; });
     if (choque) return 'ese horario ya está ocupado por otra reserva (' + choque.nombreBebe + ')';
+    return null;
+  }
+  if (a.tipo === 'cambiarTelefono') {
+    var tt = allTurnos.find(function(x) { return x.id === a.id; });
+    if (!tt) return 'no encontré la reserva con ID ' + a.id;
+    var dg = String(a.whatsapp || '').replace(/\D/g, '');
+    if (dg.length < 8 || dg.length > 15) return 'el número nuevo no es válido (' + (a.whatsapp || 'vacío') + ')';
+    if (!familiasIdx[claveFamilia(tt)]) return 'no encontré la familia de esa reserva';
     return null;
   }
   if (['bloquearDia','desbloquearDia','bloquearSlot','desbloquearSlot','agregarSlotExtra'].indexOf(a.tipo) >= 0) {
@@ -2281,7 +2300,13 @@ async function ejecutarAccion(action, msgDiv) {
   if (motivo) { addMsg('ai', 'No hice el cambio: ' + motivo + '.'); return; }
   var loading = addLoadingMsg();
   try {
-    if (action.tipo === 'updateStatus' || action.tipo === 'reprogramar') {
+    if (action.tipo === 'cambiarTelefono') {
+      var tt = allTurnos.find(function(x) { return x.id === action.id; });
+      var rt = await cambiarTelefonoFamilia(claveFamilia(tt), action.whatsapp);
+      loading.div.remove();
+      if (rt.ok) addMsg('ai', 'Listo: WhatsApp actualizado en ' + rt.n + (rt.n === 1 ? ' sesión.' : ' sesiones.'));
+      else { addMsg('ai', 'No se hizo el cambio: ' + rt.error); return; }
+    } else if (action.tipo === 'updateStatus' || action.tipo === 'reprogramar') {
       var r = action.tipo === 'updateStatus'
         ? await api('updateStatus', { id: action.id, status: action.newStatus })
         : await api('reprogramar', { id: action.id, newFecha: action.newFecha, newHorario: action.newHorario });
@@ -3233,12 +3258,67 @@ document.addEventListener('keydown', function(e) {
   else if (e.key === 'ArrowRight') { e.preventDefault(); moverVisor(1); }
 }, true);
 
+// ── WhatsApp de la familia: ver y corregir (se cambia en todas sus sesiones)
+var editTel = null;   // clave de la familia que se está editando
+function idsFamilia(f) { return f.turnos.map(function(t) { return t.id; }).filter(Boolean); }
+function htmlTelefonoFamilia(f) {
+  var cl = jsArg(f.clave), n = idsFamilia(f).length;
+  if (editTel !== f.clave) {
+    return '<div class="det-que tel-linea">' + (f.whatsapp ? 'WhatsApp ' + esc(f.whatsapp) : 'Sin WhatsApp cargado') +
+      (n ? ' <button type="button" class="btn btn-texto tel-cambiar" data-accion="cambiar-tel" onclick="editarTelefono(' + cl + ')">' + (f.whatsapp ? 'Corregir' : 'Agregar') + '</button>' : '') + '</div>';
+  }
+  return '<form class="tel-form" onsubmit="event.preventDefault();guardarTelefonoForm(' + cl + ')">' +
+    '<label for="tel-nuevo">WhatsApp de la familia</label>' +
+    '<input id="tel-nuevo" type="tel" inputmode="tel" autocomplete="off" value="' + esc(f.whatsapp || '') + '" placeholder="Código de área y número, ej. 1123456789">' +
+    '<p class="subida-nota">Se corrige en ' + (n === 1 ? 'su sesión' : 'sus ' + n + ' sesiones') + '. El cambio queda anotado en el Registro de la planilla, con el número anterior.</p>' +
+    '<div class="tel-btns"><button type="submit" class="btn btn-principal" data-accion="guardar-tel"' + (fotosOcupado ? ' disabled' : '') + '>Guardar número</button>' +
+    '<button type="button" class="btn btn-texto" onclick="editTel=null;pintarHoja(true)">Cancelar</button></div></form>';
+}
+function editarTelefono(clave) {
+  editTel = clave; pintarHoja(true);
+  setTimeout(function() { var i = document.getElementById('tel-nuevo'); if (i) { i.focus(); i.select(); } }, 30);
+}
+function guardarTelefonoForm(clave) {
+  var i = document.getElementById('tel-nuevo');
+  cambiarTelefonoFamilia(clave, i ? i.value : '');
+}
+var telOcupado = false;
+// Devuelve { ok, error, clave } — lo usan la ficha y el asistente
+async function cambiarTelefonoFamilia(clave, numero) {
+  var f = familiasIdx[clave];
+  numero = String(numero || '').trim();
+  var dig = numero.replace(/\D/g, '');
+  if (!f) return { ok: false, error: 'no encontré la familia' };
+  if (dig.length < 8 || dig.length > 15) { toast('Revisá el número: tiene que tener entre 8 y 15 números.', 'err'); return { ok: false, error: 'número inválido' }; }
+  if (telOcupado) return { ok: false, error: 'ya hay un cambio en curso' };
+  var ids = idsFamilia(f);
+  telOcupado = true;
+  try {
+    var r = await api('cambiarTelefono', { ids: ids, whatsapp: numero }, 45000);
+    if (!r || !r.ok) { toast((r && r.error) || 'No se pudo guardar el número.', 'err'); return { ok: false, error: (r && r.error) || 'error del servidor' }; }
+    (r.reservas || []).forEach(function(row) {
+      var nueva = normalizeReserva(row, 0), k = allTurnos.findIndex(function(t) { return t.id === nueva.id; });
+      if (k >= 0) allTurnos[k] = nueva;
+    });
+    editTel = null;
+    refrescarVista();
+    var t0 = allTurnos.filter(function(t) { return t.id === ids[0]; })[0], nuevaClave = t0 ? claveFamilia(t0) : clave;
+    var tope = topeHoja();
+    if (hoja.abierta && tope && tope.tipo === 'familia' && tope.clave === clave) { tope.clave = nuevaClave; pintarHoja(true); }
+    cargarFotos();
+    toast('Listo: WhatsApp actualizado en ' + ids.length + (ids.length === 1 ? ' sesión.' : ' sesiones.'), 'ok');
+    return { ok: true, clave: nuevaClave, n: ids.length };
+  } catch(e) {
+    toast('No pude confirmar si se guardó (sin conexión). Tocá Actualizar para ver cómo quedó.', 'err');
+    return { ok: false, error: 'sin conexión' };
+  } finally { telOcupado = false; }
+}
 function htmlFamilia(f) {
   var d = f.desde ? fechaObj(f.desde) : null;
   var h = '<div class="det-cuando">' + (f.sesiones ? f.sesiones + (f.sesiones === 1 ? ' sesión' : ' sesiones') : 'Sin sesiones') +
       (d ? ', clienta desde ' + MESES[d.getMonth()] + ' de ' + d.getFullYear() : '') + '</div>' +
     '<h2 class="det-quien fam" id="hoja-titulo">' + esc(f.nombre) + '</h2>';
-  if (f.whatsapp) h += '<div class="det-que">WhatsApp ' + esc(f.whatsapp) + '</div>';
+  h += htmlTelefonoFamilia(f);
   if (f.wa) h += '<div class="det-acciones"><div class="wa-grupo"><a class="wa-btn" href="https://wa.me/' + esc(f.wa) + '" target="_blank" rel="noopener">' + icono('wa') + 'Escribir por WhatsApp</a></div></div>';
   if (f.bebes.length) h += '<section class="bloque"><h3>' + (f.bebes.length === 1 ? 'Bebé' : 'Bebés') + '</h3><div class="bebes">' +
     f.bebes.map(function(b) { return '<div><em>' + esc(b.nombre) + '</em>' + esc(cumpleBebe(b)) + '</div>'; }).join('') + '</div></section>';
