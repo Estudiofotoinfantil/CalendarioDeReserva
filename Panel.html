@@ -350,6 +350,13 @@ html.con-verfoto,html.con-verfoto body{overflow:hidden;}
 /* ─── páginas a pantalla completa (config, nuevo turno, asistente) ─── */
 .config-screen,.ai-screen{display:none;position:fixed;inset:0;z-index:400;background:var(--papel);overflow-y:auto;}
 .config-screen.show,.ai-screen.show{display:block;}
+.prop-item{padding:13px 2px;border-bottom:1px solid var(--linea);}
+.prop-item .q{font-weight:600;font-size:15.5px;}
+.prop-item .p{font-size:13px;color:var(--tinta-2);margin-top:2px;}
+.prop-barra{height:6px;border-radius:3px;background:var(--linea);margin:8px 0 6px;overflow:hidden;}
+.prop-barra i{display:block;height:100%;background:var(--salvia);border-radius:3px;}
+.prop-item .d{font-size:13px;color:var(--tinta-2);line-height:1.45;}
+.prop-item .d b{color:var(--tinta);font-weight:600;}
 .pag-cabeza{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:6px;padding:10px 12px;background:rgba(238,239,236,.94);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);border-bottom:1px solid var(--linea);}
 .pag-cabeza h2{font-family:var(--f-nombre);font-weight:400;font-size:21px;flex:1;}
 .config-back-btn{display:flex;align-items:center;gap:4px;height:40px;padding:0 10px 0 4px;border-radius:var(--r-chico);font-size:15px;color:var(--tinta-2);}
@@ -616,6 +623,7 @@ button,a,label,select{touch-action:manipulation;}
     <header class="cabeza"><div><h1 id="mas-titulo">M&aacute;s</h1></div></header>
     <div class="menu-lista">
       <button class="menu-item" onclick="showAI()"><i data-ic="charla"></i><span class="tt"><b>Asistente</b><span>Preguntale por la agenda o pasale una captura para cargar un turno</span></span><i data-ic="chevD"></i></button>
+      <button class="menu-item" onclick="showPropuestas()"><i data-ic="lente"></i><span class="tt"><b>Propuestas</b><span>Qui&eacute;n abri&oacute; la propuesta que le mandaste y hasta d&oacute;nde lleg&oacute;</span></span><i data-ic="chevD"></i></button>
       <button class="menu-item" onclick="showConfig('dias')"><i data-ic="reloj"></i><span class="tt"><b>D&iacute;as y horarios</b><span>Bloquear d&iacute;as u horarios y sumar horarios extra</span></span><i data-ic="chevD"></i></button>
       <button class="menu-item" onclick="showConfig('sena')"><i data-ic="billetera"></i><span class="tt"><b>Se&ntilde;a y reservas web</b><span>Monto, plazo, alias y horarios que ve la mam&aacute;</span></span><i data-ic="chevD"></i></button>
       <button class="menu-item" onclick="showConfig('copia')"><i data-ic="caja"></i><span class="tt"><b>Copia de seguridad</b><span>Se hace sola cada noche en Drive; tambi&eacute;n pod&eacute;s hacer una ahora</span></span><i data-ic="chevD"></i></button>
@@ -638,6 +646,19 @@ button,a,label,select{touch-action:manipulation;}
       <button class="tab" id="tab-mas" onclick="irA('mas')"><i data-ic="puntos"></i><span>M&aacute;s</span></button>
     </div>
   </nav>
+
+  <!-- PROPUESTAS -->
+  <div class="config-screen" id="prop-screen" role="dialog" aria-labelledby="prop-titulo">
+    <div class="pag-cabeza">
+      <button class="config-back-btn" onclick="cerrarPagina('prop-screen')"><i data-ic="chevI"></i>Volver</button>
+      <h2 id="prop-titulo">Propuestas</h2>
+      <button class="config-back-btn" onclick="cargarPropuestas()" aria-label="Actualizar"><i data-ic="recargar"></i></button>
+    </div>
+    <div class="config-body">
+      <p class="config-section-sub">Qui&eacute;n abri&oacute; la propuesta que le mandaste, hasta qu&eacute; p&aacute;gina lleg&oacute; y cu&aacute;nto la mir&oacute;. Tambi&eacute;n te llega un mail la primera vez que una familia la mira de verdad. No cuentan los tel&eacute;fonos del estudio.</p>
+      <div id="prop-lista"><div class="vacio">Cargando&hellip;</div></div>
+    </div>
+  </div>
 
   <!-- CONFIGURACIÓN -->
   <div class="config-screen" id="config-screen" role="dialog" aria-labelledby="cfg-titulo">
@@ -3495,9 +3516,51 @@ function leerCaptura() {
 }
 
 // ═══════════════════════════════════════════════════════════
+// PROPUESTAS: quién abrió cada link y hasta dónde llegó
+// ═══════════════════════════════════════════════════════════
+try { localStorage.setItem('efi_estudio', '1'); } catch(e) {}   // este teléfono es del estudio: sus visitas no cuentan
+function showPropuestas() { abrirPagina('prop-screen'); cargarPropuestas(); }
+function haceCuanto(iso) {
+  var t = Date.parse(iso); if (!t) return '';
+  var m = Math.round((Date.now() - t) / 60000);
+  if (m < 1) return 'recién';
+  if (m < 60) return 'hace ' + m + ' min';
+  var h = Math.round(m / 60); if (h < 24) return 'hace ' + h + ' h';
+  var d = new Date(t);
+  return d.toLocaleDateString('es-AR', { day: 'numeric', month: 'numeric' }) + ' ' + d.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' });
+}
+function tiempoLeido(s) { s = Number(s) || 0; if (s < 60) return s + ' s'; var m = Math.floor(s / 60), r = s % 60; return m + ' min' + (r ? ' ' + r + ' s' : ''); }
+async function cargarPropuestas() {
+  var box = document.getElementById('prop-lista');
+  var r;
+  try { r = await api('vistasListar', {}, 20000); } catch(e) { box.innerHTML = '<div class="vacio">Sin conexión con el servidor. Probá de nuevo.</div>'; return; }
+  if (!r || !r.ok) {
+    box.innerHTML = '<div class="vacio">' + (r && /desconocida/i.test(r.error || '') ? 'Falta actualizar el servidor (versión 2.6) para ver las propuestas.' : esc((r && r.error) || 'No pude leer las propuestas.')) + '</div>';
+    return;
+  }
+  if (!r.vistas.length) { box.innerHTML = '<div class="vacio">Todavía ninguna familia abrió una propuesta desde que está activo el aviso.</div>'; return; }
+  box.innerHTML = r.vistas.map(function(v) {
+    var quien = v.mama ? v.mama + (v.bebe ? ' · ' + v.bebe : '') : v.bebe;
+    var tot = Number(v.totalPaginas) || 0, pag = Number(v.paginaMax) || 0;
+    var pct = tot ? Math.round(pag / tot * 100) : 0;
+    var extras = [];
+    if (v.whatsapp) extras.push('<b>tocó WhatsApp</b>' + (v.pack ? ' (' + esc(v.pack) + ')' : ''));
+    if (v.pdf) extras.push('<b>bajó el PDF</b>');
+    var veces = Number(v.aperturas) || 1;
+    return '<div class="prop-item"><div class="q">' + esc(quien) + '</div>' +
+      '<div class="p">' + esc(v.nombrePropuesta || v.propuesta) + ' · ' + esc(haceCuanto(v.ultimaVez)) + '</div>' +
+      '<div class="prop-barra"><i style="width:' + pct + '%"></i></div>' +
+      '<div class="d">Llegó a la página <b>' + pag + (tot ? ' de ' + tot : '') + '</b>' + (v.ultimaPagina ? ' (' + esc(v.ultimaPagina) + ')' : '') +
+      ' · la miró ' + esc(tiempoLeido(v.segundos)) + ' · la abrió ' + veces + (veces === 1 ? ' vez' : ' veces') +
+      (Number(v.dispositivos) > 1 ? ' en ' + v.dispositivos + ' teléfonos' : '') +
+      (extras.length ? '<br>' + extras.join(' · ') : '') + '</div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
 // NAVEGACIÓN ENTRE VISTAS Y PÁGINAS
 // ═══════════════════════════════════════════════════════════
-var VISTAS = ['hoy', 'agenda', 'familias', 'mas'], PAGINAS = ['config-screen', 'nuevo-screen', 'ai-screen'];
+var VISTAS = ['hoy', 'agenda', 'familias', 'mas'], PAGINAS = ['config-screen', 'nuevo-screen', 'ai-screen', 'prop-screen'];
 function irA(v) {
   if (VISTAS.indexOf(v) < 0) v = 'hoy';
   vistaActual = v;

@@ -30,9 +30,14 @@
  *   (v2.2) El panel sube las fotos directo a esa carpeta, una por una, en su calidad original,
  *   y muestra las miniaturas y el espacio que queda en Drive.
  *   (v2.3) Dentro de la carpeta de cada familia hay una carpeta por sesión. Se comparte solo la sesión que se manda.
+ *
+ * Propuestas web (v2.6): cada propuesta que se manda por link (Navidad, etc.) avisa cuando la familia la abre,
+ *   hasta qué página llegó, cuánto tiempo la miró y si bajó el PDF o tocó WhatsApp. Queda en la pestaña nueva
+ *   "Vistas" (una fila por link) y en el panel (Más → Propuestas). La primera vez que una familia la mira de verdad
+ *   llega un mail a EMAILS_ADMIN. No guarda teléfonos: solo los nombres que ya van en el link.
  */
 
-var VERSION = 'v2.5 · 2026-11-09';
+var VERSION = 'v2.6 · 2026-11-24';
 var TZ = 'America/Argentina/Buenos_Aires';
 var H_RES = 'Reservas', H_CONF = 'Configuracion', H_SEG = 'Seguimiento', H_REG = 'Registro', H_AJ = 'Ajustes';
 var ENC_SEG = ['id', 'origen', 'creado', 'venceSena', 'senaRecibida', 'asegurado'];
@@ -73,7 +78,8 @@ function doGet(e) {
 }
 
 var PUBLICAS = {
-  login: apiLogin, reservar: apiReservar, recuperar: apiRecuperar, restablecer: apiRestablecer
+  login: apiLogin, reservar: apiReservar, recuperar: apiRecuperar, restablecer: apiRestablecer,
+  visto: apiVisto
 };
 var PRIVADAS = {
   verificar: function () { return { ok: true, version: VERSION }; },
@@ -84,7 +90,8 @@ var PRIVADAS = {
   copiaAhora: apiCopiaAhora, cerrarSesiones: apiCerrarSesiones, logout: apiLogout, cambiarCodigo: apiCambiarCodigo,
   geminiChat: apiGeminiChat, geminiResumen: apiGeminiResumen,
   fotosListar: apiFotosListar, fotosCrear: apiFotosCrear, fotosAcceso: apiFotosAcceso,
-  fotosSubir: apiFotosSubir, fotosVer: apiFotosVer, fotoGrande: apiFotoGrande
+  fotosSubir: apiFotosSubir, fotosVer: apiFotosVer, fotoGrande: apiFotoGrande,
+  vistasListar: apiVistasListar
 };
 
 function doPost(e) {
@@ -683,6 +690,95 @@ function avisarReservaWeb(datos, vence, aj) {
       'Queda esperando la seña de $' + aj.senaMonto + ' hasta el ' + textoVence(vence) + ' h. Si no la recibe, el horario se libera solo.\n' +
       'Cuando llegue la transferencia, tocá "Seña recibida" en el panel.\n');
   } catch (e) { /* el aviso es opcional: nunca frena la reserva */ }
+}
+
+// ════════════════════════════════════════════════════════════════════════════
+// PROPUESTAS WEB: quién abrió cada propuesta y hasta dónde llegó (v2.6)
+// ════════════════════════════════════════════════════════════════════════════
+var H_VIS = 'Vistas';
+var ENC_VIS = ['clave', 'propuesta', 'bebe', 'mama', 'primeraVez', 'ultimaVez', 'aperturas', 'dispositivos',
+  'paginaMax', 'totalPaginas', 'ultimaPagina', 'segundos', 'pdf', 'whatsapp', 'pack', 'avisado', 'ids'];
+var EV_VIS = ['abrio', 'progreso', 'pdf', 'whatsapp'];
+var NOMBRE_PROP = { navidad: 'Navidad 2026', navidad2: 'Navidad 2026', 'mes-a-mes': 'Mes a mes', 'mes-a-mes2': 'Mes a mes',
+  cumple: 'Cumpleañitos', cumpleanitos: 'Cumpleañitos', 'pre-anito': 'Pre añito', embarazo: 'Embarazo' };
+function nombrePropuesta(p) { return NOMBRE_PROP[p] || p; }
+
+function apiVisto(d) {
+  var prop = String(d.prop || '').toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 40);
+  var ev = String(d.ev || '');
+  if (!prop || EV_VIS.indexOf(ev) < 0) return error('Datos incompletos');
+  var bebe = texto(d.bebe, 40), mama = texto(d.mama, 40);
+  if (!bebe && !mama) return { ok: true, ignorado: true };          // el link general, sin nombre: no se anota
+  var dev = String(d.dev || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 24);
+  var lim = contadorHora('vistas');
+  if (lim.valor >= 1500) return error('Demasiados avisos en esta hora');
+  lim.sumar();
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return error('Ocupado, probá de nuevo');
+  var avisar = null;
+  try {
+    var sh = asegurarHoja(H_VIS, ENC_VIS);
+    var clave = (prop + '|' + bebe + '|' + mama).toLowerCase();
+    var n = sh.getLastRow(), filaNro = 0, f = {};
+    if (n > 1) {
+      var v = sh.getRange(2, 1, n - 1, ENC_VIS.length).getDisplayValues();
+      for (var i = 0; i < v.length; i++) if (v[i][0] === clave) {
+        filaNro = i + 2; ENC_VIS.forEach(function (k, j) { f[k] = v[i][j]; }); break;
+      }
+    }
+    var ahora = ahoraISO();
+    if (!filaNro) {
+      f = { clave: clave, propuesta: prop, bebe: bebe, mama: mama, primeraVez: ahora, aperturas: '0', dispositivos: '0',
+        paginaMax: '0', totalPaginas: '', ultimaPagina: '', segundos: '0', pdf: '', whatsapp: '', pack: '', avisado: '', ids: '' };
+    }
+    f.ultimaVez = ahora;
+    var ids = f.ids ? f.ids.split(',') : [];
+    if (dev && ids.indexOf(dev) < 0 && ids.length < 12) { ids.push(dev); f.ids = ids.join(','); }
+    f.dispositivos = String(ids.length || 1);
+    if (ev === 'abrio') f.aperturas = String(Number(f.aperturas || 0) + 1);
+    var pag = Math.max(0, Math.min(99, Math.floor(Number(d.pag) || 0)));
+    var tot = Math.max(0, Math.min(99, Math.floor(Number(d.tot) || 0)));
+    if (tot) f.totalPaginas = String(tot);
+    if (pag > Number(f.paginaMax || 0)) { f.paginaMax = String(pag); f.ultimaPagina = texto(d.nombre, 40); }
+    var seg = Math.max(0, Math.min(3600, Math.floor(Number(d.seg) || 0)));   // segundos nuevos desde el último aviso
+    f.segundos = String(Number(f.segundos || 0) + seg);
+    if (ev === 'pdf') f.pdf = 'sí';
+    if (ev === 'whatsapp') { f.whatsapp = 'sí'; if (d.pack) f.pack = texto(d.pack, 30); }
+    var miro = Number(f.paginaMax) >= 3 || Number(f.segundos) >= 20 || ev === 'pdf' || ev === 'whatsapp';
+    if (!f.avisado && miro) { f.avisado = ahora; avisar = JSON.parse(JSON.stringify(f)); }
+    var fila = ENC_VIS.map(function (k) { return f[k] === undefined ? '' : f[k]; });
+    escribirTexto(sh.getRange(filaNro || proximaFila(sh), 1, 1, ENC_VIS.length), [fila]);
+  } finally {
+    lock.releaseLock();
+  }
+  if (avisar) avisarVista(avisar);
+  return { ok: true };
+}
+
+function avisarVista(f) {
+  try {
+    var quien = f.mama ? f.mama + (f.bebe ? ' (mamá de ' + f.bebe + ')' : '') : 'La familia de ' + f.bebe;
+    var hasta = f.totalPaginas ? 'Va por la página ' + f.paginaMax + ' de ' + f.totalPaginas + (f.ultimaPagina ? ' (' + f.ultimaPagina + ')' : '') : '';
+    avisarAdmins(quien + ' está mirando la propuesta de ' + nombrePropuesta(f.propuesta),
+      quien + ' abrió la propuesta de ' + nombrePropuesta(f.propuesta) + '.\n\n' +
+      (hasta ? '  ' + hasta + '\n' : '') +
+      (f.pdf ? '  Bajó el PDF.\n' : '') + (f.whatsapp ? '  Tocó el botón de WhatsApp' + (f.pack ? ' (' + f.pack + ')' : '') + '.\n' : '') +
+      '\nBuen momento para escribirle. Cuánto avanza lo ves en el panel: Más → Propuestas.\n' +
+      'Este aviso llega una sola vez por link.\n');
+  } catch (e) { /* el aviso es opcional */ }
+}
+
+function apiVistasListar() {
+  var sh = hoja(H_VIS);
+  if (!sh || sh.getLastRow() < 2) return { ok: true, vistas: [] };
+  var v = sh.getRange(2, 1, sh.getLastRow() - 1, ENC_VIS.length).getDisplayValues();
+  var out = v.map(function (r) {
+    var o = {}; ENC_VIS.forEach(function (k, j) { if (k !== 'ids' && k !== 'clave') o[k] = r[j]; });
+    o.nombrePropuesta = nombrePropuesta(o.propuesta);
+    return o;
+  }).filter(function (o) { return o.propuesta; });
+  out.sort(function (a, b) { return String(b.ultimaVez).localeCompare(String(a.ultimaVez)); });
+  return { ok: true, vistas: out.slice(0, 300) };
 }
 
 // ════════════════════════════════════════════════════════════════════════════
